@@ -1,0 +1,40 @@
+name: "SonarQube Analyzer"
+description: "Se realiza el análisis en sonarqube"
+inputs:
+  github_username:
+    description: "usuario de github para autenticarse en los packages"
+    required: true
+  github_token:
+    description: "token del usuario con permisos de lectura en packages"
+    required: true
+  workdir_src:
+    description: "directorio donde se encuentra el project a compilar DEFAULT: ./"
+    required: false
+    default: './'
+  workdir_test:
+    description: "directorio donde se encuentra los test DEFAULT: ./"
+    required: false
+    default: './'
+  sonar_url: 
+    description: "url sonarqube"
+    required: true
+  sonar_token: 
+    description: "token sonarqube"
+    required: true
+  sonar_code:
+    description: "Lenguaje de programación: .Net, Java, Go, Python, Js "
+    required: true
+runs:
+  using: "composite"
+  steps:
+      - run: echo hi!, we working.
+        shell: bash
+        # Setup .NET Core SDK
+      - name: Setup .NET Analyzer
+        uses: architecture-it/actions@sonar-net
+        with: 
+          github_username: ${{ inputs.github_username }}
+          github_token: ${{ inputs.github_token }}
+          sonar_url: ${{ inputs.sonar_url }}
+          sonar_token: ${{ inputs.sonar_token }}
+        if: ${{ inputs.sonar_code == '.Net' }}
