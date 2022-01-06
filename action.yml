@@ -5,17 +5,20 @@ inputs:
     description: "matrix de pruebas node"
     required: true
   github_token: 
-    description: "token github para autenticarse en packages"
+    description: "github token"
     required: true
   fontawesome_token: 
     description: "token de fontawesome"
+    required: true
+  packages_token:
+    description: "token github para autenticarse en packages"
     required: true
 runs:
   using: "composite"
   steps:
     - name: Generate .npmrc file
       env:
-        NPM_CUSTOMER_EXP_TOKEN: ${{ inputs.github_token }}
+        NPM_CUSTOMER_EXP_TOKEN: ${{ inputs.packages_token }}
         NPM_FONTAWESOME_TOKEN: ${{ inputs.fontawesome_token }}
       run: |
         echo '@customer-experience:registry=https://npm.pkg.github.com/' >> .npmrc
