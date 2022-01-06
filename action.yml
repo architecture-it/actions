@@ -4,9 +4,6 @@ inputs:
   matrix_version:
     description: "matrix de pruebas node"
     required: true
-  github_token: 
-    description: "github token"
-    required: true
   fontawesome_token: 
     description: "token de fontawesome"
     required: true
