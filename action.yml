@@ -46,3 +46,9 @@ runs:
           sonar_url: ${{ inputs.sonar_url }}
           sonar_token: ${{ inputs.sonar_token }}
         if: ${{ inputs.sonar_code == 'Go' }}
+      - name: Setup .NET Analyzer
+        uses: architecture-it/actions@sonar-js
+        with: 
+          sonar_url: ${{ inputs.sonar_url }}
+          sonar_token: ${{ inputs.sonar_token }}
+        if: ${{ inputs.sonar_code == 'Js' }}
