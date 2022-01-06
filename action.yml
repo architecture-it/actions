@@ -27,3 +27,4 @@ runs:
         with:
           args: >
             -Dsonar.projectKey=${{ env.KEY_REPOSITORY }}
+            -Dsonar.scm.provider=git
