@@ -1,12 +1,6 @@
 name: "Dotnet build and test"
 description: "Realiza el Restore, build y test"
 inputs:
-  github_username:
-    description: "usuario de github para autenticarse en los packages"
-    required: true
-  github_token:
-    description: "token del usuario con permisos de lectura en packages"
-    required: true
   workdir_src:
     description: "directorio donde se encuentra el cproj a compilar DEFAULT: ./"
     required: false
@@ -18,26 +12,15 @@ inputs:
 runs:
   using: "composite"
   steps:
-      - run: echo hi!, we working.
-        shell: bash
-        # Setup .NET Core SDK
-      - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: 5.x
-      - name: Add Github Package
-        shell: bash
-        run: |
-          dotnet nuget locals -c all
-          dotnet nuget add source https://nuget.pkg.github.com/architecture-it/index.json --name github -u ${{ inputs.github_username}} -p ${{ inputs.github_token }} --store-password-in-clear-text
-      # Run dotnet build and package
-      - name: dotnet build
-        shell: bash
-        run: |
-          dotnet restore
-          dotnet build
-        working-directory: ${{ inputs.workdir_src }}
-      - name: dotnet test
-        shell: bash
-        run: dotnet test
-        working-directory: ${{ inputs.workdir_test }}
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.17
+
+    - name: Build
+      run: go build -v ./main.go
+      working-directory: ${{ inputs.workdir_src }}
+
+    #- name: Test
+    #  run: go test ./... -cover
+    #  working-directory: ${{ inputs.workdir_test }}
