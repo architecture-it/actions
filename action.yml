@@ -39,9 +39,3 @@ runs:
     - run: npm test
       name: Unit tests
       shell: bash
-    - name: Coverage
-      uses: artiomtr/jest-coverage-report-action@v2.0-rc.5
-      with:
-        github-token: ${{ inputs.github_token }}
-        threshold: 50 # optional parameter\
-        skip-step: install
