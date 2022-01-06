@@ -19,6 +19,7 @@ runs:
         echo '//npm.pkg.github.com/:_authToken=${NPM_CUSTOMER_EXP_TOKEN}' >> .npmrc
         echo '@fortawesome:registry=https://npm.fontawesome.com/' >> .npmrc
         echo '//npm.fontawesome.com/:_authToken=${NPM_FONTAWESOME_TOKEN}' >> .npmrc
+      shell: bash
       env:
         NPM_CUSTOMER_EXP_TOKEN: ${{ inputs.github_token }}
         NPM_FONTAWESOME_TOKEN: ${{ inputs.fontawesome_token }}
