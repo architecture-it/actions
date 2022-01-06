@@ -1,29 +1,43 @@
-name: "Sonar Analizer Go"
-description: "Realiza el análisis de sonarqube para Go"
+name: "React CI"
+description: "Realiza el lint, build, test and coverage"
 inputs:
-  sonar_url: 
-    description: "url sonarqube"
+  matrix_version:
+    description: "matrix de pruebas node"
     required: true
-  sonar_token: 
-    description: "token sonarqube"
+  github_token: 
+    description: "token github para autenticarse en packages"
+    required: true
+  fontawesome_token: 
+    description: "token de fontawesome"
     required: true
 runs:
   using: "composite"
   steps:
-      - name: Key Repository
-        id: variables
-        uses: actions/github-script@v5
-        with:
-          script: |
-            const name = context.repo.repo
-            const organization = context.repo.owner
-            core.exportVariable('KEY_REPOSITORY', `${organization}_${name}`)
-      - name: SonarQube Scan
-        uses: sonarsource/sonarqube-scan-action@master
-        env:
-          SONAR_TOKEN: ${{ inputs.sonar_token }}
-          SONAR_HOST_URL: ${{ inputs.sonar_url }}
-          LC_ALL: "ru_RU.UTF-8"
-        with:
-          args: >
-            -Dsonar.projectKey=${{ env.KEY_REPOSITORY }}
+    - name: Generate .npmrc file
+      run: |
+        echo '@customer-experience:registry=https://npm.pkg.github.com/' >> .npmrc
+        echo '//npm.pkg.github.com/:_authToken=${NPM_CUSTOMER_EXP_TOKEN}' >> .npmrc
+        echo '@fortawesome:registry=https://npm.fontawesome.com/' >> .npmrc
+        echo '//npm.fontawesome.com/:_authToken=${NPM_FONTAWESOME_TOKEN}' >> .npmrc
+      env:
+        NPM_CUSTOMER_EXP_TOKEN: ${{ inputs.github_token }}
+        NPM_FONTAWESOME_TOKEN: ${{ inputs.fontawesome_token }}
+    - name: Use Node.js ${{ inputs.matrix_version }}
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    - run: npm ci --no-audit --silent
+      shell: bash
+    - name: Build
+      run: npm run build --if-present
+      shell: bash
+    - run: npm test
+      name: Unit tests
+      shell: bash
+    - name: Coverage
+      uses: artiomtr/jest-coverage-report-action@v2.0-rc.5
+      with:
+        github-token: ${{ inputs.github_token }}
+        threshold: 50 # optional parameter\
+        skip-step: install
