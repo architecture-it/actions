@@ -64,8 +64,9 @@ runs:
         env:
           ASPNETCORE_ENVIRONMENT: Development
         shell: bash
-        run: dotnet test \
-        --collect:"XPlat Code Coverage" \
+        run: |
+        dotnet test \
+        --collect:"XPlat Code Coverage" -- 'DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover' \
         --results-directory TestResults/ \
         --logger "trx;LogFileName=unittests.trx" \
         --no-build \
