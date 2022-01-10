@@ -18,6 +18,11 @@ runs:
             const name = context.repo.repo
             const organization = context.repo.owner
             core.exportVariable('KEY_REPOSITORY', `${organization}_${name}`)
+      - name: Download code coverage results
+        uses: actions/download-artifact@v1
+        with:
+          name: code-coverage-report
+          path: bin
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
         env:
