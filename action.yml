@@ -65,12 +65,12 @@ runs:
           ASPNETCORE_ENVIRONMENT: Development
         shell: bash
         run: dotnet test \
-        --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover \
+        --collect:"XPlat Code Coverage" -- 'DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover' \
         --results-directory TestResults/ \
         --logger "trx;LogFileName=unittests.trx" \
         --no-build \
         --no-restore \
-        --configuration release \
+        --configuration release 
 
       - name: Sonarqube end
         run: dotnet sonarscanner end -d:sonar.login="${{ inputs.sonar_token }}"
