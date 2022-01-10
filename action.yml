@@ -28,7 +28,7 @@ runs:
       working-directory: ${{ inputs.workdir_test }}
     
     - name: Archive code coverage results
-        uses: actions/upload-artifact@v1
-        with:
-          name: code-coverage-report
-          path: bin
+      uses: actions/upload-artifact@v1
+      with:
+        name: code-coverage-report
+        path: bin
