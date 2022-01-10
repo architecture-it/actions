@@ -24,7 +24,9 @@ runs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 5.x
+          dotnet-version: |
+            3.1.x
+            5.x
       - name: Add Github Package
         shell: bash
         run: |
