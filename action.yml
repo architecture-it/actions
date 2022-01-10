@@ -24,6 +24,7 @@ runs:
 
     - name: Test
       run: make test
+      shell: bash
       working-directory: ${{ inputs.workdir_test }}
     
     - name: Archive code coverage results
