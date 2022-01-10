@@ -27,3 +27,6 @@ runs:
         with:
           args: >
             -Dsonar.projectKey=${{ env.KEY_REPOSITORY }}
+            -Dsonar.tests=.
+            -Dsonar.test.inclusions=**/*_test.go
+            -Dsonar.go.coverage.reportPaths=/github/workspace/bin/cov.out
