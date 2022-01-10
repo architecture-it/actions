@@ -49,12 +49,7 @@ runs:
           dotnet nuget locals -c all
           dotnet nuget add source https://nuget.pkg.github.com/architecture-it/index.json --name github -u ${{ inputs.github_username }} -p ${{ inputs.github_token }} --store-password-in-clear-text
           dotnet tool install --global dotnet-sonarscanner
-          dotnet sonarscanner begin /key:"${{ env.KEY_REPOSITORY }}" 
-            /d:sonar.login="${{ inputs.sonar_token }}" 
-            /d:sonar.host.url="${{ inputs.sonar_url }}" 
-            /d:sonar.qualitygate.wait=true 
-            /d:sonar.cs.vstest.reportsPaths=**/*.trx 
-            /d:sonar.cs.opencover.reportsPaths=**/coverage.opencover.xml
+          dotnet sonarscanner begin /key:"${{ env.KEY_REPOSITORY }}" /d:sonar.login="${{ inputs.sonar_token }}" /d:sonar.host.url="${{ inputs.sonar_url }}" /d:sonar.qualitygate.wait=true /d:sonar.cs.vstest.reportsPaths=**/*.trx /d:sonar.cs.opencover.reportsPaths=**/coverage.opencover.xml
         shell: bash
 
       - name: Restore 
@@ -69,15 +64,8 @@ runs:
         env:
           ASPNETCORE_ENVIRONMENT: Development
         shell: bash
-        run: dotnet test  
-            --collect:"XPlat Code Coverage"        
-            --results-directory TestResults/         
-            --logger "trx;LogFileName=unittests.trx" 
-            --no-build 
-            --no-restore 
-            --configuration release 
-            --DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
-
+        run: dotnet test --collect:"XPlat Code Coverage" --results-directory TestResults/ --logger "trx;LogFileName=unittests.trx" --no-build --no-restore --configuration release --DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+        
       - name: Sonarqube end
         run: dotnet sonarscanner end /d:sonar.login="${{ inputs.sonar_token }}"
         shell: bash
