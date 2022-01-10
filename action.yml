@@ -49,7 +49,7 @@ runs:
           dotnet nuget locals -c all
           dotnet nuget add source https://nuget.pkg.github.com/architecture-it/index.json --name github -u ${{ inputs.github_username }} -p ${{ inputs.github_token }} --store-password-in-clear-text
           dotnet tool install --global dotnet-sonarscanner
-          dotnet sonarscanner begin /k:"${{ env.KEY_REPOSITORY }}" 
+          dotnet sonarscanner begin /key:"${{ env.KEY_REPOSITORY }}" 
             /d:sonar.login="${{ inputs.sonar_token }}" 
             /d:sonar.host.url="${{ inputs.sonar_url }}" 
             /d:sonar.qualitygate.wait=true 
