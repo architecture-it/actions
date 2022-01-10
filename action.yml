@@ -22,6 +22,12 @@ runs:
       shell: bash
       working-directory: ${{ inputs.workdir_src }}
 
-    #- name: Test
-    #  run: go test ./... -cover
-    #  working-directory: ${{ inputs.workdir_test }}
+    - name: Test
+      run: make test
+      working-directory: ${{ inputs.workdir_test }}
+    
+    - name: Archive code coverage results
+        uses: actions/upload-artifact@v1
+        with:
+          name: code-coverage-report
+          path: bin
