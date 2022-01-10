@@ -27,6 +27,7 @@ runs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          
       - name: Key Repository
         id: variables
         uses: actions/github-script@v5
@@ -35,12 +36,14 @@ runs:
             const name = context.repo.repo
             const organization = context.repo.owner
             core.exportVariable('KEY_REPOSITORY', `${organization}_${name}`)
+      
       - name: Setup dotnet
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: | 
             3.1.x
             5.0.x
+      
       - name: Sonarqube Begin
         run: |
           dotnet nuget locals -c all
@@ -51,14 +54,17 @@ runs:
             /d:sonar.host.url="${{ inputs.sonar_url }}" \
             /d:sonar.qualitygate.wait=true \
             /d:sonar.cs.vstest.reportsPaths=**/*.trx \
-            /d:sonar.cs.opencover.reportsPaths=**/coverage.opencover.xml \
+            /d:sonar.cs.opencover.reportsPaths=**/coverage.opencover.xml
         shell: bash
+
       - name: Restore 
         run: dotnet restore
         shell: bash
+
       - name: Build
         run: dotnet build
         shell: bash
+
       - name: Test 
         env:
           ASPNETCORE_ENVIRONMENT: Development
