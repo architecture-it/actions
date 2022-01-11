@@ -36,6 +36,8 @@ runs:
     - run: npm test --if-present
       name: Unit tests
       shell: bash
+    - run: ls
+      shell: bash
     - name: Archive code coverage results
       uses: actions/upload-artifact@v1
       with:
