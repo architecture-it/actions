@@ -35,4 +35,3 @@ runs:
             -Dsonar.tests=.
             -Dsonar.test.inclusions=src/**/*.spec.js,src/**/*.spec.jsx,src/**/*.test.js,src/**/*.test.jsx
             -Dsonar.javascript.lcov.reportPaths=**/coverage/lcov.info
-            -Dsonar.testExecutionReportPaths=**/coverage/clover.xml
