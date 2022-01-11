@@ -33,6 +33,11 @@ runs:
     - name: Build
       run: npm run build --if-present
       shell: bash
-    - run: npm test
+    - run: npm test --if-present
       name: Unit tests
       shell: bash
+    - name: Archive code coverage results
+      uses: actions/upload-artifact@v1
+      with:
+        name: code-coverage-report
+        path: test
