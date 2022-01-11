@@ -22,7 +22,7 @@ runs:
         uses: actions/download-artifact@v1
         with:
           name: code-coverage-report
-          path: test
+          path: coverage
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
         env:
