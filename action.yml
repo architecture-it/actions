@@ -23,6 +23,10 @@ runs:
         with:
           name: code-coverage-report
           path: test
+      - run: |
+          cat test/coverage.out
+          cat test/report.json
+        shell: bash 
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
         env:
