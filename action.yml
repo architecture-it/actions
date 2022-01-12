@@ -40,15 +40,21 @@ runs:
           sonar_url: ${{ inputs.sonar_url }}
           sonar_token: ${{ inputs.sonar_token }}
         if: ${{ inputs.sonar_code == '.Net' }}
-      - name: Setup .NET Analyzer
+      - name: Setup Go Analyzer
         uses: architecture-it/actions@sonar-go
         with: 
           sonar_url: ${{ inputs.sonar_url }}
           sonar_token: ${{ inputs.sonar_token }}
         if: ${{ inputs.sonar_code == 'Go' }}
-      - name: Setup .NET Analyzer
+      - name: Setup Javascript Analyzer
         uses: architecture-it/actions@sonar-js
         with: 
           sonar_url: ${{ inputs.sonar_url }}
           sonar_token: ${{ inputs.sonar_token }}
         if: ${{ inputs.sonar_code == 'Js' }}
+      - name: Setup Python Analyzer
+        uses: architecture-it/actions@sonar-py
+        with: 
+          sonar_url: ${{ inputs.sonar_url }}
+          sonar_token: ${{ inputs.sonar_token }}
+        if: ${{ inputs.sonar_code == 'Python' }}
