@@ -1,60 +1,32 @@
-name: "SonarQube Analyzer"
-description: "Se realiza el análisis en sonarqube"
+name: "SonarQube Python Analyzer"
+description: "Se realiza el análisis en sonarqube para proyectos python"
 inputs:
-  github_username:
-    description: "usuario de github para autenticarse en los packages"
-    required: false
-    default: ''
-  github_token:
-    description: "token del usuario con permisos de lectura en packages"
-    required: false
-    default: ''
-  workdir_src:
-    description: "directorio donde se encuentra el project a compilar DEFAULT: ./"
-    required: false
-    default: './'
-  workdir_test:
-    description: "directorio donde se encuentra los test DEFAULT: ./"
-    required: false
-    default: './'
   sonar_url: 
     description: "url sonarqube"
     required: true
   sonar_token: 
     description: "token sonarqube"
     required: true
-  sonar_code:
-    description: "Lenguaje de programación: .Net, Java, Go, Python, Js "
-    required: true
 runs:
   using: "composite"
   steps:
-      - run: echo hi!, we working.
-        shell: bash
-        # Setup .NET Core SDK
-      - name: Setup .NET Analyzer
-        uses: architecture-it/actions@sonar-net
-        with: 
-          github_username: ${{ inputs.github_username }}
-          github_token: ${{ inputs.github_token }}
-          sonar_url: ${{ inputs.sonar_url }}
-          sonar_token: ${{ inputs.sonar_token }}
-        if: ${{ inputs.sonar_code == '.Net' }}
-      - name: Setup Go Analyzer
-        uses: architecture-it/actions@sonar-go
-        with: 
-          sonar_url: ${{ inputs.sonar_url }}
-          sonar_token: ${{ inputs.sonar_token }}
-        if: ${{ inputs.sonar_code == 'Go' }}
-      - name: Setup Javascript Analyzer
-        uses: architecture-it/actions@sonar-js
-        with: 
-          sonar_url: ${{ inputs.sonar_url }}
-          sonar_token: ${{ inputs.sonar_token }}
-        if: ${{ inputs.sonar_code == 'Js' }}
-      - name: Setup Python Analyzer
-        uses: architecture-it/actions@sonar-py
-        with: 
-          sonar_url: ${{ inputs.sonar_url }}
-          sonar_token: ${{ inputs.sonar_token }}
-        if: ${{ inputs.sonar_code == 'Python' }}
+    - name: Key Repository
+      id: variables
+      uses: actions/github-script@v5
+      with:
+        script: |
+          const name = context.repo.repo
+          const organization = context.repo.owner
+          core.exportVariable('KEY_REPOSITORY', `${organization}_${name}`)
+    # Sonar Qube
+    - name: SonarQube Scan
+      uses: sonarsource/sonarqube-scan-action@master
+      env:
+        SONAR_TOKEN: ${{ inputs.sonar_token }}
+        SONAR_HOST_URL: ${{ inputs.sonar_url }}
+        LC_ALL: "ru_RU.UTF-8"
+      with:
+        projectBaseDir: .
+        args: >
+          -Dsonar.projectKey=${{ env.KEY_REPOSITORY }}
+          -Dsonar.verbose=true
