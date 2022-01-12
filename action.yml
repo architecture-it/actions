@@ -22,7 +22,7 @@ runs:
         uses: actions/download-artifact@v1
         with:
           name: code-coverage-report
-          path: bin
+          path: .
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
         env:
@@ -34,4 +34,4 @@ runs:
             -Dsonar.projectKey=${{ env.KEY_REPOSITORY }}
             -Dsonar.tests=.
             -Dsonar.test.inclusions=**/*_test.go
-            -Dsonar.go.coverage.reportPaths=/github/workspace/bin/cov.out
+            -Dsonar.go.coverage.reportPaths=**/coverage.out
