@@ -35,3 +35,4 @@ runs:
             -Dsonar.tests=.
             -Dsonar.test.inclusions=**/*_test.go
             -Dsonar.go.coverage.reportPaths=**/coverage.out
+            -Dsonar.go.tests.reportPaths=**/report.json
