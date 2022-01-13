@@ -20,6 +20,7 @@ runs:
             core.exportVariable('KEY_REPOSITORY', `${organization}_${name}`)
       - name: coverage
         run: go test -coverprofile=coverage.out ./...
+        shell: bash
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
         env:
