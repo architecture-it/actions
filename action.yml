@@ -7,6 +7,10 @@ inputs:
   sonar_token: 
     description: "token sonarqube"
     required: true
+  skip_test:
+    description: "permite skipear los procesos de testing"
+    required: false
+    default: 'true' 
 runs:
   using: "composite"
   steps:
@@ -23,6 +27,7 @@ runs:
         with:
           name: code-coverage-report
           path: coverage
+        if: ${{ inputs.skip_test == 'true' }}
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
         env:
