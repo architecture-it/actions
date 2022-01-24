@@ -29,7 +29,7 @@ inputs:
   skip_test: 
     description: "Omite el analisis de test"
     required: false
-    default: 'true'
+    default: 'false'
 runs:
   using: "composite"
   steps:
