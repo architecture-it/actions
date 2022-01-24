@@ -12,6 +12,10 @@ inputs:
     description: "token github para autenticarse en packages"
     required: false
     default: ''
+  skip_test:
+    description: "permite skipear los procesos de testing"
+    required: false
+    default: 'true' 
 runs:
   using: "composite"
   steps:
@@ -49,8 +53,10 @@ runs:
       shell: bash
       env:
         CI: false
+      if: ${{ inputs.skip_test != 'true' }}
     - name: Archive code coverage results
       uses: actions/upload-artifact@v1
       with:
         name: code-coverage-report
         path: coverage
+      if: ${{ inputs.skip_test != 'true' }}
