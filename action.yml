@@ -27,7 +27,7 @@ runs:
         with:
           name: code-coverage-report
           path: test
-        if: ${{ inputs.skip_test == 'true' }}
+        if: ${{ inputs.skip_test != 'true' }}
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
         env:
