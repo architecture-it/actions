@@ -6,10 +6,12 @@ inputs:
     required: true
   fontawesome_token: 
     description: "token de fontawesome"
-    required: true
+    required: false
+    default: ""
   packages_token:
     description: "token github para autenticarse en packages"
-    required: true
+    required: false
+    default: ""
 runs:
   using: "composite"
   steps:
@@ -18,33 +20,41 @@ runs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    - name: Use Node.js ${{ inputs.matrix_version }}
-      uses: actions/setup-node@v2
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - name: Generate .npmrc file
+    - name: config npmrc file fontawesome 
       env:
-        NPM_CUSTOMER_EXP_TOKEN: ${{ inputs.packages_token }}
         NPM_FONTAWESOME_TOKEN: ${{ inputs.fontawesome_token }}
       run: |
-        echo '@customer-experience:registry=https://npm.pkg.github.com/' >> .npmrc
-        echo '//npm.pkg.github.com/:_authToken=$NPM_CUSTOMER_EXP_TOKEN' >> .npmrc
         echo '@fortawesome:registry=https://npm.fontawesome.com/' >> .npmrc
         echo '//npm.fontawesome.com/:_authToken=$NPM_FONTAWESOME_TOKEN' >> .npmrc
       shell: bash
-    - run: npm ci --no-audit
+      if: (inputs.fontawesome_token != "")
+    - name: config npmrc file github packages 
+      env:
+        NPM_CUSTOMER_EXP_TOKEN: ${{ inputs.packages_token }}
+      run: |
+        echo '@customer-experience:registry=https://npm.pkg.github.com/' >> .npmrc
+        echo '//npm.pkg.github.com/:_authToken=$NPM_CUSTOMER_EXP_TOKEN' >> .npmrc
+      if: (inputs.packages_token != "")
+    - name: Install dependency
+      run: npm ci --no-audit
       shell: bash
     - name: Build
       run: npm run build --if-present
       shell: bash
+      env:
+        CI: false
     - run: npm test -- --coverage
       name: Unit tests
       shell: bash
-    - run: ls
-      shell: bash
+      env:
+        CI: false
     - name: Archive code coverage results
       uses: actions/upload-artifact@v1
       with:
         name: code-coverage-report
         path: coverage
+    - uses: architecture-it/actions@react-base
+      with:
+        matrix_version: ${{ matrix.node-version }}
+        packages_token: ${{ secrets.NPM_CUSTOMER_EXP_TOKEN }}
+        fontawesome_token: ${{ secrets.NPM_FONTAWESOME_TOKEN }}
