@@ -44,9 +44,22 @@ runs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: | 
+            2.1.x
             3.1.x
             5.0.x
-      
+      - name: Cache SonarQube packages
+        uses: actions/cache@v1
+        with:
+          path: ~\sonar\cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+      - name: Cache SonarQube scanner
+        id: cache-sonar-scanner
+        uses: actions/cache@v1
+        with:
+          path: .\.sonar\scanner
+          key: ${{ runner.os }}-sonar-scanner
+          restore-keys: ${{ runner.os }}-sonar-scanner
       - name: Sonarqube Begin
         run: |
           dotnet nuget locals -c all
