@@ -12,9 +12,9 @@ inputs:
     required: false
     default: './'
   BUILD_CONFIGURATION:
-  description: "directorio donde se encuentra el project a compilar DEFAULT: ./"
-  required: false
-  default: 'Release'
+    description: "directorio donde se encuentra el project a compilar DEFAULT: ./"
+    required: false
+    default: 'Release'
   DIRECTORY_SRC:
     description: "directorio donde se encuentra los test DEFAULT: ./"
     required: false
