@@ -10,7 +10,7 @@ inputs:
   workdir_src:
     description: "directorio donde se encuentra el project a compilar DEFAULT: ./"
     required: false
-    default: './src'
+    default: './'
   BUILD_CONFIGURATION:
   description: "directorio donde se encuentra el project a compilar DEFAULT: ./"
   required: false
