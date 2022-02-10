@@ -3,10 +3,26 @@ name: .NET publish GitPackage
 on:
   push:
     branches: [ main ]
-env:
-  DIRECTORY_SRC: './src'
-  BUILD_CONFIGURATION: 'Release'
-  GITHUB_REPOSITORY_OWNER: architecture-it 
+inputs:
+  github_username:
+    description: "usuario de github para autenticarse en los packages"
+    required: true
+  github_token:
+    description: "token del usuario con permisos de lectura en packages"
+    required: true
+  workdir_src:
+    description: "directorio donde se encuentra el project a compilar DEFAULT: ./"
+    required: false
+    default: './'
+  BUILD_CONFIGURATION:
+  description: "directorio donde se encuentra el project a compilar DEFAULT: ./"
+  required: false
+  default: 'Release'
+  DIRECTORY_SRC:
+    description: "directorio donde se encuentra los test DEFAULT: ./"
+    required: false
+    default: './template'
+ 
 jobs:
   build:
 
@@ -21,13 +37,13 @@ jobs:
     - name: Add NuGet sources
       run: |
         dotnet nuget locals -c all       
-        dotnet nuget add source https://nuget.pkg.github.com/${{ env.GITHUB_REPOSITORY_OWNER }}/index.json --name github -u ${{ secrets.ARQUITECTURA_USER }} -p ${{ secrets.ARQUITECTURA_DEPLOY  }} --store-password-in-clear-text
+        dotnet nuget add source https://nuget.pkg.github.com/architecture-it/index.json --name github -u ${{ inputs.github_username }} -p ${{ inputs.github_token  }} --store-password-in-clear-text
     - name: dotnet build and publish
       run: |
         dotnet restore
-        dotnet build --configuration '${{ env.BUILD_CONFIGURATION }}'
-        dotnet pack -c '${{ env.BUILD_CONFIGURATION }}' --version-suffix $GITHUB_RUN_ID
-      working-directory: ${{ env.DIRECTORY_SRC }}
+        dotnet build --configuration '${{ inputs.BUILD_CONFIGURATION }}'
+        dotnet pack -c '${{ inputs.BUILD_CONFIGURATION }}' --version-suffix $GITHUB_RUN_ID
+      working-directory: ${{ inputs.DIRECTORY_SRC }}
     - name: Nuget Push on Github
-      run: dotnet nuget push --source github --api-key ${{ secrets.ARQUITECTURA_DEPLOY }} --skip-duplicate bin/Release/*.nupkg
-      working-directory: ${{ env.DIRECTORY_SRC }}
+      run: dotnet nuget push --source github --api-key ${{ inputs.github_token }} --skip-duplicate bin/Release/*.nupkg
+      working-directory: ${{ inputs.DIRECTORY_SRC }}
