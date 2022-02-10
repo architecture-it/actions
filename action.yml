@@ -1,8 +1,5 @@
 name: .NET publish GitPackage
 
-on:
-  push:
-    branches: [ main ]
 inputs:
   github_username:
     description: "usuario de github para autenticarse en los packages"
