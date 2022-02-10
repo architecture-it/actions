@@ -32,12 +32,15 @@ runs:
     run: |
       dotnet nuget locals -c all       
       dotnet nuget add source https://nuget.pkg.github.com/architecture-it/index.json --name github -u ${{ inputs.github_username }} -p ${{ inputs.github_token  }} --store-password-in-clear-text
+    shell: bash
   - name: dotnet build and publish
     run: |
       dotnet restore
       dotnet build --configuration '${{ inputs.BUILD_CONFIGURATION }}'
       dotnet pack -c '${{ inputs.BUILD_CONFIGURATION }}' --version-suffix $GITHUB_RUN_ID
     working-directory: ${{ inputs.DIRECTORY_SRC }}
+    shell: bash
   - name: Nuget Push on Github
     run: dotnet nuget push --source github --api-key ${{ inputs.github_token }} --skip-duplicate bin/Release/*.nupkg
     working-directory: ${{ inputs.DIRECTORY_SRC }}
+    shell: bash
