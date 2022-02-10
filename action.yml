@@ -23,27 +23,25 @@ inputs:
     required: false
     default: './template'
  
-jobs:
-  build:
-
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 5.0.x
-    - name: Add NuGet sources
-      run: |
-        dotnet nuget locals -c all       
-        dotnet nuget add source https://nuget.pkg.github.com/architecture-it/index.json --name github -u ${{ inputs.github_username }} -p ${{ inputs.github_token  }} --store-password-in-clear-text
-    - name: dotnet build and publish
-      run: |
-        dotnet restore
-        dotnet build --configuration '${{ inputs.BUILD_CONFIGURATION }}'
-        dotnet pack -c '${{ inputs.BUILD_CONFIGURATION }}' --version-suffix $GITHUB_RUN_ID
-      working-directory: ${{ inputs.DIRECTORY_SRC }}
-    - name: Nuget Push on Github
-      run: dotnet nuget push --source github --api-key ${{ inputs.github_token }} --skip-duplicate bin/Release/*.nupkg
-      working-directory: ${{ inputs.DIRECTORY_SRC }}
+runs:
+  using: "composite"
+  runs-on: ubuntu-latest
+  steps:
+  - uses: actions/checkout@v2
+  - name: Setup .NET
+    uses: actions/setup-dotnet@v1
+    with:
+      dotnet-version: 5.0.x
+  - name: Add NuGet sources
+    run: |
+      dotnet nuget locals -c all       
+      dotnet nuget add source https://nuget.pkg.github.com/architecture-it/index.json --name github -u ${{ inputs.github_username }} -p ${{ inputs.github_token  }} --store-password-in-clear-text
+  - name: dotnet build and publish
+    run: |
+      dotnet restore
+      dotnet build --configuration '${{ inputs.BUILD_CONFIGURATION }}'
+      dotnet pack -c '${{ inputs.BUILD_CONFIGURATION }}' --version-suffix $GITHUB_RUN_ID
+    working-directory: ${{ inputs.DIRECTORY_SRC }}
+  - name: Nuget Push on Github
+    run: dotnet nuget push --source github --api-key ${{ inputs.github_token }} --skip-duplicate bin/Release/*.nupkg
+    working-directory: ${{ inputs.DIRECTORY_SRC }}
