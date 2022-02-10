@@ -1,66 +1,33 @@
-name: "SonarQube Analyzer"
-description: "Se realiza el análisis en sonarqube"
-inputs:
-  github_username:
-    description: "usuario de github para autenticarse en los packages"
-    required: false
-    default: ''
-  github_token:
-    description: "token del usuario con permisos de lectura en packages"
-    required: false
-    default: ''
-  workdir_src:
-    description: "directorio donde se encuentra el project a compilar DEFAULT: ./"
-    required: false
-    default: './'
-  workdir_test:
-    description: "directorio donde se encuentra los test DEFAULT: ./"
-    required: false
-    default: './'
-  sonar_url: 
-    description: "url sonarqube"
-    required: true
-  sonar_token: 
-    description: "token sonarqube"
-    required: true
-  sonar_code:
-    description: "Lenguaje de programación: .Net, Java, Go, Python, Js "
-    required: true
-  skip_test: 
-    description: "Omite el analisis de test"
-    required: false
-    default: 'false'
-runs:
-  using: "composite"
-  steps:
-      - run: echo hi!, we working.
-        shell: bash
-        # Setup .NET Core SDK
-      - name: Setup .NET Analyzer
-        uses: architecture-it/actions@sonar-net
-        with: 
-          github_username: ${{ inputs.github_username }}
-          github_token: ${{ inputs.github_token }}
-          sonar_url: ${{ inputs.sonar_url }}
-          sonar_token: ${{ inputs.sonar_token }}
-        if: ${{ inputs.sonar_code == '.Net' }}
-      - name: Setup Go Analyzer
-        uses: architecture-it/actions@sonar-go
-        with: 
-          sonar_url: ${{ inputs.sonar_url }}
-          sonar_token: ${{ inputs.sonar_token }}
-          skip_test: ${{inputs.skip_test}}
-        if: ${{ inputs.sonar_code == 'Go' }}
-      - name: Setup Javascript Analyzer
-        uses: architecture-it/actions@sonar-js
-        with: 
-          sonar_url: ${{ inputs.sonar_url }}
-          sonar_token: ${{ inputs.sonar_token }}
-          skip_test: ${{inputs.skip_test}}
-        if: ${{ inputs.sonar_code == 'Js' }}
-      - name: Setup Python Analyzer
-        uses: architecture-it/actions@sonar-py
-        with: 
-          sonar_url: ${{ inputs.sonar_url }}
-          sonar_token: ${{ inputs.sonar_token }}
-        if: ${{ inputs.sonar_code == 'Python' }}
+name: .NET publish GitPackage
+
+on:
+  push:
+    branches: [ main ]
+env:
+  DIRECTORY_SRC: './src'
+  BUILD_CONFIGURATION: 'Release'
+  GITHUB_REPOSITORY_OWNER: architecture-it 
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    - name: Add NuGet sources
+      run: |
+        dotnet nuget locals -c all       
+        dotnet nuget add source https://nuget.pkg.github.com/${{ env.GITHUB_REPOSITORY_OWNER }}/index.json --name github -u ${{ secrets.ARQUITECTURA_USER }} -p ${{ secrets.ARQUITECTURA_DEPLOY  }} --store-password-in-clear-text
+    - name: dotnet build and publish
+      run: |
+        dotnet restore
+        dotnet build --configuration '${{ env.BUILD_CONFIGURATION }}'
+        dotnet pack -c '${{ env.BUILD_CONFIGURATION }}' --version-suffix $GITHUB_RUN_ID
+      working-directory: ${{ env.DIRECTORY_SRC }}
+    - name: Nuget Push on Github
+      run: dotnet nuget push --source github --api-key ${{ secrets.ARQUITECTURA_DEPLOY }} --skip-duplicate bin/Release/*.nupkg
+      working-directory: ${{ env.DIRECTORY_SRC }}
