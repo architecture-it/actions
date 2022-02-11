@@ -33,6 +33,7 @@ runs:
       dotnet nuget locals -c all       
       dotnet nuget add source https://nuget.pkg.github.com/architecture-it/index.json --name github -u ${{ inputs.github_username }} -p ${{ inputs.github_token  }} --store-password-in-clear-text
     shell: bash
+    if: on.pull_request
   - name: dotnet build and publish
     run: |
       dotnet restore
