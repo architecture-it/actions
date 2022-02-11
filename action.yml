@@ -33,7 +33,7 @@ runs:
       dotnet nuget locals -c all       
       dotnet nuget add source https://nuget.pkg.github.com/architecture-it/index.json --name github -u ${{ inputs.github_username }} -p ${{ inputs.github_token  }} --store-password-in-clear-text
     shell: bash
-    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
+    if: github.event_name == 'main' && github.event.main.merged == true
   - name: dotnet build and publish
     run: |
       dotnet restore
@@ -41,7 +41,7 @@ runs:
       dotnet pack -c '${{ inputs.BUILD_CONFIGURATION }}' --version-suffix $GITHUB_RUN_ID
     working-directory: ${{ inputs.DIRECTORY_SRC }}
     shell: bash
-    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
+    if: github.event_name == 'main' && github.event.main.merged == true
   - name: Nuget Push on Github
     run: dotnet nuget push --source github --api-key ${{ inputs.github_token }} --skip-duplicate bin/Release/*.nupkg
     working-directory: ${{ inputs.DIRECTORY_SRC }}
