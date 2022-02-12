@@ -28,11 +28,13 @@ runs:
     uses: actions/setup-dotnet@v1
     with:
       dotnet-version: 5.0.x
+    if: github.event_name == 'main' && github.event.main.merged == true  
   - name: Add NuGet sources
     run: |
       dotnet nuget locals -c all       
       dotnet nuget add source https://nuget.pkg.github.com/architecture-it/index.json --name github -u ${{ inputs.github_username }} -p ${{ inputs.github_token  }} --store-password-in-clear-text
     shell: bash
+    
     if: github.event_name == 'main' && github.event.main.merged == true
   - name: dotnet build and publish
     run: |
