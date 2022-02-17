@@ -38,8 +38,9 @@ runs:
       run: |
         echo '@customer-experience:registry=https://npm.pkg.github.com/' >> .npmrc
         echo '@architecture-it:registry=https://npm.pkg.github.com/' >> .npmrc
-        echo '//npm.pkg.github.com/:_authToken=${{ secrets.ARQUITECTURA_DEPLOY }}' >> .npmrc
+        echo '//npm.pkg.github.com/:_authToken=${{ inputs.packages_token }}' >> .npmrc
       shell: bash
+      if: ${{ inputs.packages_token != '' }}
     - name: Install dependency
       run: npm ci --no-audit
       shell: bash
