@@ -29,7 +29,7 @@ runs:
         NPM_FONTAWESOME_TOKEN: ${{ inputs.fontawesome_token }}
       run: |
         echo '@fortawesome:registry=https://npm.fontawesome.com/' >> .npmrc
-        echo '//npm.fontawesome.com/:_authToken=$NPM_FONTAWESOME_TOKEN' >> .npmrc
+        echo '//npm.fontawesome.com/:_authToken=${{ inputs.fontawesome_token }}' >> .npmrc
       shell: bash
       if: ${{ inputs.fontawesome_token != '' }}
     - name: config npmrc file github packages 
@@ -37,7 +37,7 @@ runs:
         NPM_CUSTOMER_EXP_TOKEN: ${{ inputs.packages_token }}
       run: |
         echo '@customer-experience:registry=https://npm.pkg.github.com/' >> .npmrc
-        echo '//npm.pkg.github.com/:_authToken=$NPM_CUSTOMER_EXP_TOKEN' >> .npmrc
+        echo '//npm.pkg.github.com/:_authToken=${{ inputs.packages_token }}' >> .npmrc
       if: ${{ inputs.packages_token != '' }}
       shell: bash
     - name: Install dependency
