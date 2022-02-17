@@ -29,20 +29,16 @@ runs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - name: config npmrc file fontawesome 
-      env:
-        NPM_FONTAWESOME_TOKEN: ${{ inputs.fontawesome_token }}
       run: |
         echo '@fortawesome:registry=https://npm.fontawesome.com/' >> .npmrc
         echo '//npm.fontawesome.com/:_authToken=${{ inputs.fontawesome_token }}' >> .npmrc
       shell: bash
       if: ${{ inputs.fontawesome_token != '' }}
-    - name: config npmrc file github packages 
-      env:
-        NPM_CUSTOMER_EXP_TOKEN: ${{ inputs.packages_token }}
+    - name: config npmrc file github packages of company
       run: |
         echo '@customer-experience:registry=https://npm.pkg.github.com/' >> .npmrc
-        echo '//npm.pkg.github.com/:_authToken=${{ inputs.packages_token }}' >> .npmrc
-      if: ${{ inputs.packages_token != '' }}
+        echo '@architecture-it:registry=https://npm.pkg.github.com/' >> .npmrc
+        echo '//npm.pkg.github.com/:_authToken=${{ secrets.ARQUITECTURA_DEPLOY }}' >> .npmrc
       shell: bash
     - name: Install dependency
       run: npm ci --no-audit
@@ -55,7 +51,7 @@ runs:
       shell: bash
       env:
         CI: ${{ inputs.ci == 'true' }}
-    - run: npm test -- --coverage
+    - run: npm test -- --coverage --runInBand
       name: Unit tests
       shell: bash
       env:
