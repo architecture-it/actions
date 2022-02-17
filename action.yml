@@ -42,6 +42,8 @@ runs:
       shell: bash
     - name: Install dependency
       run: npm ci --no-audit
+    - name: Lint
+      run: npm run lint --if-present
       shell: bash
     - name: Build
       run: npm run build --if-present
