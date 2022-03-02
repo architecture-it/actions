@@ -16,6 +16,10 @@ inputs:
     description: "permite skipear los procesos de testing"
     required: false
     default: 'false' 
+  ci:
+    description: "Esta variable forza el chequeo del linter y en caso de fallas rompe el flujo"
+    required: false
+    default: 'false' 
 runs:
   using: "composite"
   steps:
@@ -25,34 +29,34 @@ runs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - name: config npmrc file fontawesome 
-      env:
-        NPM_FONTAWESOME_TOKEN: ${{ inputs.fontawesome_token }}
       run: |
         echo '@fortawesome:registry=https://npm.fontawesome.com/' >> .npmrc
         echo '//npm.fontawesome.com/:_authToken=${{ inputs.fontawesome_token }}' >> .npmrc
       shell: bash
       if: ${{ inputs.fontawesome_token != '' }}
-    - name: config npmrc file github packages 
-      env:
-        NPM_CUSTOMER_EXP_TOKEN: ${{ inputs.packages_token }}
+    - name: config npmrc file github packages of company
       run: |
         echo '@customer-experience:registry=https://npm.pkg.github.com/' >> .npmrc
+        echo '@architecture-it:registry=https://npm.pkg.github.com/' >> .npmrc
         echo '//npm.pkg.github.com/:_authToken=${{ inputs.packages_token }}' >> .npmrc
-      if: ${{ inputs.packages_token != '' }}
       shell: bash
+      if: ${{ inputs.packages_token != '' }}
     - name: Install dependency
       run: npm ci --no-audit
+      shell: bash
+    - name: Lint
+      run: npm run lint --if-present
       shell: bash
     - name: Build
       run: npm run build --if-present
       shell: bash
       env:
-        CI: false
-    - run: npm test -- --coverage
+        CI: ${{ inputs.ci == 'true' }}
+    - run: npm test -- --coverage --runInBand
       name: Unit tests
       shell: bash
       env:
-        CI: false
+        CI: ${{ inputs.ci == 'true' }}
       if: ${{ inputs.skip_test != 'true' }}
     - name: Archive code coverage results
       uses: actions/upload-artifact@v1
