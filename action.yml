@@ -35,7 +35,7 @@ runs:
       dotnet pack -c release
     working-directory: ${{ inputs.workdir_src }}
     shell: bash
-    if: ${{ !github.event.issue.pull_request }}
+    
   - name: Nuget Push on Github
     run: dotnet nuget push --source github --api-key ${{ inputs.github_token }} --skip-duplicate bin/Release/*.nupkg
     working-directory: ${{ inputs.workdir_src }}
