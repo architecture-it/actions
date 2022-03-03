@@ -11,9 +11,6 @@ inputs:
     description: "directorio donde se encuentra el project a compilar DEFAULT: ./"
     required: false
     default: './'
-  matrix_dotnet:
-    description: "matrix of sdk net version"
-    requierd: true
  
 runs:
   using: "composite"
@@ -22,7 +19,10 @@ runs:
   - name: Setup .NET
     uses: actions/setup-dotnet@v1
     with:
-      dotnet-version: ${{ inputs.matrix_dotnet }}
+      dotnet-version: |
+        3.0.x
+        5.0.x
+        6.0.x
   - name: Add NuGet sources
     run: |
       dotnet nuget locals -c all       
