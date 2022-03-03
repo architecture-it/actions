@@ -11,14 +11,9 @@ inputs:
     description: "directorio donde se encuentra el project a compilar DEFAULT: ./"
     required: false
     default: './'
-  BUILD_CONFIGURATION:
-    description: "directorio donde se encuentra el project a compilar DEFAULT: ./"
-    required: false
-    default: 'Release'
-  DIRECTORY_SRC:
-    description: "directorio donde se encuentra los test DEFAULT: ./"
-    required: false
-    default: './template'
+  matrix_dotnet:
+    description: "matrix of sdk net version"
+    requierd: true
  
 runs:
   using: "composite"
@@ -27,27 +22,21 @@ runs:
   - name: Setup .NET
     uses: actions/setup-dotnet@v1
     with:
-    dotnet-version: | 
-      3.1.x
-      5.0.x
-      6.0.x
-    
+      dotnet-version: ${{ inputs.matrix_dotnet }}
   - name: Add NuGet sources
     run: |
       dotnet nuget locals -c all       
       dotnet nuget add source https://nuget.pkg.github.com/architecture-it/index.json --name github -u ${{ inputs.github_username }} -p ${{ inputs.github_token  }} --store-password-in-clear-text
     shell: bash
-    
-    
   - name: dotnet build and publish
     run: |
       dotnet restore
-      dotnet build --configuration '${{ inputs.BUILD_CONFIGURATION }}'
-      dotnet pack -c '${{ inputs.BUILD_CONFIGURATION }}' --version-suffix $GITHUB_RUN_ID
-    working-directory: ${{ inputs.DIRECTORY_SRC }}
+      dotnet build --configuration release
+      dotnet pack -c release
+    working-directory: ${{ inputs.workdir_src }}
     shell: bash
     if: ${{ !github.event.issue.pull_request }}
   - name: Nuget Push on Github
     run: dotnet nuget push --source github --api-key ${{ inputs.github_token }} --skip-duplicate bin/Release/*.nupkg
-    working-directory: ${{ inputs.DIRECTORY_SRC }}
+    working-directory: ${{ inputs.workdir_src }}
     shell: bash
