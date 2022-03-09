@@ -39,3 +39,4 @@ runs:
             -Dsonar.projectKey=${{ env.KEY_REPOSITORY }}
             -Dsonar.test.inclusions=**/*_test.go
             -Dsonar.go.coverage.reportPaths=**/coverage.out
+            -Dsonar.exclusions=**/*__constructor.go
