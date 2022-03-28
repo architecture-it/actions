@@ -54,9 +54,10 @@ runs:
           script: |
             const name = context.repo.repo
             const organization = context.repo.owner
-            core.exportVariable('KEY_REPOSITORY', `https:\/\/github.com\/${organization}\/${name}`)
+            core.exportVariable('repository', `${name}`)
+            core.exportVariable('organization'. `${organization}`)
       - name: Repository URL
-        run: sed -i 's/<\/TargetFramework>/<\/TargetFramework><RepositoryUrl>${{ env.KEY_REPOSITORY }}<\/RepositoryUrl>/g' Andreani.${{ inputs.app_name }}.Event.csproj
+        run: sed -i 's/<\/TargetFramework>/<\/TargetFramework><RepositoryUrl>https:\/\/github.com\/${{ env.organization }}\/${{ env.repository }}<\/RepositoryUrl>/g' Andreani.${{ inputs.app_name }}.Event.csproj
         shell: bash
         working-directory: Andreani/${{ inputs.app_name }}/Event
       - name: Restore dependencies
