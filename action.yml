@@ -35,6 +35,7 @@ runs:
         shell: bash
       - name: Create cproj
         run: dotnet new classlib --name Andreani.${{ inputs.app_name }}.Event -o Andreani/${{ inputs.app_name }}/Event
+        shell: bash
       - name: Run AvroGen
         run: avrogen -p ${{ inputs.INPUT }}/schema.avpr .
         shell: bash
