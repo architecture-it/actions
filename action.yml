@@ -55,8 +55,8 @@ runs:
           script: |
             const name = context.repo.repo
             const organization = context.repo.owner
-            core.exportVariable('REPOSITORY', ${name})
-            core.exportVariable('ORGANIZATION', ${organization})
+            core.exportVariable('REPOSITORY', `${name}`)
+            core.exportVariable('ORGANIZATION', `${organization}`)
           
       - name: Repository URL
         run: sed -i 's/<\/TargetFramework>/<\/TargetFramework><RepositoryUrl>https:\/\/github.com\/${{ env.ORGANIZATION }}\/${{ env.REPOSITORY }}<\/RepositoryUrl>/g' Andreani.${{ inputs.app_name }}.Event.csproj
