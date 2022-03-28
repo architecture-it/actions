@@ -29,35 +29,55 @@ runs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 5.x      
+          dotnet-version: 5.x   
+
       - name: Get Avro Gen
         run: dotnet tool install Apache.Avro.Tools --version ${{ inputs.AVRO_VERSION }} --global
         shell: bash
+
       - name: Create cproj
         run: dotnet new classlib --name Andreani.${{ inputs.app_name }}.Event -o Andreani/${{ inputs.app_name }}/Event
         shell: bash
+
       - name: Run AvroGen
         run: avrogen -p ${{ inputs.INPUT }}/schemas.avpr .
         shell: bash
+
       - name: Add Dependency Avro
         run: dotnet add Andreani.${{ inputs.app_name }}.Event.csproj package Apache.Avro --version ${{ inputs.AVRO_VERSION }}
+        shell: bash
+        working-directory: Andreani/${{ inputs.app_name }}/Event
+      - name: Key Repository
+        id: variables
+        uses: actions/github-script@v5
+        with:
+          script: |
+            const name = context.repo.repo
+            const organization = context.repo.owner
+            core.exportVariable('KEY_REPOSITORY', `https:\/\/github.com\/${organization}\/${name}`)
+      - name: Repository URL
+        run: sed -i 's/<\/TargetFramework>/<\/TargetFramework><RepositoryUrl>${{ env.KEY_REPOSITORY }}<\/RepositoryUrl>/g' Andreani.${{ inputs.app_name }}.Event.csproj
         shell: bash
         working-directory: Andreani/${{ inputs.app_name }}/Event
       - name: Restore dependencies
         run: dotnet restore
         shell: bash
         working-directory: Andreani/${{ inputs.app_name }}/Event
+
       - name: Build
         run: dotnet build --configuration Release --no-restore
         shell: bash
         working-directory: Andreani/${{ inputs.app_name }}/Event
+
       - name: Pack
         run: dotnet pack -p:PackageVersion=${{ inputs.PackageVersion }} --no-build -c Release -o bin/Release/
         shell: bash
         working-directory: Andreani/${{ inputs.app_name }}/Event
+
       - name: Add NuGet sources
         run: dotnet nuget add source https://nuget.pkg.github.com/architecture-it/index.json --name github
         shell: bash
+
       - name: Nuget Push on Github
         run: dotnet nuget push --source github --api-key ${{ inputs.github_token }} --skip-duplicate bin/Release/*.nupkg
         shell: bash
