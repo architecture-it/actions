@@ -25,19 +25,19 @@ runs:
           java-package: jre # (jre, jdk, or jdk+fx) - defaults to jdk
           architecture: x64 # (x64 or x86) - defaults to x64
       - name: Create Folder
-        run: mkdir ${{ inputsOUTPUT }}
+        run: mkdir ${{ inputs.OUTPUT }}
         shell: bash
       - name: Get Avro Tools
-        run: wget --quiet ${{inputsAVRO_MIRROR}}/avro-${{inputsAVRO_VERSION}}/java/avro-tools-${{inputsAVRO_VERSION}}.jar
+        run: wget --quiet ${{inputs.AVRO_MIRROR}}/avro-${{inputs.AVRO_VERSION}}/java/avro-tools-${{inputs.AVRO_VERSION}}.jar
         shell: bash
       - name: Generate Schema Protocol
-        run: java -jar avro-tools-${{inputsAVRO_VERSION}}.jar idl2schemata ${{ inputs.SOURCE_EVENTS_FILE_IDL }} ${{ inputsOUTPUT }}/schemas.avpr
+        run: java -jar avro-tools-${{inputs.AVRO_VERSION}}.jar idl2schemata ${{ inputs..SOURCE_EVENTS_FILE_IDL }} ${{ inputs.OUTPUT }}/schemas.avpr
         shell: bash
       - name: Generate Schema Classes 
-        run: java -jar avro-tools-${{inputsAVRO_VERSION}}.jar idl ${{ inputs.SOURCE_EVENTS_FILE_IDL }} ${{ inputsOUTPUT }}
+        run: java -jar avro-tools-${{inputs.AVRO_VERSION}}.jar idl ${{ inputs..SOURCE_EVENTS_FILE_IDL }} ${{ inputs.OUTPUT }}
         shell: bash
       - name: Archive schema avro result
         uses: actions/upload-artifact@v1
         with:
           name: avro-schema
-          path: ${{ inputsOUTPUT }}
+          path: ${{ inputs.OUTPUT }}
