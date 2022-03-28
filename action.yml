@@ -6,11 +6,11 @@ inputs:
     required: true
 runs:
   using: "composite"
-  env:
-    AVRO_VERSION: 1.11.0
-    AVRO_MIRROR: https://apache.zero.com.ar/avro
-    OUTPUT: "schema"
   steps:
+      env:
+        AVRO_VERSION: 1.11.0
+        AVRO_MIRROR: https://apache.zero.com.ar/avro
+        OUTPUT: "schema"
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
