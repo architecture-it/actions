@@ -24,7 +24,7 @@ runs:
       - name: Download avro results
         uses: actions/download-artifact@v1
         with:
-          name: code-coverage-report
+          name: avro-schema
           path: ${{ inputs.INPUT }}
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
