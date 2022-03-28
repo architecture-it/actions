@@ -59,6 +59,6 @@ runs:
         run: dotnet nuget add source https://nuget.pkg.github.com/architecture-it/index.json --name github
         shell: bash
       - name: Nuget Push on Github
-        run: dotnet nuget push --source github --api-key ${{ inputs.github_token }} --skip-duplicate Andreani/${{ inputs.app_name }}/Event/bin/Release/*.nupkg
+        run: dotnet nuget push --source github --api-key ${{ inputs.github_token }} --skip-duplicate bin/Release/*.nupkg
         shell: bash
         working-directory: Andreani/${{ inputs.app_name }}/Event
