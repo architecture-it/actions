@@ -39,6 +39,9 @@ runs:
       - name: Run AvroGen
         run: avrogen -p ${{ inputs.INPUT }}/schemas.avpr .
         shell: bash
+      - name: Add Dependency Avro
+        run: dotnet add Andreani.${{ inputs.app_name }}.Event.csproj package Apache.Avro --version ${{ inputs.AVRO_VERSION }}
+        shell: bash
       - name: Restore dependencies
         run: dotnet restore
         shell: bash
