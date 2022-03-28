@@ -42,6 +42,7 @@ runs:
       - name: Add Dependency Avro
         run: dotnet add Andreani.${{ inputs.app_name }}.Event.csproj package Apache.Avro --version ${{ inputs.AVRO_VERSION }}
         shell: bash
+        working-directory: Andreani/${{ inputs.app_name }}/Event
       - name: Restore dependencies
         run: dotnet restore
         shell: bash
