@@ -1,43 +1,49 @@
 name: "Create avro schema"
 description: "Se realiza el análisis en sonarqube para NET"
 inputs:
-  file_idl:
-    description: "file idl with record to convert in avro"
+  github_token:
+    description: "github token"
     required: true
   AVRO_VERSION:
     requiered: false
     default: 1.11.0
-  AVRO_MIRROR: 
-    requiered: false
-    default: https://apache.zero.com.ar/avro
-  OUTPUT:
+  INPUT:
     requiered: false
     default: schema
+  OUTPUT:
+    requiered: false
+    default: struct
+  REPOSITORY:
+    requiered: false
+    default: architecture-it/integracion-schemas-event-go
 runs:
   using: "composite"
   steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - uses: actions/setup-java@v1
+      - uses: actions/setup-go@v2
         with:
-          java-version: '11' # The JDK version to make available on the path.
-          java-package: jre # (jre, jdk, or jdk+fx) - defaults to jdk
-          architecture: x64 # (x64 or x86) - defaults to x64
-      - name: Create Folder
+          version: 1.17.7
+      - name: Get gogen-avro Tools
+        run: go get github.com/actgardner/gogen-avro/v10/cmd/...
+        shell: bash
+      - name: Download avro results
+        uses: actions/download-artifact@v1
+        with:
+          name: code-coverage-report
+          path: ${{ inputs.INPUT }}
+      - name: Create Folder output
         run: mkdir ${{ inputs.OUTPUT }}
         shell: bash
-      - name: Get Avro Tools
-        run: wget --quiet ${{inputs.AVRO_MIRROR}}/avro-${{inputs.AVRO_VERSION}}/java/avro-tools-${{inputs.AVRO_VERSION}}.jar
+      - name: Generate go struct
+        run: /home/runner/go/bin/gogen-avro --package=Events ${{ inputs.OUTPUT }} ${{ inputs.INPUT }}/*.avsc
         shell: bash
-      - name: Generate Schema Protocol
-        run: java -jar avro-tools-${{inputs.AVRO_VERSION}}.jar idl2schemata ${{ inputs.file_idl }} ${{ inputs.OUTPUT }}/
-        shell: bash
-      - name: Generate Schema Classes 
-        run: java -jar avro-tools-${{inputs.AVRO_VERSION}}.jar idl ${{ inputs.file_idl }} ${{ inputs.OUTPUT }}/schemas.avpr
-        shell: bash
-      - name: Archive schema avro result
-        uses: actions/upload-artifact@v1
+      - name: Checkout Nuget go for verify branch
+        uses: actions/checkout@v2
         with:
-          name: avro-schema
-          path: ${{ inputs.OUTPUT }}
+          persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
+          fetch-depth: 0 # otherwise, you will failed to push refs to dest repo
+          repository: ${{ inputs.REPOSITORY }}
+          token: ${{ inputs.github_token }}
+          path: ./nuget
