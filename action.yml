@@ -1,90 +1,38 @@
-name: "SonarQube Analyzer NET"
+name: "Create avro schema"
 description: "Se realiza el análisis en sonarqube para NET"
 inputs:
-  github_username:
-    description: "usuario de github para autenticarse en los packages"
+  file_idl:
+    description: "file idl with record to convert in avro"
     required: true
-  github_token:
-    description: "token del usuario con permisos de lectura en packages"
-    required: true
-  workdir_src:
-    description: "directorio donde se encuentra el project a compilar DEFAULT: ./"
-    required: false
-    default: './'
-  workdir_test:
-    description: "directorio donde se encuentra los test DEFAULT: ./"
-    required: false
-    default: './'
-  sonar_url: 
-    description: "url sonarqube"
-    required: true
-  sonar_token: 
-    description: "token sonarqube"
-    required: true
+env:
+  AVRO_VERSION: 1.11.0
+  AVRO_MIRROR: https://apache.zero.com.ar/avro
+  OUTPUT: schema
 runs:
   using: "composite"
   steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - name: Set up JDK 11
-        uses: actions/setup-java@v1
+      - uses: actions/setup-java@v1
         with:
-          java-version: 1.11
-      - name: Key Repository
-        id: variables
-        uses: actions/github-script@v5
+          java-version: '11' # The JDK version to make available on the path.
+          java-package: jre # (jre, jdk, or jdk+fx) - defaults to jdk
+          architecture: x64 # (x64 or x86) - defaults to x64
+      - name: Create Folder
+        run: mkdir ${{ env.OUTPUT }}
+        shell: bash
+      - name: Get Avro Tools
+        run: wget --quiet ${{env.AVRO_MIRROR}}/avro-${{env.AVRO_VERSION}}/java/avro-tools-${{env.AVRO_VERSION}}.jar
+        shell: bash
+      - name: Generate Schema Protocol
+        run: java -jar avro-tools-${{env.AVRO_VERSION}}.jar idl2schemata ${{ inputs.SOURCE_EVENTS_FILE_IDL }} ${{ env.OUTPUT }}/schemas.avpr
+        shell: bash
+      - name: Generate Schema Classes 
+        run: java -jar avro-tools-${{env.AVRO_VERSION}}.jar idl ${{ inputs.SOURCE_EVENTS_FILE_IDL }} ${{ env.OUTPUT }}
+        shell: bash
+      - name: Archive schema avro result
+        uses: actions/upload-artifact@v1
         with:
-          script: |
-            const name = context.repo.repo
-            const organization = context.repo.owner
-            core.exportVariable('KEY_REPOSITORY', `${organization}_${name}`)
-      
-      - name: Setup dotnet
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: | 
-            2.1.x
-            3.1.x
-            5.0.x
-            6.0.x
-      - name: Cache SonarQube packages
-        uses: actions/cache@v1
-        with:
-          path: ~\sonar\cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-      - name: Cache SonarQube scanner
-        id: cache-sonar-scanner
-        uses: actions/cache@v1
-        with:
-          path: .\.sonar\scanner
-          key: ${{ runner.os }}-sonar-scanner
-          restore-keys: ${{ runner.os }}-sonar-scanner
-      - name: Sonarqube Begin
-        run: |
-          dotnet nuget locals -c all
-          dotnet nuget add source https://nuget.pkg.github.com/architecture-it/index.json --name github -u ${{ inputs.github_username }} -p ${{ inputs.github_token }} --store-password-in-clear-text
-          dotnet tool install --global dotnet-sonarscanner
-          dotnet sonarscanner begin /key:"${{ env.KEY_REPOSITORY }}" -d:sonar.login="${{ inputs.sonar_token }}" -d:sonar.host.url="${{ inputs.sonar_url }}" -d:sonar.cs.vstest.reportsPaths=**/*.trx -d:sonar.cs.opencover.reportsPaths=**/coverage.opencover.xml
-        shell: bash
-
-      - name: Restore 
-        run: dotnet restore
-        shell: bash
-
-      - name: Build
-        run: dotnet build
-        shell: bash
-
-      - name: Test 
-        env:
-          ASPNETCORE_ENVIRONMENT: Development
-        shell: bash
-        run: dotnet test --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover --results-directory TestResults/ --logger "trx;LogFileName=unittests.trx" --no-build --no-restore --configuration release 
-
-      - name: Sonarqube end
-        run: dotnet sonarscanner end -d:sonar.login="${{ inputs.sonar_token }}"
-        shell: bash
-        env:
-          GITHUB_TOKEN: ${{ inputs.github_token }}
+          name: avro-schema
+          path: ${{ env.OUTPUT }}
