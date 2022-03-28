@@ -1,8 +1,10 @@
 name: "Create avro schema"
 description: "Se realiza el análisis en sonarqube para NET"
 inputs:
+  working_directory:
+    description: "directory"
+    required: true
   github_token:
-    description: "github token"
     required: true
   AVRO_VERSION:
     requiered: false
@@ -10,40 +12,46 @@ inputs:
   INPUT:
     requiered: false
     default: schema
-  OUTPUT:
+  PackageVersion:
     requiered: false
-    default: struct
-  REPOSITORY:
-    requiered: false
-    default: architecture-it/integracion-schemas-event-go
+    default: 1.0.0
 runs:
   using: "composite"
   steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - uses: actions/setup-go@v2
-        with:
-          version: 1.17.7
-      - name: Get gogen-avro Tools
-        run: go get github.com/actgardner/gogen-avro/v10/cmd/...
-        shell: bash
       - name: Download avro results
         uses: actions/download-artifact@v1
         with:
           name: code-coverage-report
           path: ${{ inputs.INPUT }}
-      - name: Create Folder output
-        run: mkdir ${{ inputs.OUTPUT }}
-        shell: bash
-      - name: Generate go struct
-        run: /home/runner/go/bin/gogen-avro --package=Events ${{ inputs.OUTPUT }} ${{ inputs.INPUT }}/*.avsc
-        shell: bash
-      - name: Checkout Nuget go for verify branch
-        uses: actions/checkout@v2
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
         with:
-          persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
-          fetch-depth: 0 # otherwise, you will failed to push refs to dest repo
-          repository: ${{ inputs.REPOSITORY }}
-          token: ${{ inputs.github_token }}
-          path: ./nuget
+          dotnet-version: 5.x      
+      - name: Get Avro Gen
+        run: dotnet tool install Apache.Avro.Tools --version $AVRO_VERSION --global
+        shell: bash
+      - name: Run AvroGen
+        run: avrogen -p ${{ inputs.INPUT }}/schema.avpr lang/csharp/
+        shell: bash
+      - name: Restore dependencies
+        run: dotnet restore
+        shell: bash
+        working-directory: ${{inputs.working_directory}}
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+        shell: bash
+        working-directory: ${{inputs.working_directory}}
+      - name: Pack
+        run: dotnet pack -p:PackageVersion=${{ inputs.PackageVersion }} --no-build -c Release -o bin/Release/
+        shell: bash
+        working-directory: ${{inputs.working_directory}}
+      - name: Add NuGet sources
+        run: dotnet nuget add source https://nuget.pkg.github.com/architecture-it/index.json --name github
+        shell: bash
+      - name: Nuget Push on Github
+        run: dotnet nuget push --source github --api-key ${{ inputs.github_token }} --skip-duplicate ${{ inputs.working_directory }}/bin/Release/*.nupkg
+        shell: bash
+        working-directory: ${{ inputs.working_directory }}
