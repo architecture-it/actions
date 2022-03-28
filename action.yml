@@ -31,10 +31,10 @@ runs:
         run: wget --quiet ${{inputs.AVRO_MIRROR}}/avro-${{inputs.AVRO_VERSION}}/java/avro-tools-${{inputs.AVRO_VERSION}}.jar
         shell: bash
       - name: Generate Schema Protocol
-        run: java -jar avro-tools-${{inputs.AVRO_VERSION}}.jar idl2schemata ${{ inputs.file_idl }} ${{ inputs.OUTPUT }}/schemas.avpr
+        run: java -jar avro-tools-${{inputs.AVRO_VERSION}}.jar idl2schemata ${{ inputs.file_idl }} ${{ inputs.OUTPUT }}/
         shell: bash
       - name: Generate Schema Classes 
-        run: java -jar avro-tools-${{inputs.AVRO_VERSION}}.jar idl ${{ inputs.file_idl }} ${{ inputs.OUTPUT }}
+        run: java -jar avro-tools-${{inputs.AVRO_VERSION}}.jar idl ${{ inputs.file_idl }} ${{ inputs.OUTPUT }}/schemas.avpr
         shell: bash
       - name: Archive schema avro result
         uses: actions/upload-artifact@v1
