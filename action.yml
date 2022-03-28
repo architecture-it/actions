@@ -4,13 +4,18 @@ inputs:
   file_idl:
     description: "file idl with record to convert in avro"
     required: true
+  AVRO_VERSION:
+    requiered: false
+    default: 1.11.0
+  AVRO_MIRROR: 
+    requiered: false
+    default: https://apache.zero.com.ar/avro
+  OUTPUT:
+    requiered: false
+    default: schema
 runs:
   using: "composite"
   steps:
-      env:
-        AVRO_VERSION: 1.11.0
-        AVRO_MIRROR: https://apache.zero.com.ar/avro
-        OUTPUT: "schema"
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
@@ -20,19 +25,19 @@ runs:
           java-package: jre # (jre, jdk, or jdk+fx) - defaults to jdk
           architecture: x64 # (x64 or x86) - defaults to x64
       - name: Create Folder
-        run: mkdir ${{ env.OUTPUT }}
+        run: mkdir ${{ inputsOUTPUT }}
         shell: bash
       - name: Get Avro Tools
-        run: wget --quiet ${{env.AVRO_MIRROR}}/avro-${{env.AVRO_VERSION}}/java/avro-tools-${{env.AVRO_VERSION}}.jar
+        run: wget --quiet ${{inputsAVRO_MIRROR}}/avro-${{inputsAVRO_VERSION}}/java/avro-tools-${{inputsAVRO_VERSION}}.jar
         shell: bash
       - name: Generate Schema Protocol
-        run: java -jar avro-tools-${{env.AVRO_VERSION}}.jar idl2schemata ${{ inputs.SOURCE_EVENTS_FILE_IDL }} ${{ env.OUTPUT }}/schemas.avpr
+        run: java -jar avro-tools-${{inputsAVRO_VERSION}}.jar idl2schemata ${{ inputs.SOURCE_EVENTS_FILE_IDL }} ${{ inputsOUTPUT }}/schemas.avpr
         shell: bash
       - name: Generate Schema Classes 
-        run: java -jar avro-tools-${{env.AVRO_VERSION}}.jar idl ${{ inputs.SOURCE_EVENTS_FILE_IDL }} ${{ env.OUTPUT }}
+        run: java -jar avro-tools-${{inputsAVRO_VERSION}}.jar idl ${{ inputs.SOURCE_EVENTS_FILE_IDL }} ${{ inputsOUTPUT }}
         shell: bash
       - name: Archive schema avro result
         uses: actions/upload-artifact@v1
         with:
           name: avro-schema
-          path: ${{ env.OUTPUT }}
+          path: ${{ inputsOUTPUT }}
