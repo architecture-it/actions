@@ -31,7 +31,7 @@ runs:
         with:
           dotnet-version: 5.x      
       - name: Get Avro Gen
-        run: dotnet tool install Apache.Avro.Tools --version $AVRO_VERSION --global
+        run: dotnet tool install Apache.Avro.Tools --version ${{ inputs.AVRO_VERSION }} --global
         shell: bash
       - name: Create cproj
         run: dotnet new classlib --name Andreani.${{ inputs.app_name }}.Event -o Andreani/${{ inputs.app_name }}/Event
