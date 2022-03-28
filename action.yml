@@ -1,8 +1,8 @@
 name: "Create avro schema"
 description: "Se realiza el análisis en sonarqube para NET"
 inputs:
-  working_directory:
-    description: "directory"
+  app_name:
+    description: "application name"
     required: true
   github_token:
     required: true
@@ -33,25 +33,27 @@ runs:
       - name: Get Avro Gen
         run: dotnet tool install Apache.Avro.Tools --version $AVRO_VERSION --global
         shell: bash
+      - name: Create cproj
+        run: dotnet new classlib --name Andreani.${{ inputs.app_name }}.Event -o Andreani/${{ inputs.app_name }}/Event
       - name: Run AvroGen
-        run: avrogen -p ${{ inputs.INPUT }}/schema.avpr lang/csharp/
+        run: avrogen -p ${{ inputs.INPUT }}/schema.avpr .
         shell: bash
       - name: Restore dependencies
         run: dotnet restore
         shell: bash
-        working-directory: ${{inputs.working_directory}}
+        working-directory: Andreani/${{ inputs.app_name }}/Event
       - name: Build
         run: dotnet build --configuration Release --no-restore
         shell: bash
-        working-directory: ${{inputs.working_directory}}
+        working-directory: Andreani/${{ inputs.app_name }}/Event
       - name: Pack
         run: dotnet pack -p:PackageVersion=${{ inputs.PackageVersion }} --no-build -c Release -o bin/Release/
         shell: bash
-        working-directory: ${{inputs.working_directory}}
+        working-directory: Andreani/${{ inputs.app_name }}/Event
       - name: Add NuGet sources
         run: dotnet nuget add source https://nuget.pkg.github.com/architecture-it/index.json --name github
         shell: bash
       - name: Nuget Push on Github
-        run: dotnet nuget push --source github --api-key ${{ inputs.github_token }} --skip-duplicate ${{ inputs.working_directory }}/bin/Release/*.nupkg
+        run: dotnet nuget push --source github --api-key ${{ inputs.github_token }} --skip-duplicate Andreani/${{ inputs.app_name }}/Event/bin/Release/*.nupkg
         shell: bash
-        working-directory: ${{ inputs.working_directory }}
+        working-directory: Andreani/${{ inputs.app_name }}/Event
