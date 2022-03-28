@@ -47,6 +47,7 @@ runs:
         run: dotnet add Andreani.${{ inputs.app_name }}.Event.csproj package Apache.Avro --version ${{ inputs.AVRO_VERSION }}
         shell: bash
         working-directory: Andreani/${{ inputs.app_name }}/Event
+
       - name: Key Repository
         id: variables
         uses: actions/github-script@v5
@@ -54,12 +55,14 @@ runs:
           script: |
             const name = context.repo.repo
             const organization = context.repo.owner
-            core.exportVariable('REPOSITORY', `${name}`)
-            core.exportVariable('ORGANIZATION'. `${organization}`)
+            core.exportVariable('REPOSITORY', ${name})
+            core.exportVariable('ORGANIZATION', ${organization})
+          
       - name: Repository URL
         run: sed -i 's/<\/TargetFramework>/<\/TargetFramework><RepositoryUrl>https:\/\/github.com\/${{ env.ORGANIZATION }}\/${{ env.REPOSITORY }}<\/RepositoryUrl>/g' Andreani.${{ inputs.app_name }}.Event.csproj
         shell: bash
         working-directory: Andreani/${{ inputs.app_name }}/Event
+
       - name: Restore dependencies
         run: dotnet restore
         shell: bash
