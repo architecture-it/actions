@@ -25,7 +25,7 @@ runs:
         uses: actions/download-artifact@v1
         with:
           name: avro-schema
-          path: .
+          path: ${{ inputs.INPUT }}
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
@@ -37,7 +37,7 @@ runs:
         run: dotnet new classlib --name Andreani.${{ inputs.app_name }}.Event -o Andreani/${{ inputs.app_name }}/Event
         shell: bash
       - name: Run AvroGen
-        run: avrogen -p ${{ inputs.INPUT }}/schema.avpr .
+        run: avrogen -p ${{ inputs.INPUT }}/schemas.avpr .
         shell: bash
       - name: Restore dependencies
         run: dotnet restore
