@@ -4,12 +4,12 @@ inputs:
   file_idl:
     description: "file idl with record to convert in avro"
     required: true
-env:
-  AVRO_VERSION: 1.11.0
-  AVRO_MIRROR: https://apache.zero.com.ar/avro
-  OUTPUT: "schema"
 runs:
   using: "composite"
+  env:
+    AVRO_VERSION: 1.11.0
+    AVRO_MIRROR: https://apache.zero.com.ar/avro
+    OUTPUT: "schema"
   steps:
       - uses: actions/checkout@v2
         with:
