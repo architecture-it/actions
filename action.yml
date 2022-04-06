@@ -59,7 +59,7 @@ runs:
             core.exportVariable('ORGANIZATION', `${organization}`)
           
       - name: Repository URL
-        run: sed -i 's/<\/TargetFramework>/<\/TargetFramework><RepositoryUrl>https:\/\/github.com\/${{ env.ORGANIZATION }}\/${{ env.REPOSITORY }}<\/RepositoryUrl>/g' Andreani.${{ inputs.app_name }}.Event.csproj
+        run: sed -i 's/<\/TargetFramework>/<\/TargetFramework><RepositoryUrl>https:\/\/github.com\/${{ env.ORGANIZATION }}\/${{ env.REPOSITORY }}<\/RepositoryUrl>/g' Andreani.${{ inputs.app_name }}.Events.csproj
         shell: bash
         working-directory: Andreani/${{ inputs.app_name }}/Events
 
