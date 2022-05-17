@@ -7,6 +7,9 @@ inputs:
   sonar_token: 
     description: "token sonarqube"
     required: true
+  version:
+    description: "version de lenguaje, ej 3.7, 3.8..."
+    required: true
 runs:
   using: "composite"
   steps:
@@ -30,6 +33,4 @@ runs:
         args: >
           -Dsonar.projectKey=${{ env.KEY_REPOSITORY }}
           -Dsonar.verbose=true
-          -Dsonar.python.version=3.8
-          -Dsonar.python.version=3.7
-          -Dsonar.python.version=3.9
+          -Dsonar.python.version=${{ inputs.version }}
