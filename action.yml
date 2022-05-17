@@ -30,6 +30,10 @@ inputs:
     description: "Omite el analisis de test"
     required: false
     default: 'false'
+  version:
+    description: "version de lenguaje, ej 3.7, 3.8..."
+    required: false
+    default: '3.8'
 runs:
   using: "composite"
   steps:
@@ -63,4 +67,5 @@ runs:
         with: 
           sonar_url: ${{ inputs.sonar_url }}
           sonar_token: ${{ inputs.sonar_token }}
+          version: ${{ inputs.version }}
         if: ${{ inputs.sonar_code == 'Python' }}
