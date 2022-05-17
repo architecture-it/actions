@@ -31,3 +31,5 @@ runs:
           -Dsonar.projectKey=${{ env.KEY_REPOSITORY }}
           -Dsonar.verbose=true
           -Dsonar.python.version=3.8
+          -Dsonar.python.version=3.7
+          -Dsonar.python.version=3.9
