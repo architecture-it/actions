@@ -37,35 +37,27 @@ inputs:
 runs:
   using: "composite"
   steps:
-      - run: echo hi!, we working.
-        shell: bash
-        # Setup .NET Core SDK
-      - name: Setup .NET Analyzer
-        uses: architecture-it/actions@sonar-net
-        with: 
-          github_username: ${{ inputs.github_username }}
-          github_token: ${{ inputs.github_token }}
-          sonar_url: ${{ inputs.sonar_url }}
-          sonar_token: ${{ inputs.sonar_token }}
-        if: ${{ inputs.sonar_code == '.Net' }}
-      - name: Setup Go Analyzer
-        uses: architecture-it/actions@sonar-go
-        with: 
-          sonar_url: ${{ inputs.sonar_url }}
-          sonar_token: ${{ inputs.sonar_token }}
-          skip_test: ${{inputs.skip_test}}
-        if: ${{ inputs.sonar_code == 'Go' }}
-      - name: Setup Javascript Analyzer
-        uses: architecture-it/actions@sonar-js
-        with: 
-          sonar_url: ${{ inputs.sonar_url }}
-          sonar_token: ${{ inputs.sonar_token }}
-          skip_test: ${{inputs.skip_test}}
-        if: ${{ inputs.sonar_code == 'Js' }}
-      - name: Setup Python Analyzer
-        uses: architecture-it/actions@sonar-py
-        with: 
-          sonar_url: ${{ inputs.sonar_url }}
-          sonar_token: ${{ inputs.sonar_token }}
-          version: ${{ inputs.version }}
-        if: ${{ inputs.sonar_code == 'Python' }}
+    - name: "Call API 1"
+      uses: indiesdev/curl@v1.1
+      id: api
+      with:
+        url: https://reqres.in/api/users
+        method: "POST"
+        accept: 201
+        body: '{ "name": "breeze", "job": "devops" }'
+        log-response: true
+    - name: "Call API 2"
+      uses: indiesdev/curl@v1.1
+      id: api2
+      with:
+        url: https://reqres.in/api/users
+        method: "POST"
+        accept: 201
+        # you can use multiline format to constrct json data object, the content should be yml format.
+        # this format apply to inputs: body, headers and params
+        body: |
+          name: breeze
+          job: devops
+        log-response: true
+    - name: "Use response"
+      run: echo ${{ steps.api.outputs.response }}
