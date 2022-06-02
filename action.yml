@@ -59,6 +59,7 @@ runs:
           curl -X POST -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/project_branches/delete?project={{ inputs.sonar_key }}&branch=${{ github.event.repository.default_branch }}'
           curl -X POST -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/project_branches/rename?project={{ inputs.sonar_key }}&name=${{ github.event.repository.default_branch }}'
       if: steps.rename.outputs.OUTPUT == 1
+      shell: bash
  #   - name: "Setting binding github"
  #     run: |
  #       curl -X POST -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/projects/create' -d name=${{ inputs.sonar_key }} -d project=${{ inputs.sonar_key }}
