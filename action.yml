@@ -23,8 +23,8 @@ inputs:
   sonar_token: 
     description: "token sonarqube"
     required: true
-  sonar_code:
-    description: "Lenguaje de programación: .Net, Java, Go, Python, Js "
+  sonar_key:
+    description: "Key del repositorio "
     required: true
   skip_test: 
     description: "Omite el analisis de test"
@@ -39,8 +39,24 @@ runs:
   steps:
     - name: "Create Project"
       run: |
-        curl -X POST -u ${{ inputs.sonar_token }}: 'https://sonarqube.andreani.com/api/projects/create' -d name=architecture-it-test-automation -d project=architecture-it-test-automation
+        curl -X POST -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/projects/create' -d name=${{ inputs.sonar_key }} -d project=${{ inputs.sonar_key }}
       shell: bash 
+    - name: "Rename Branch default"
+      run: |
+        curl -LI -X POST -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/project_branches/rename?project={{ inputs.sonar_key }}&name=${{ github.event.repository.default_branch }}' -o /dev/null -w %{http_code} -s > http.txt
+        if grep -q "200" http.txt;
+        then
+          echo "Todo OK"
+        else 
+          echo "la branch no se seteo por defecto se eliminara la branch para definir la nueva por defecto"
+          curl -X POST -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/project_branches/rename?project={{ inputs.sonar_key }}&branch=${{ github.event.repository.default_branch }}'
+          curl -X POST -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/project_branches/rename?project={{ inputs.sonar_key }}&name=${{ github.event.repository.default_branch }}'
+        fi
+      shell: bash 
+ #   - name: "Setting binding github"
+ #     run: |
+ #       curl -X POST -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/projects/create' -d name=${{ inputs.sonar_key }} -d project=${{ inputs.sonar_key }}
+ #     shell: bash 
     - name: "Create Project"
-      run: echo ${{ github.event.repository.default_branch }}
+      run: echo ${{ github.repo.name }}
       shell: bash
