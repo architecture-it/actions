@@ -1,22 +1,6 @@
-name: "SonarQube Analyzer"
-description: "Se realiza el análisis en sonarqube"
+name: "SonarQube Pre-requisitos"
+description: "Se realiza la configuración de los proyectos en sonarqube, se deben realizar a mano hasta que exista el endpoint de import from github"
 inputs:
-  github_username:
-    description: "usuario de github para autenticarse en los packages"
-    required: false
-    default: ''
-  github_token:
-    description: "token del usuario con permisos de lectura en packages"
-    required: false
-    default: ''
-  workdir_src:
-    description: "directorio donde se encuentra el project a compilar DEFAULT: ./"
-    required: false
-    default: './'
-  workdir_test:
-    description: "directorio donde se encuentra los test DEFAULT: ./"
-    required: false
-    default: './'
   sonar_url: 
     description: "url sonarqube"
     required: true
@@ -24,16 +8,8 @@ inputs:
     description: "token sonarqube"
     required: true
   sonar_key:
-    description: "Key del repositorio "
+    description: "Key del repositorio"
     required: true
-  skip_test: 
-    description: "Omite el analisis de test"
-    required: false
-    default: 'false'
-  version:
-    description: "version de lenguaje, ej 3.7, 3.8..."
-    required: false
-    default: '3.8'
   alm_setting :
     description: "config alm github settings"
     required: false
