@@ -74,5 +74,5 @@ runs:
       shell: bash
     - name: "Set ALM Setting binding"
       run: |
-        curl -X POST -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/project_branches/delete' -d almSetting=${{ inputs.alm_setting }} -d monorepo=${{ inputs.alm_setting_monorepo }} -d project=${{ inputs.sonar_key }} -d repository=${{ github.event.repository.full_name }}
+        curl -X POST -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/alm_settings/set_github_binding' -d almSetting=${{ inputs.alm_setting }} -d monorepo=${{ inputs.alm_setting_monorepo }} -d project=${{ inputs.sonar_key }} -d repository=${{ github.event.repository.full_name }}
       shell: bash
