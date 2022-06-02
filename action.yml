@@ -43,7 +43,7 @@ runs:
       shell: bash 
     - name: "Rename Branch default"
       run: |
-        curl -LI -X POST -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/project_branches/rename?project={{ inputs.sonar_key }}&name=${{ github.event.repository.default_branch }}' -o /dev/null -w %{http_code} -s > http.txt
+        curl -LI -X POST -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/project_branches/rename' -d project={{ inputs.sonar_key }} -d name=${{ github.event.repository.default_branch }} -o /dev/null -w %{http_code} -s > http.txt
       shell: bash 
     - name: "Analisis rename branch"
       id: rename
