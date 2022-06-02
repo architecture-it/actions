@@ -7,21 +7,15 @@ inputs:
   sonar_token: 
     description: "token sonarqube"
     required: true
+  sonar_key:
+    description: "Key del repositorio"
+    required: true
   version:
     description: "version de lenguaje, ej 3.7, 3.8..."
     required: true
 runs:
   using: "composite"
   steps:
-    - name: Key Repository
-      id: variables
-      uses: actions/github-script@v5
-      with:
-        script: |
-          const name = context.repo.repo
-          const organization = context.repo.owner
-          core.exportVariable('KEY_REPOSITORY', `${organization}_${name}`)
-    # Sonar Qube
     - name: SonarQube Scan
       uses: sonarsource/sonarqube-scan-action@master
       env:
@@ -31,6 +25,6 @@ runs:
       with:
         projectBaseDir: .
         args: >
-          -Dsonar.projectKey=${{ env.KEY_REPOSITORY }}
+          -Dsonar.projectKey=${{ inputs.sonar_key }}
           -Dsonar.verbose=true
           -Dsonar.python.version=${{ inputs.version }}
