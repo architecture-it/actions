@@ -7,6 +7,9 @@ inputs:
   sonar_token: 
     description: "token sonarqube"
     required: true
+  sonar_key:
+    description: "Key del repositorio"
+    required: true
   skip_test:
     description: "permite skipear los procesos de testing"
     required: false
@@ -14,14 +17,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-      - name: Key Repository
-        id: variables
-        uses: actions/github-script@v5
-        with:
-          script: |
-            const name = context.repo.repo
-            const organization = context.repo.owner
-            core.exportVariable('KEY_REPOSITORY', `${organization}_${name}`)
       - name: Download code coverage results
         uses: actions/download-artifact@v1
         with:
@@ -36,7 +31,7 @@ runs:
           LC_ALL: "ru_RU.UTF-8"
         with:
           args: >
-            -Dsonar.projectKey=${{ env.KEY_REPOSITORY }}
+            -Dsonar.projectKey=${{ inputs.sonar_key }}
             -Dsonar.test.inclusions=**/*_test.go
             -Dsonar.test.exclusions=**/*__constructor.go
             -Dsonar.go.coverage.reportPaths=**/coverage.out
