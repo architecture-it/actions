@@ -69,5 +69,5 @@ runs:
  #       curl -X POST -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/projects/create' -d name=${{ inputs.sonar_key }} -d project=${{ inputs.sonar_key }}
  #     shell: bash 
     - name: "Create Project"
-      run: echo ${{ github.repo.name }}
+      run: echo ${{ github.event.repository.name }}
       shell: bash
