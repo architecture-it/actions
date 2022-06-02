@@ -21,6 +21,9 @@ inputs:
   sonar_token: 
     description: "token sonarqube"
     required: true
+  sonar_key:
+    description: "Key del repositorio"
+    required: true
 runs:
   using: "composite"
   steps:
@@ -31,14 +34,6 @@ runs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.11
-      - name: Key Repository
-        id: variables
-        uses: actions/github-script@v5
-        with:
-          script: |
-            const name = context.repo.repo
-            const organization = context.repo.owner
-            core.exportVariable('KEY_REPOSITORY', `${organization}_${name}`)
       
       - name: Setup dotnet
         uses: actions/setup-dotnet@v1
@@ -66,7 +61,7 @@ runs:
           dotnet nuget locals -c all
           dotnet nuget add source https://nuget.pkg.github.com/architecture-it/index.json --name github -u ${{ inputs.github_username }} -p ${{ inputs.github_token }} --store-password-in-clear-text
           dotnet tool install --global dotnet-sonarscanner
-          dotnet sonarscanner begin /key:"${{ env.KEY_REPOSITORY }}" -d:sonar.login="${{ inputs.sonar_token }}" -d:sonar.host.url="${{ inputs.sonar_url }}" -d:sonar.cs.vstest.reportsPaths=**/*.trx -d:sonar.cs.opencover.reportsPaths=**/coverage.opencover.xml
+          dotnet sonarscanner begin /key:"${{ inputs.sonar_key }}" -d:sonar.login="${{ inputs.sonar_token }}" -d:sonar.host.url="${{ inputs.sonar_url }}" -d:sonar.cs.vstest.reportsPaths=**/*.trx -d:sonar.cs.opencover.reportsPaths=**/coverage.opencover.xml -Dsonar.test.exclusions=**/*Startup.cs
         shell: bash
 
       - name: Restore 
