@@ -43,13 +43,13 @@ runs:
       shell: bash 
     - name: "Rename Branch default"
       run: |
-        curl -LI -X POST -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/project_branches/rename' -d project={{ inputs.sonar_key }} -d name=${{ github.event.repository.default_branch }} -o /dev/null -w %{http_code} -s > http.txt
+        curl -s -X POST -u ${{ inputs.sonar_token }}: ${{ inputs.sonar_url }}/api/project_branches/rename -d project={{ inputs.sonar_key }} -d name=${{ github.event.repository.default_branch }} -D- -o /dev/null -w %{http_code} > http.txt
       shell: bash 
     - name: "Analisis rename branch"
       id: rename
       run: |
         cat http.txt
-        if grep -q "200" http.txt;
+        if grep -q "204" http.txt;
         then
           echo "Todo OK"
           echo "::set-output name=OUTPUT::0"
@@ -60,8 +60,8 @@ runs:
       shell: bash
     - name: "Delete and Rename branch"
       run: |
-          curl -X POST -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/project_branches/delete?project={{ inputs.sonar_key }}&branch=${{ github.event.repository.default_branch }}'
-          curl -X POST -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/project_branches/rename?project={{ inputs.sonar_key }}&name=${{ github.event.repository.default_branch }}'
+          curl -X POST -u ${{ inputs.sonar_token }}: ${{ inputs.sonar_url }}/api/project_branches/delete -d project={{ inputs.sonar_key }} -d branch=${{ github.event.repository.default_branch }}
+          curl -X POST -u ${{ inputs.sonar_token }}: ${{ inputs.sonar_url }}/api/project_branches/rename -d project={{ inputs.sonar_key }} -d name=${{ github.event.repository.default_branch }}
       if: steps.rename.outputs.OUTPUT == 1
       shell: bash
  #   - name: "Setting binding github"
