@@ -48,10 +48,10 @@ runs:
         if grep -q "200" http.txt;
         then
           echo "Todo OK"
-          OUTPUT = 0
+          echo "::set-output name=OUTPUT::0"
         else 
           echo "la branch no se seteo por defecto se eliminara la branch para definir la nueva por defecto"
-          OUTPUT = 1
+          echo "::set-output name=OUTPUT::1"
         fi
       shell: bash 
     - name: "Analisis rename branch"
