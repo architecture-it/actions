@@ -42,7 +42,7 @@ runs:
       shell: bash
       if: ${{ inputs.packages_token != '' }}
     - name: Install dependency
-      run: npm ci --no-audit
+      run: npm ci --no-audit --legacy-peer-deps
       shell: bash
     - name: Lint
       run: npm run lint --if-present
