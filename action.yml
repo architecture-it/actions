@@ -9,7 +9,7 @@ inputs:
     default: 1.11.0
   AVRO_MIRROR: 
     requiered: false
-    default: https://apache.zero.com.ar/avro
+    default: http://archive.apache.org/dist/avro
   OUTPUT:
     requiered: false
     default: schema
