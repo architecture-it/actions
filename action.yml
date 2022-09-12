@@ -61,7 +61,9 @@ runs:
           package: ${{ inputs.app_name }}Events
         run: |
          for f in steps.split.outputs.*; 
-         do /home/runner/go/bin/gogen-avro --package=${{ env.package }} ${{ inputs.OUTPUT }} ${{ inputs.INPUT }}/$f.avsc; 
+         do
+         echo $f 
+         /home/runner/go/bin/gogen-avro --package=${{ env.package }} ${{ inputs.OUTPUT }} ${{ inputs.INPUT }}/$f.avsc; 
          done 
         shell: bash
       - name: Check events
