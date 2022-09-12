@@ -51,16 +51,16 @@ runs:
       - name: Create Folder output
         run: mkdir ${{ inputs.OUTPUT }}
         shell: bash
-      - name: Split schema names
-        uses: jungwinter/split@v2
-        id: split
+      - name: Create list of files
+        id: list
+        uses: lucaspinheirogit/list-from-string-array-action@v1.4.3
         with:
-          msg: ${{ inputs.schema_event }}
+          stringArray: ${{ inputs.schema_event }}
       - name: Generate go struct
         env: 
           package: ${{ inputs.app_name }}Events
         run: |
-         for f in ${{ steps.split.outputs.* }}; 
+         for f in ${{ steps.list.outputs.stringList }}; 
          do
          echo $f 
          /home/runner/go/bin/gogen-avro --package=${{ env.package }} ${{ inputs.OUTPUT }} ${{ inputs.INPUT }}/$f.avsc; 
