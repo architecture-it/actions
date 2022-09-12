@@ -64,6 +64,10 @@ runs:
          do /home/runner/go/bin/gogen-avro --package=${{ env.package }} ${{ inputs.OUTPUT }} ${{ inputs.INPUT }}/$f.avsc; 
          done 
         shell: bash
+      - name: Check events
+        shell: bash
+        run: ls
+        working-directory:  ${{ inputs.OUTPUT }}
       - name: Checkout Nuget go for verify branch
         uses: actions/checkout@v2
         with:
@@ -84,6 +88,11 @@ runs:
         shell: bash
         run: mkdir ${{ inputs.app_name }}
         working-directory: ${{ inputs.directory_repository }}
+
+      - name: Check events
+        shell: bash
+        run: ls
+        
       - name: Copy/Create file
         shell: bash
         run: |
