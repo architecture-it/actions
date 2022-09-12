@@ -60,7 +60,7 @@ runs:
         env: 
           package: ${{ inputs.app_name }}Events
         run: |
-         for f in steps.split.outputs; 
+         for f in steps.split.outputs.*; 
          do /home/runner/go/bin/gogen-avro --package=${{ env.package }} ${{ inputs.OUTPUT }} ${{ inputs.INPUT }}/$f.avsc; 
          done 
         shell: bash
@@ -92,7 +92,7 @@ runs:
       - name: Check events
         shell: bash
         run: ls
-        
+
       - name: Copy/Create file
         shell: bash
         run: |
