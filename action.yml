@@ -51,11 +51,16 @@ runs:
       - name: Create Folder output
         run: mkdir ${{ inputs.OUTPUT }}
         shell: bash
+      - name: Split schema names
+        uses: jungwinter/split@v2
+        id: split
+        with:
+          msg: ${{ inputs.schema_event }}
       - name: Generate go struct
         env: 
           package: ${{ inputs.app_name }}Events
         run: |
-         for f in ${{ inputs.schema_event }}; 
+         for f in steps.split.outputs; 
          do /home/runner/go/bin/gogen-avro --package=${{ env.package }} ${{ inputs.OUTPUT }} ${{ inputs.INPUT }}/$f.avsc; 
          done 
         shell: bash
