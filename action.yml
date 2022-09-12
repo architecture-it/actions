@@ -56,7 +56,7 @@ runs:
           package: ${{ inputs.app_name }}Events
         run: |
          files = ${{ inputs.schema_event }}
-         for f in $files[@]; 
+         for f in ${files[@]}; 
          do
          echo $f 
          /home/runner/go/bin/gogen-avro --package=${{ env.package }} ${{ inputs.OUTPUT }} ${{ inputs.INPUT }}/${f}.avsc; 
