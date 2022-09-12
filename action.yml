@@ -72,9 +72,6 @@ runs:
           repository: ${{ inputs.repository }}
           token: ${{ inputs.github_token }}
           path: ${{ inputs.directory_repository }}
-      - name: Check checkout
-        run: cd ${{ inputs.directory_repository }} && ls
-        shell: bash
       - name: Remove directory
         shell: bash
         run: |
