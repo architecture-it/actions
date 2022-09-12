@@ -40,6 +40,7 @@ runs:
       - uses: actions/setup-go@v2
         with:
           version: 1.17.7
+      - run: echo "list of schema ${{ inputs.schema_event }}"
       - name: Get gogen-avro Tools
         run: go get github.com/actgardner/gogen-avro/v10/cmd/...
         shell: bash
@@ -88,11 +89,11 @@ runs:
         id: push_directory
         uses: cpina/github-action-push-to-another-repository@main
         env:
-          API_TOKEN_GITHUB: ${{ secrets.ARQUITECTURA_DEPLOY }}
+          API_TOKEN_GITHUB: ${{ inputs.github_token }}
         with:
           source-directory: ./${{ inputs.directory_repository }}/
           destination-github-username: ${{ inputs.organization }}
           destination-repository-name: ${{ inputs.repo }}
-          #user-email: git-actions@github.com
+          user-email: ciberseguridad@andreani.com
           commit-message: add ${{ inputs.app_name }} schemas 
           target-branch: 'main'
