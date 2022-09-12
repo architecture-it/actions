@@ -41,6 +41,7 @@ runs:
         with:
           version: 1.17.7
       - run: echo "list of schema ${{ inputs.schema_event }}"
+        shell: bash
       - name: Get gogen-avro Tools
         run: go get github.com/actgardner/gogen-avro/v10/cmd/...
         shell: bash
