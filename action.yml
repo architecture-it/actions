@@ -40,15 +40,13 @@ runs:
       - uses: actions/setup-go@v2
         with:
           version: 1.17.7
-      - run: echo "list of schema ${{ inputs.schema_event }}"
-        shell: bash
       - name: Get gogen-avro Tools
         run: go get github.com/actgardner/gogen-avro/v10/cmd/...
         shell: bash
       - name: Download avro results
         uses: actions/download-artifact@v1
         with:
-          name: code-coverage-report
+          name: avro-schema
           path: ${{ inputs.INPUT }}
       - name: Create Folder output
         run: mkdir ${{ inputs.OUTPUT }}
