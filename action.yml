@@ -13,9 +13,24 @@ inputs:
   OUTPUT:
     requiered: false
     default: struct
-  REPOSITORY:
+  repository:
     requiered: false
     default: architecture-it/integracion-schemas-event-go
+  schema_event: 
+    description: "Listado de eventos"
+    required: true
+  app_name:
+    description: "Nombre de la app usado como directorio"
+    required: true
+  directory_repository:
+    requiered: false
+    default: repo
+  organization:
+    requiered: false
+    default: 'architecture-it'
+  repo:
+    requiered: false
+    default: 'integracion-schemas-event-go'
 runs:
   using: "composite"
   steps:
@@ -37,13 +52,47 @@ runs:
         run: mkdir ${{ inputs.OUTPUT }}
         shell: bash
       - name: Generate go struct
-        run: /home/runner/go/bin/gogen-avro --package=Events ${{ inputs.OUTPUT }} ${{ inputs.INPUT }}/*.avsc
+        env: 
+          package: ${{ inputs.app_name }}Events
+        run: |
+         for f in ${{ inputs.schema_event }}; 
+         do /home/runner/go/bin/gogen-avro --package=${{ env.package }} ${{ inputs.OUTPUT }} ${{ inputs.INPUT }}/$f.avsc; 
+         done 
         shell: bash
       - name: Checkout Nuget go for verify branch
         uses: actions/checkout@v2
         with:
           persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
           fetch-depth: 0 # otherwise, you will failed to push refs to dest repo
-          repository: ${{ inputs.REPOSITORY }}
+          repository: ${{ inputs.repository }}
           token: ${{ inputs.github_token }}
-          path: ./nuget
+          path: ${{ inputs.directory_repository }}
+      - name: Remove directory
+        shell: bash
+        run: |
+         if [ -d "./${{ inputs.app_name }}" ] 
+         then
+            rm -r {{ inputs.app_name }}
+         fi
+        working-directory: ${{ inputs.directory_repository }}/${{ inputs.repository }}
+      - name: Create directory
+        shell: bash
+        run: mkdir ${{ inputs.app_name }}
+        working-directory: ${{ inputs.directory_repository }}/${{ inputs.repository }}
+      - name: Copy/Create file
+        shell: bash
+        run: |
+          echo "Copying..."
+          cp -R ${{ inputs.OUTPUT }}/* ./${{ inputs.directory_repository }}/${{ inputs.repository }}/${{ env.app_name }}
+      - name: Push to Go Nuget
+        id: push_directory
+        uses: cpina/github-action-push-to-another-repository@main
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.ARQUITECTURA_DEPLOY }}
+        with:
+          source-directory: ./${{ inputs.directory_repository }}/
+          destination-github-username: ${{ inputs.organization }}
+          destination-repository-name: ${{ inputs.repo }}
+          #user-email: git-actions@github.com
+          commit-message: add ${{ inputs.app_name }} schemas 
+          target-branch: 'main'
