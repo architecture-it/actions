@@ -16,9 +16,6 @@ inputs:
   repository:
     requiered: false
     default: architecture-it/integracion-schemas-event-go
-  schema_event: 
-    description: "Listado de eventos"
-    required: true
   app_name:
     description: "Nombre de la app usado como directorio"
     required: true
@@ -53,7 +50,7 @@ runs:
         shell: bash
       - name: Remove Schema.avpr
         shell: bash
-        run: rm Schema.avpr
+        run: rm schemas.avpr
         working-directory: ${{ inputs.INPUT }}
       - name: Generate go struct
         env: 
