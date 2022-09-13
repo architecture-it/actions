@@ -113,3 +113,8 @@ runs:
           user-email: ciberseguridad@andreani.com
           commit-message: add ${{ inputs.app_name }} schemas 
           target-branch: 'main'
+       - name: Archive schema avro result
+        uses: actions/upload-artifact@v1
+        with:
+          name: go-packages
+          path: ./${{ inputs.OUTPUT }}
