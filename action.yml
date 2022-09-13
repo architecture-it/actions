@@ -40,18 +40,24 @@ runs:
       - name: Get gogen-avro Tools
         run: go get github.com/actgardner/gogen-avro/v10/cmd/...
         shell: bash
+
+        # Se descarga los archivos avsc del step anterior.
       - name: Download avro results
         uses: actions/download-artifact@v1
         with:
           name: avro-schema
           path: ${{ inputs.INPUT }}
+        # Se crea la carpeta donde se guardarán los archivos .go
       - name: Create Folder output
         run: mkdir ${{ inputs.OUTPUT }}
         shell: bash
+        working-directory: ${{ inputs.INPUT }}
+        # se elimina el archivo que utiliza NET
       - name: Remove Schema.avpr
         shell: bash
         run: rm schemas.avpr
         working-directory: ${{ inputs.INPUT }}
+        # se recorre el directorio para construir los archivos .go
       - name: Generate go struct
         env: 
           package: ${{ inputs.app_name }}Events
@@ -61,10 +67,7 @@ runs:
          done 
         shell: bash
         working-directory: ${{ inputs.INPUT }}
-      - name: Check events
-        shell: bash
-        run: ls
-        working-directory:  ${{ inputs.OUTPUT }}
+        # Se clona el repositorio donde se van a disponibilizar las estructuras
       - name: Checkout Nuget go for verify branch
         uses: actions/checkout@v2
         with:
@@ -73,6 +76,7 @@ runs:
           repository: ${{ inputs.repository }}
           token: ${{ inputs.github_token }}
           path: ${{ inputs.directory_repository }}
+        # Se elimina el directory de la app para poder reemplazar las estructuras
       - name: Remove directory
         shell: bash
         run: |
@@ -81,21 +85,19 @@ runs:
             rm -r {{ inputs.app_name }}
          fi
         working-directory: ${{ inputs.directory_repository }}
+        # Se crea la carpeta
       - name: Create directory
         shell: bash
         run: mkdir ${{ inputs.app_name }}
         working-directory: ${{ inputs.directory_repository }}
-
-      - name: Check events
-        shell: bash
-        run: ls
-
+        # Se copian las estructuras a la carpeta
       - name: Copy/Create file
         shell: bash
         run: |
           echo "Copying..."
-          cp -R ${{ inputs.OUTPUT }}/* ./${{ inputs.directory_repository }}/${{ env.app_name }}
-      - name: Push to Go Nuget
+          cp -R ${{ inputs.INPUT }}/${{ inputs.OUTPUT }}/* ./${{ inputs.directory_repository }}/${{ env.app_name }}
+        # Se realiza el push
+      - name: Push 
         id: push_directory
         uses: cpina/github-action-push-to-another-repository@main
         env:
