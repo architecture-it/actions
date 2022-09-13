@@ -92,6 +92,7 @@ runs:
       - name: check
         shell: bash
         run: ls
+        working-directory: ${{ inputs.OUTPUT }}
       - name: Copy/Create file
         shell: bash
         run: |
