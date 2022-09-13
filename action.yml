@@ -99,7 +99,7 @@ runs:
         shell: bash
         run: |
           echo "Copying..."
-          cp -R ./${{ inputs.OUTPUT }}/* ./${{ inputs.directory_repository }}/${{ env.app_name }}
+          cp -R ./${{ inputs.OUTPUT }}/* ./${{ inputs.directory_repository }}/${{ inputs.app_name }}
         # Se realiza el push
       - name: Push 
         id: push_directory
