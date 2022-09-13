@@ -89,11 +89,14 @@ runs:
         run: mkdir ${{ inputs.app_name }}
         working-directory: ${{ inputs.directory_repository }}
         # Se copian las estructuras a la carpeta
+      - name: check
+        shell: bash
+        run: ls
       - name: Copy/Create file
         shell: bash
         run: |
           echo "Copying..."
-          cp -R ${{ inputs.OUTPUT }}/* ./${{ inputs.directory_repository }}/${{ env.app_name }}
+          cp -R ./${{ inputs.OUTPUT }}/* ./${{ inputs.directory_repository }}/${{ env.app_name }}
         # Se realiza el push
       - name: Push 
         id: push_directory
