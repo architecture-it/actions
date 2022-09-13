@@ -51,7 +51,6 @@ runs:
       - name: Create Folder output
         run: mkdir ${{ inputs.OUTPUT }}
         shell: bash
-        working-directory: ${{ inputs.INPUT }}
         # se elimina el archivo que utiliza NET
       - name: Remove Schema.avpr
         shell: bash
@@ -62,11 +61,10 @@ runs:
         env: 
           package: ${{ inputs.app_name }}Events
         run: |
-         for f in ./*; 
+         for f in /${{ inputs.INPUT }}/*; 
          do /home/runner/go/bin/gogen-avro --package=${{ env.package }} ${{ inputs.OUTPUT }} ${f}; 
          done 
         shell: bash
-        working-directory: ${{ inputs.INPUT }}
         # Se clona el repositorio donde se van a disponibilizar las estructuras
       - name: Checkout Nuget go for verify branch
         uses: actions/checkout@v2
@@ -95,7 +93,7 @@ runs:
         shell: bash
         run: |
           echo "Copying..."
-          cp -R ${{ inputs.INPUT }}/${{ inputs.OUTPUT }}/* ./${{ inputs.directory_repository }}/${{ env.app_name }}
+          cp -R ${{ inputs.OUTPUT }}/* ./${{ inputs.directory_repository }}/${{ env.app_name }}
         # Se realiza el push
       - name: Push 
         id: push_directory
