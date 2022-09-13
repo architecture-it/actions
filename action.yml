@@ -90,5 +90,5 @@ runs:
       - name: Archive schema avro result
         uses: actions/upload-artifact@v1
         with:
-          name: lib
+          name: nuget-packages
           path: Andreani/${{ inputs.app_name }}/Events
