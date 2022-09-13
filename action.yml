@@ -51,17 +51,19 @@ runs:
       - name: Create Folder output
         run: mkdir ${{ inputs.OUTPUT }}
         shell: bash
+      - name: Remove Schema.avpr
+        shell: bash
+        run: rm Schema.avpr
+        working-directory: ${{ inputs.INPUT }}
       - name: Generate go struct
         env: 
           package: ${{ inputs.app_name }}Events
         run: |
-         files = ${{ inputs.schema_event }}
-         for f in ${files[@]}; 
-         do
-         echo $f 
-         /home/runner/go/bin/gogen-avro --package=${{ env.package }} ${{ inputs.OUTPUT }} ${{ inputs.INPUT }}/${f}.avsc; 
+         for f in ./*; 
+         do /home/runner/go/bin/gogen-avro --package=${{ env.package }} ${{ inputs.OUTPUT }} ${f}; 
          done 
         shell: bash
+        working-directory: ${{ inputs.INPUT }}
       - name: Check events
         shell: bash
         run: ls
