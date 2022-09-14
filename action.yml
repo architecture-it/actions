@@ -19,15 +19,32 @@ inputs:
   ci:
     description: "Esta variable forza el chequeo del linter y en caso de fallas rompe el flujo"
     required: false
-    default: 'false' 
+    default: 'false'
+
+        # echo "::set-output name=mix-format--check-formatted::$(mix format --check-formatted)\n"
 runs:
   using: "composite"
   steps:
-    - name: Use Node.js ${{ inputs.matrix_version }}
-      uses: actions/setup-node@v2
+    - name: Get package manager of Repo
+      run: |
+        if [ -f yarn.lock ]; then echo "::set-output name=yarn"  \
+        elif [ -f package-lock.json ]; then echo "::set-output name=npm" \
+        elif [ -f pnpm-lock.yaml ]; then echo "::set-output name=pnpm" \
+        else echo "::set-output name=npm"  \
+        fi
+      id: package_manager
+      shell: bash
+      # Use default with cache
+    - name: Use pnpm Setup
+      uses: pnpm/action-setup@v2
+      with:
+        version: 6.32.9
+      if: ${{ steps.package_manager.outputs.name == 'pnpm' }}
+    - name: Use Node.js ${{ inputs.matrix_version }} - Cache ${{ steps.package_manager.outputs.name }}
+      uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
-        cache: 'npm'
+        cache: ${{ steps.package_manager.outputs.name }}
     - name: config npmrc file fontawesome 
       run: |
         echo '@fortawesome:registry=https://npm.fontawesome.com/' >> .npmrc
@@ -41,18 +58,24 @@ runs:
         echo '//npm.pkg.github.com/:_authToken=${{ inputs.packages_token }}' >> .npmrc
       shell: bash
       if: ${{ inputs.packages_token != '' }}
-    - name: Install dependency
-      run: npm ci --no-audit --legacy-peer-deps
+    - name: Install dependencies
+      run: |
+        RUN \
+        if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
+        elif [ -f package-lock.json ]; then npm ci --no-progress --loglevel error \
+        elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm install --frozen-lockfile; \
+        else echo "Lockfile not found. Installing from scratch" && npm install \
+        fi
       shell: bash
     - name: Lint
-      run: npm run lint --if-present
+      run: ${{ steps.package_manager.outputs.name }} run lint --if-present
       shell: bash
     - name: Build
-      run: npm run build --if-present
+      run: ${{ steps.package_manager.outputs.name }} run build --if-present
       shell: bash
       env:
         CI: ${{ inputs.ci == 'true' }}
-    - run: npm test -- --coverage --runInBand
+    - run: ${{ steps.package_manager.outputs.name }} test -- --coverage --runInBand
       name: Unit tests
       shell: bash
       env:
