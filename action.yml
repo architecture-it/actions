@@ -27,10 +27,14 @@ runs:
   steps:
     - name: Get package manager of Repo
       run: |
-        if [ -f yarn.lock ]; then echo "::set-output name=name::yarn"  \
-        elif [ -f package-lock.json ]; then echo "::set-output name=name::npm" \
-        elif [ -f pnpm-lock.yaml ]; then echo "::set-output name=name::pnpm" \
-        else echo "::set-output name=name::npm"  \
+        if [ -f "yarn.lock" ]; then 
+          echo "::set-output name=name::yarn"
+        elif [ -f "package-lock.json" ]; then 
+          echo "::set-output name=name::npm" 
+        elif [ -f pnpm-lock.yaml ]; then 
+          echo "::set-output name=name::pnpm" 
+        else 
+          echo "::set-output name=name::npm"  
         fi
       id: package_manager
       shell: bash
@@ -60,11 +64,14 @@ runs:
       if: ${{ inputs.packages_token != '' }}
     - name: Install dependencies
       run: |
-        RUN \
-        if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
-        elif [ -f package-lock.json ]; then npm ci --no-progress --loglevel error \
-        elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm install --frozen-lockfile; \
-        else echo "Lockfile not found. Installing from scratch" && npm install \
+        if [ -f yarn.lock ]; then 
+          yarn --frozen-lockfile
+        elif [ -f package-lock.json ]; then
+          npm ci --no-progress --loglevel error
+        elif [ -f pnpm-lock.yaml ]; then
+          yarn global add pnpm && pnpm install --frozen-lockfile
+        else 
+          echo "Lockfile not found. Installing from scratch" && npm install
         fi
       shell: bash
     - name: Lint
