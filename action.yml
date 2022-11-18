@@ -38,7 +38,7 @@ runs:
         with:
           version: 1.18
       - name: Get gogen-avro Tools
-        run: go install github.com/actgardner/gogen-avro/v10/cmd/...
+        run: go install github.com/actgardner/gogen-avro/v10/cmd/...@latest
         shell: bash
 
         # Se descarga los archivos avsc del step anterior.
