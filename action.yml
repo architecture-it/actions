@@ -36,10 +36,10 @@ runs:
         if grep -q "204" http.txt;
         then
           echo "Todo OK"
-          echo "::set-output name=OUTPUT::0"
+          echo "OUTPUT=0" >> $GITHUB_OUTPUT 
         else 
           echo "la branch no se seteo por defecto se eliminara la branch para definir la nueva por defecto"
-          echo "::set-output name=OUTPUT::1"
+          echo "OUTPUT=1" >> $GITHUB_OUTPUT 
         fi
       shell: bash
     - name: "Delete and Rename branch"
