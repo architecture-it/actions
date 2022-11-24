@@ -18,7 +18,7 @@ runs:
   using: "composite"
   steps:
       - name: Download code coverage results
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: code-coverage-report
           path: coverage
