@@ -28,13 +28,13 @@ runs:
     - name: Get package manager of Repo
       run: |
         if [ -f "yarn.lock" ]; then 
-          echo "::set-output name=name::yarn"
+          echo "name=yarn" >> $GITHUB_OUTPUT
         elif [ -f "package-lock.json" ]; then 
-          echo "::set-output name=name::npm" 
+          echo "name=npm" >> $GITHUB_OUTPUT 
         elif [ -f pnpm-lock.yaml ]; then 
-          echo "::set-output name=name::pnpm" 
+          echo "name=pnpm" >> $GITHUB_OUTPUT 
         else 
-          echo "::set-output name=name::npm"  
+          echo "name=npm" >> $GITHUB_OUTPUT  
         fi
       id: package_manager
       shell: bash
