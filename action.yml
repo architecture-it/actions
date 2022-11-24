@@ -1,5 +1,5 @@
-name: "Sonar Analizer Go"
-description: "Realiza el análisis de sonarqube para Go"
+name: "Sonar Analizer Javascript/Typescript"
+description: "Realiza el análisis de sonarqube para Javascript/Typescript"
 inputs:
   sonar_url: 
     description: "url sonarqube"
