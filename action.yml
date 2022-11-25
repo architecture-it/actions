@@ -20,8 +20,6 @@ inputs:
     description: "Esta variable forza el chequeo del linter y en caso de fallas rompe el flujo"
     required: false
     default: 'false'
-
-        # echo "::set-output name=mix-format--check-formatted::$(mix format --check-formatted)\n"
 runs:
   using: "composite"
   steps:
@@ -59,17 +57,31 @@ runs:
       run: |
         echo '@customer-experience:registry=https://npm.pkg.github.com/' >> .npmrc
         echo '@architecture-it:registry=https://npm.pkg.github.com/' >> .npmrc
+        echo '@operations-innovation:registry=https://npm.pkg.github.com/' >> .npmrc
         echo '//npm.pkg.github.com/:_authToken=${{ inputs.packages_token }}' >> .npmrc
       shell: bash
       if: ${{ inputs.packages_token != '' }}
+    - name: Setup .yarnrc.yml (Yarn 2)
+      run: |
+        yarn config set npmScopes.architecture-it.npmRegistryServer "https://npm.pkg.github.com"
+        yarn config set npmScopes.architecture-it.npmAlwaysAuth true
+        yarn config set npmScopes.architecture-it.npmAuthToken ${{ inputs.packages_token }}
+        yarn config set npmScopes.customer-experience.npmRegistryServer "https://npm.pkg.github.com"
+        yarn config set npmScopes.customer-experience.npmAlwaysAuth true
+        yarn config set npmScopes.customer-experience.npmAuthToken ${{ inputs.packages_token }}
+        yarn config set npmScopes.operations-innovation.npmRegistryServer "https://npm.pkg.github.com"
+        yarn config set npmScopes.operations-innovation.npmAlwaysAuth true
+        yarn config set npmScopes.operations-innovation.npmAuthToken ${{ inputs.packages_token }}
+      shell: bash
+      if: ${{ steps.package_manager.outputs.name == 'yarn' }}
     - name: Install dependencies
       run: |
         if [ -f yarn.lock ]; then 
-          yarn --frozen-lockfile
+          echo "yarn.lock file founded. Installing using yarn" && yarn --frozen-lockfile
         elif [ -f package-lock.json ]; then
-          npm ci --no-progress --loglevel error
+          echo "package-lock file founded. Installing using npm" && npm ci --no-progress --loglevel error
         elif [ -f pnpm-lock.yaml ]; then
-          yarn global add pnpm && pnpm install --frozen-lockfile
+          echo "pnpm-lock lock file founded. Installing using pnpm" && yarn global add pnpm && pnpm install --frozen-lockfile
         else 
           echo "Lockfile not found. Installing from scratch" && npm install
         fi
@@ -89,7 +101,7 @@ runs:
         CI: ${{ inputs.ci == 'true' }}
       if: ${{ inputs.skip_test != 'true' }}
     - name: Archive code coverage results
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v3
       with:
         name: code-coverage-report
         path: coverage
