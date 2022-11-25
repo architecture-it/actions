@@ -1,5 +1,5 @@
-name: "Sonar Analizer Go"
-description: "Realiza el análisis de sonarqube para Go"
+name: "Sonar Analizer Javascript/Typescript"
+description: "Realiza el análisis de sonarqube para Javascript/Typescript"
 inputs:
   sonar_url: 
     description: "url sonarqube"
@@ -18,7 +18,7 @@ runs:
   using: "composite"
   steps:
       - name: Download code coverage results
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: code-coverage-report
           path: coverage
@@ -32,5 +32,5 @@ runs:
         with:
           args: >
             -Dsonar.projectKey=${{ inputs.sonar_key }}
-            -Dsonar.test.inclusions=src/**/*.spec.js,src/**/*.spec.jsx,src/**/*.test.js,src/**/*.test.jsx
+            -Dsonar.test.inclusions=src/**/*.spec.js,src/**/*.spec.jsx,src/**/*.test.js,src/**/*.test.jsx,src/**/*.spec.ts,src/**/*.spec.tsx,src/**/*.test.ts,src/**/*.test.tsx
             -Dsonar.javascript.lcov.reportPaths=**/coverage/lcov.info
