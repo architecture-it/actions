@@ -94,10 +94,6 @@ runs:
         output: report-markdown
         skip-step: all
       if: ${{ inputs.skip_test != 'true' }}
-    - uses: marocchino/sticky-pull-request-comment@v2
-      with:
-        message: ${{ steps.coverage.outputs.report }}
-      if: ${{ inputs.skip_test != 'true' }}
     - name: Archive code coverage results
       uses: actions/upload-artifact@v3
       with:
