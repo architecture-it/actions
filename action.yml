@@ -81,11 +81,22 @@ runs:
       shell: bash
       env:
         CI: ${{ inputs.ci == 'true' }}
-    - run: ${{ steps.package_manager.outputs.name }} test -- --coverage --runInBand
+    - run: ${{ steps.package_manager.outputs.name }} test -- --json --coverage --runInBand --testLocationInResults --outputFile=report.json
       name: Unit tests
       shell: bash
       env:
         CI: ${{ inputs.ci == 'true' }}
+      if: ${{ inputs.skip_test != 'true' }}
+    - name: Coverage reporter
+      uses: ArtiomTr/jest-coverage-report-action@v2
+      id: coverage
+      with:
+        output: report-markdown
+        skip-step: all
+      if: ${{ inputs.skip_test != 'true' }}
+    - uses: marocchino/sticky-pull-request-comment@v2
+      with:
+        message: ${{ steps.coverage.outputs.report }}
       if: ${{ inputs.skip_test != 'true' }}
     - name: Archive code coverage results
       uses: actions/upload-artifact@v3
