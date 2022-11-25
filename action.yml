@@ -64,11 +64,11 @@ runs:
     - name: Install dependencies
       run: |
         if [ -f yarn.lock ]; then 
-          echo "yarn.lock file founded. Installing using yarn" && yarn --frozen-lockfile
+          yarn --frozen-lockfile
         elif [ -f package-lock.json ]; then
-          echo "package-lock file founded. Installing using npm" && npm ci --no-progress --loglevel error
+          npm ci --no-progress --loglevel error
         elif [ -f pnpm-lock.yaml ]; then
-          echo "pnpm-lock lock file founded. Installing using pnpm" && yarn global add pnpm && pnpm install --frozen-lockfile
+          yarn global add pnpm && pnpm install --frozen-lockfile
         else 
           echo "Lockfile not found. Installing from scratch" && npm install
         fi
