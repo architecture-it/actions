@@ -89,10 +89,15 @@ runs:
       if: ${{ inputs.skip_test != 'true' }}
     - name: Coverage reporter
       uses: ArtiomTr/jest-coverage-report-action@v2
-      id: coverage
+      id: coverage-reporter
       with:
-        output: report-markdown
+        output: comment, report-markdown
         skip-step: all
+      if: ${{ inputs.skip_test != 'true' }}
+    - name: Coverage reporter Comment
+      uses: marocchino/sticky-pull-request-comment@v2
+      with:
+        message: ${{ steps.coverage-reporter.outputs.report }}
       if: ${{ inputs.skip_test != 'true' }}
     - name: Archive code coverage results
       uses: actions/upload-artifact@v3
