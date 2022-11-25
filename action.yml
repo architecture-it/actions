@@ -61,19 +61,6 @@ runs:
         echo '//npm.pkg.github.com/:_authToken=${{ inputs.packages_token }}' >> .npmrc
       shell: bash
       if: ${{ inputs.packages_token != '' }}
-    - name: Setup .yarnrc.yml (Yarn 2)
-      run: |
-        yarn config set npmScopes.architecture-it.npmRegistryServer "https://npm.pkg.github.com"
-        yarn config set npmScopes.architecture-it.npmAlwaysAuth true
-        yarn config set npmScopes.architecture-it.npmAuthToken ${{ inputs.packages_token }}
-        yarn config set npmScopes.customer-experience.npmRegistryServer "https://npm.pkg.github.com"
-        yarn config set npmScopes.customer-experience.npmAlwaysAuth true
-        yarn config set npmScopes.customer-experience.npmAuthToken ${{ inputs.packages_token }}
-        yarn config set npmScopes.operations-innovation.npmRegistryServer "https://npm.pkg.github.com"
-        yarn config set npmScopes.operations-innovation.npmAlwaysAuth true
-        yarn config set npmScopes.operations-innovation.npmAuthToken ${{ inputs.packages_token }}
-      shell: bash
-      if: ${{ steps.package_manager.outputs.name == 'yarn' }}
     - name: Install dependencies
       run: |
         if [ -f yarn.lock ]; then 
