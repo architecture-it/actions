@@ -36,3 +36,5 @@ runs:
             -Dsonar.test.exclusions=**/*__constructor.go
             -Dsonar.go.coverage.reportPaths=**/coverage.out
             -Dsonar.exclusions=**/*__constructor.go
+            -Dsonar.exclusions=**/*_test.go
+            -Dsonar.exclusions=**/*.html
