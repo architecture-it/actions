@@ -1,0 +1,65 @@
+# yaml-language-server: $schema=https://a.storyblok.com/f/63950/x/a022cd2c97/cicd-andreani.json
+
+env:
+  secret:
+    sdfhdf: "123"
+    asaaa: "123"
+    asaaaaa: 2
+  normal:
+    asdas: "asda"
+    ejemplo: "1"
+    asaaa: "asd"
+
+replicacontroller:
+  replicas: 10
+  revisionHistoryLimit: 3
+
+service:
+  Port: 8080
+  targetPort: 8080
+
+route: true
+
+healthcheck:
+  readiness: false
+  readinesspath: /index.html
+  readinessport: "8080"
+  livenesspath: /index.html
+  livenessport: "8080"
+  liveness: false
+  livenessscheme: HTTP
+  readinessscheme: HTTP
+
+cronjob:
+  enable: false
+  crons:
+    "0":
+     name: diario
+     schedule: "10 10 * * *"
+     successfulJobsHistoryLimit: 3
+     failedJobsHistoryLimit: 3
+    "1":
+     name: semanal
+     schedule: "10 10 * * 5"
+     successfulJobsHistoryLimit: 3
+     failedJobsHistoryLimit: 1
+    "2":
+     name: mensual
+     schedule: "10 10 5 * *"
+     successfulJobsHistoryLimit: 3
+     failedJobsHistoryLimit: 1
+    "3":
+     name: anual
+     schedule: "10 10 * 12 5"
+     successfulJobsHistoryLimit: 3
+     failedJobsHistoryLimit: 1
+
+configMap:
+  enable: false
+  path: /home/redis-master
+  file: redis.conf
+  key: redis-config
+  map:
+    linea1: "uno \n dos"
+
+clusterlogging: true

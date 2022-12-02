@@ -1,0 +1,59 @@
+{
+  "name": "@architecture-it/validate-yaml",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Validate Yaml Action",
+  "main": "lib/main.js",
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint src/**/*.ts",
+    "package": "ncc build --source-map --license licenses.txt",
+    "test": "jest",
+    "all": "npm run build && npm run lint && npm run package && npm test",
+    "all:dev": "set NODE_OPTIONS=--openssl-legacy-provider && npm run build && npm run lint && npm run package && npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/architecture-it/validate-yaml.git"
+  },
+  "keywords": [
+    "actions",
+    "node",
+    "setup"
+  ],
+  "author": "Architecture",
+  "dependencies": {
+    "@actions/core": "^1.10.0",
+    "@actions/http-client": "^2.0.1",
+    "glob": "^8.0.3",
+    "jsonschema": "^1.4.1"
+  },
+  "devDependencies": {
+    "@architecture-it/eslint-config-andreani": "^1.4.0",
+    "@types/glob": "^8.0.0",
+    "@types/jest": "27.0.0",
+    "@types/js-yaml": "^4.0.5",
+    "@types/node": "^18.11.0",
+    "@typescript-eslint/eslint-plugin": "^5.45.0",
+    "@typescript-eslint/parser": "5.45.0",
+    "@vercel/ncc": "^0.31.1",
+    "eslint": "^8.28.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-github": "^4.3.2",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jest": "^25.3.2",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-promise": "^6.1.1",
+    "eslint-plugin-react": "^7.31.11",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "jest": "^27.2.5",
+    "js-yaml": "^4.1.0",
+    "prettier": "2.8.0",
+    "ts-jest": "^27.1.2",
+    "ts-loader": "^9.4.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.4.4",
+    "webpack": "^5.75.0"
+  }
+}

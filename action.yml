@@ -1,0 +1,24 @@
+name: validate-yaml
+description: A Github action for validating .yaml files using JSON schemas
+branding:
+  icon: check-square
+  color: blue
+inputs:
+  jsonSchemaFile:
+    description: A JSON schema file following the format used at https://www.schemastore.org
+    required: true
+  yamlFiles:
+    description: A list of files, directories, and wildcard patterns to be validated
+    required: true
+  filesSeparator:
+    description: "Separator used to split the files input"
+    default: ","
+    required: false
+outputs:
+  validFiles:
+    description: Comma separated list of files that passed
+  invalidFiles:
+    description: Comma separated list of files that failed
+runs:
+  using: "node16"
+  main: "dist/index.js"
