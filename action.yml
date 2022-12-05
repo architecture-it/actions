@@ -24,7 +24,7 @@ runs:
   using: "composite"
   steps:
     - name: Use Node.js ${{ inputs.matrix_version }}
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
