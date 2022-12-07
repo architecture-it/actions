@@ -32,10 +32,18 @@ runs:
         elif [ -f pnpm-lock.yaml ]; then 
           echo "name=pnpm" >> $GITHUB_OUTPUT 
         else 
-          echo "name=npm" >> $GITHUB_OUTPUT  
+          echo "name=notfound" >> $GITHUB_OUTPUT  
         fi
       id: package_manager
       shell: bash
+    - name: validate "Lockfile
+      if: ${{ steps.package_manager.outputs.name == 'notfound' }}
+      run: |
+        echo "El código debe contener algún archivo de lockfile."
+        echo "Sea por ejemplo 'package-lock.json', 'yarn.lock' o 'pnpm-lock.yaml'."
+        echo "Asegurate de subirlo."
+        exit 1
+      shell: bash    
       # Use default with cache
     - name: Use pnpm Setup
       uses: pnpm/action-setup@v2
@@ -69,8 +77,6 @@ runs:
           npm ci --no-progress --loglevel error
         elif [ -f pnpm-lock.yaml ]; then
           yarn global add pnpm && pnpm install --frozen-lockfile
-        else 
-          echo "Lockfile not found. Installing from scratch" && npm install
         fi
       shell: bash
     - name: Lint
@@ -87,10 +93,14 @@ runs:
       env:
         CI: ${{ inputs.ci == 'true' }}
       if: ${{ inputs.skip_test != 'true' }}
+    - uses: jwalton/gh-find-current-pr@v1
+      id: find-pr
+      if: ${{ inputs.skip_test != 'true' }}
     - name: Coverage reporter
       uses: ArtiomTr/jest-coverage-report-action@v2
       id: coverage-reporter
       with:
+        prnumber: ${{ steps.find-pr.outputs.number }}
         output: comment, report-markdown
         skip-step: all
       if: ${{ inputs.skip_test != 'true' }}
