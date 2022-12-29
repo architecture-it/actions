@@ -34,6 +34,9 @@ inputs:
     description: "version de lenguaje, ej 3.7, 3.8..."
     required: false
     default: '3.8'
+  sonar_custom:
+    decription: "config sonar custom"
+    default: ""
 runs:
   using: "composite"
   steps:
@@ -64,6 +67,7 @@ runs:
           sonar_url: ${{ inputs.sonar_url }}
           sonar_token: ${{ inputs.sonar_token }}
           sonar_key:  ${{ env.KEY_REPOSITORY }}
+          sonar_custom: ${{ inputs.sonar_custom }}
         if: ${{ inputs.sonar_code == '.Net' }}
 
       - name: Setup Go Analyzer
