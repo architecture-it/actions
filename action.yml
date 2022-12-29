@@ -24,6 +24,9 @@ inputs:
   sonar_key:
     description: "Key del repositorio"
     required: true
+  sonar_custom:
+    decription: "config sonar custom"
+    default: ""
 runs:
   using: "composite"
   steps:
@@ -61,7 +64,7 @@ runs:
           dotnet nuget locals -c all
           dotnet nuget add source https://nuget.pkg.github.com/architecture-it/index.json --name github -u ${{ inputs.github_username }} -p ${{ inputs.github_token }} --store-password-in-clear-text
           dotnet tool install --global dotnet-sonarscanner
-          dotnet sonarscanner begin /key:"${{ inputs.sonar_key }}" -d:sonar.login="${{ inputs.sonar_token }}" -d:sonar.host.url="${{ inputs.sonar_url }}" -d:sonar.cs.vstest.reportsPaths=**/*.trx -d:sonar.cs.opencover.reportsPaths=**/coverage.opencover.xml 
+          dotnet sonarscanner begin /key:"${{ inputs.sonar_key }}" -d:sonar.login="${{ inputs.sonar_token }}" -d:sonar.host.url="${{ inputs.sonar_url }}" -d:sonar.cs.vstest.reportsPaths=**/*.trx -d:sonar.cs.opencover.reportsPaths=**/coverage.opencover.xml ${{ inputs.sonar_custom}}
         shell: bash
 
       - name: Restore 
