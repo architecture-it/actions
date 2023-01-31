@@ -32,6 +32,7 @@ runs:
           _input-text: ${{ inputs.app_name }}
           .: "/"
       - run: echo ${{ steps.sub.outputs.result }} 
+        shell: bash
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
