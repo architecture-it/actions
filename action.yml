@@ -36,12 +36,12 @@ runs:
         fi
       id: package_manager
       shell: bash
-    - name: validate "Lockfile
+    - name: validate 'Lockfile'
       if: ${{ steps.package_manager.outputs.name == 'notfound' }}
       run: |
-        echo "El código debe contener algún archivo de lockfile."
-        echo "Sea por ejemplo 'package-lock.json', 'yarn.lock' o 'pnpm-lock.yaml'."
+        echo "El código debe contener algún archivo de lockfile ('package-lock.json', 'yarn.lock' o 'pnpm-lock.yaml')."
         echo "Asegurate de subirlo."
+        echo "ERROR: Falta archivo lockfile. Ver más en https://architecture-it.github.io/docs/Platform/Front/#manejo-de-dependencias"
         exit 1
       shell: bash    
       # Use default with cache
@@ -93,22 +93,18 @@ runs:
       env:
         CI: ${{ inputs.ci == 'true' }}
       if: ${{ inputs.skip_test != 'true' }}
-    - uses: jwalton/gh-find-current-pr@v1
-      id: find-pr
-      if: ${{ inputs.skip_test != 'true' }}
     - name: Coverage reporter
       uses: ArtiomTr/jest-coverage-report-action@v2
       id: coverage-reporter
       with:
-        prnumber: ${{ steps.find-pr.outputs.number }}
-        output: comment, report-markdown
+        output: report-markdown
         skip-step: all
-      if: ${{ inputs.skip_test != 'true' }}
+      if: ${{ inputs.skip_test != 'true' && github.event_name == 'pull_request' }}
     - name: Coverage reporter Comment
       uses: marocchino/sticky-pull-request-comment@v2
       with:
         message: ${{ steps.coverage-reporter.outputs.report }}
-      if: ${{ inputs.skip_test != 'true' }}
+      if: ${{ inputs.skip_test != 'true' && github.event_name == 'pull_request' }}
     - name: Archive code coverage results
       uses: actions/upload-artifact@v3
       with:
