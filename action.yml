@@ -68,6 +68,8 @@ runs:
           sonar_token: ${{ inputs.sonar_token }}
           sonar_key:  ${{ env.KEY_REPOSITORY }}
           sonar_custom: ${{ inputs.sonar_custom }}
+          workdir_src: ${{ inpusts.workdir_src }}
+          workdir_test: ${{ inpusts.workdir_test }}
         if: ${{ inputs.sonar_code == '.Net' }}
 
       - name: Setup Go Analyzer
