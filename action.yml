@@ -70,17 +70,20 @@ runs:
       - name: Restore 
         run: dotnet restore
         shell: bash
+        working-directory: ${{ inputs.workdir_src }}
 
       - name: Build
         run: dotnet build
         shell: bash
+        working-directory: ${{ inputs.workdir_src }}
 
       - name: Test 
         env:
           ASPNETCORE_ENVIRONMENT: Development
         shell: bash
         run: dotnet test --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover --results-directory TestResults/ --logger "trx;LogFileName=unittests.trx" --no-build --no-restore --configuration release 
-
+        working-directory: ${{ inputs.workdir_test }}
+        
       - name: Sonarqube end
         run: dotnet sonarscanner end -d:sonar.login="${{ inputs.sonar_token }}"
         shell: bash
