@@ -24,6 +24,8 @@ runs:
   using: "composite"
   steps:
     - name: Get package manager of Repo
+      env:
+        ENABLE_TEST_COMMENTS: ${{ inputs.skip_test != 'true' && github.event_name == 'pull_request' && github.actor != 'dependabot[bot]' }}
       run: |
         if [ -f "yarn.lock" ]; then 
           echo "name=yarn" >> $GITHUB_OUTPUT
@@ -99,12 +101,12 @@ runs:
       with:
         output: report-markdown
         skip-step: all
-      if: ${{ inputs.skip_test != 'true' && github.event_name == 'pull_request' }}
+      if: ${{ env.ENABLE_TEST_COMMENTS }}
     - name: Coverage reporter Comment
       uses: marocchino/sticky-pull-request-comment@v2
       with:
         message: ${{ steps.coverage-reporter.outputs.report }}
-      if: ${{ inputs.skip_test != 'true' && github.event_name == 'pull_request' }}
+      if: ${{ env.ENABLE_TEST_COMMENTS }}
     - name: Archive code coverage results
       uses: actions/upload-artifact@v3
       with:
