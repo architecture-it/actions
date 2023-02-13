@@ -35,8 +35,8 @@ runs:
         run: |
           dotnet restore
           dotnet build
-        working_directory: ${{ inputs.workdir_src }}
+        working-directory: ${{ inputs.workdir_src }}
       - name: dotnet test
         shell: bash
         run: dotnet test
-        working_directory: ${{ inputs.workdir_test }}
+        working-directory: ${{ inputs.workdir_test }}
