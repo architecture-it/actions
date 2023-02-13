@@ -18,15 +18,12 @@ inputs:
 runs:
   using: "composite"
   steps:
-      - run: echo hi!, we working.
-        shell: bash
-        # Setup .NET Core SDK
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: |
             3.1.x
-            5.x
+            6.x
       - name: Add Github Package
         shell: bash
         run: |
