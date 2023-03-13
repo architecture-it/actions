@@ -1,115 +1,70 @@
 name: "React CI"
-description: "Realiza el lint, build, test and coverage"
+description: "Realiza el release basado en los commits y conventional commit"
 inputs:
   matrix_version:
     description: "matrix de pruebas node"
     required: true
-  fontawesome_token: 
-    description: "token de fontawesome"
+  publish:
+    description: "Publish to internal modules"
     required: false
-    default: ''
-  packages_token:
-    description: "token github para autenticarse en packages"
-    required: false
-    default: ''
-  skip_test:
-    description: "permite skipear los procesos de testing"
-    required: false
-    default: 'false' 
-  ci:
-    description: "Esta variable forza el chequeo del linter y en caso de fallas rompe el flujo"
-    required: false
-    default: 'false'
+    default: "false"
 runs:
   using: "composite"
   steps:
-    - name: Get package manager of Repo
-      env:
-        ENABLE_TEST_COMMENTS: ${{ inputs.skip_test != 'true' && github.event_name == 'pull_request' && github.actor != 'dependabot[bot]' }}
-      run: |
-        if [ -f "yarn.lock" ]; then 
-          echo "name=yarn" >> $GITHUB_OUTPUT
-        elif [ -f "package-lock.json" ]; then 
-          echo "name=npm" >> $GITHUB_OUTPUT 
-        elif [ -f pnpm-lock.yaml ]; then 
-          echo "name=pnpm" >> $GITHUB_OUTPUT 
-        else 
-          echo "name=notfound" >> $GITHUB_OUTPUT  
-        fi
-      id: package_manager
-      shell: bash
-    - name: validate 'Lockfile'
-      if: ${{ steps.package_manager.outputs.name == 'notfound' }}
-      run: |
-        echo "El código debe contener algún archivo de lockfile ('package-lock.json', 'yarn.lock' o 'pnpm-lock.yaml')."
-        echo "Asegurate de subirlo."
-        echo "ERROR: Falta archivo lockfile. Ver más en https://architecture-it.github.io/docs/Platform/Front/#manejo-de-dependencias"
-        exit 1
-      shell: bash    
-      # Use default with cache
-    - name: Use pnpm Setup
-      uses: pnpm/action-setup@v2
-      with:
-        version: 6.32.9
-      if: ${{ steps.package_manager.outputs.name == 'pnpm' }}
     - name: Use Node.js ${{ inputs.matrix_version }} - Cache ${{ steps.package_manager.outputs.name }}
       uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
-        cache: ${{ steps.package_manager.outputs.name }}
-    - name: config npmrc file fontawesome 
-      run: |
-        echo '@fortawesome:registry=https://npm.fontawesome.com/' >> .npmrc
-        echo '//npm.fontawesome.com/:_authToken=${{ inputs.fontawesome_token }}' >> .npmrc
+        cache: "npm"
+    - name: Write configuration file
       shell: bash
-      if: ${{ inputs.fontawesome_token != '' }}
-    - name: config npmrc file github packages of company
       run: |
-        echo '@customer-experience:registry=https://npm.pkg.github.com/' >> .npmrc
-        echo '@architecture-it:registry=https://npm.pkg.github.com/' >> .npmrc
-        echo '@operations-innovation:registry=https://npm.pkg.github.com/' >> .npmrc
-        echo '//npm.pkg.github.com/:_authToken=${{ inputs.packages_token }}' >> .npmrc
-      shell: bash
-      if: ${{ inputs.packages_token != '' }}
+        echo
+        'module.exports = {
+          plugins: [
+            "@semantic-release/commit-analyzer",
+            "@semantic-release/release-notes-generator",
+            [
+              "@semantic-release/changelog",
+              {
+                changelogFile: "CHANGELOG.md",
+              },
+            ],
+            [
+              "@semantic-release/npm",
+              {
+                "npmPublish": ${{ inputs.publish }},
+              }
+            ],
+            "@semantic-release/github",
+            [
+              "@semantic-release/exec",
+              {
+                prepareCmd: "npx rjp package.json version ${nextRelease.version}",
+              },
+            ],
+            [
+              "@semantic-release/git",
+              {
+                message: "Release <%= nextRelease.version %> [skip ci]",
+                assets: ["package.json", "CHANGELOG.md"],
+              },
+            ],
+          ],
+          branches: ["main", { name: "development", prerelease: "development" }],
+        }' >> release.config.js
     - name: Install dependencies
       run: |
-        if [ -f yarn.lock ]; then 
-          yarn --frozen-lockfile
-        elif [ -f package-lock.json ]; then
-          npm ci --no-progress --loglevel error
-        elif [ -f pnpm-lock.yaml ]; then
-          yarn global add pnpm && pnpm install --frozen-lockfile
-        fi
+        npm i --no-save replace-json-property@1.8.0 
+        @semantic-release/changelog 
+        @semantic-release/exec 
+        @semantic-release/git 
+        @semantic-release/github
       shell: bash
-    - name: Lint
-      run: ${{ steps.package_manager.outputs.name }} run lint --if-present
-      shell: bash
-    - name: Build
-      run: ${{ steps.package_manager.outputs.name }} run build
-      shell: bash
+    - name: Release
       env:
-        CI: ${{ inputs.ci == 'true' }}
-    - run: ${{ steps.package_manager.outputs.name }} test -- --json --coverage --runInBand --testLocationInResults --outputFile=report.json
-      name: Unit tests
+        GITHUB_TOKEN: ${{ secrets.ARQUITECTURA_DEPLOY }}
+        GH_TOKEN: ${{ secrets.ARQUITECTURA_DEPLOY }}
+      run: npx semantic-release
       shell: bash
-      env:
-        CI: ${{ inputs.ci == 'true' }}
-      if: ${{ inputs.skip_test != 'true' }}
-    - name: Coverage reporter
-      uses: ArtiomTr/jest-coverage-report-action@v2
-      id: coverage-reporter
-      with:
-        output: report-markdown
-        skip-step: all
-      if: ${{ env.ENABLE_TEST_COMMENTS }}
-    - name: Coverage reporter Comment
-      uses: marocchino/sticky-pull-request-comment@v2
-      with:
-        message: ${{ steps.coverage-reporter.outputs.report }}
-      if: ${{ env.ENABLE_TEST_COMMENTS }}
-    - name: Archive code coverage results
-      uses: actions/upload-artifact@v3
-      with:
-        name: code-coverage-report
-        path: coverage
-      if: ${{ inputs.skip_test != 'true' }}
+
