@@ -5,6 +5,10 @@ inputs:
     description: "Publish to internal modules"
     required: false
     default: "false"
+  github_token:
+    description: Github Token
+    required: true
+
 runs:
   using: "composite"
   steps:
@@ -60,8 +64,8 @@ runs:
       shell: bash
     - name: Release
       env:
-        GITHUB_TOKEN: ${{ secrets.ARQUITECTURA_DEPLOY }}
-        GH_TOKEN: ${{ secrets.ARQUITECTURA_DEPLOY }}
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+        GH_TOKEN: ${{ inputs.github_token }}
       run: npx semantic-release
       shell: bash
 
