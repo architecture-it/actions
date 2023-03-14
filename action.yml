@@ -41,10 +41,9 @@ runs:
     - name: Write configuration file
       shell: bash
       run: |
-        echo 'module.exports = { plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator", "@semantic-release/github",["semantic-release-dotnet",{paths: ["*.csproj"], debug: true }], ["@semantic-release/exec",{  "prepareCmd": "dotnet restore && dotnet build --configuration 'Release' && dotnet pack -c 'Release'", "publishCmd": "dotnet nuget push --source github --api-key ${{ inputs.github_token }} --skip-duplicate bin/Release/*.nupkg" ,},], ["@semantic-release/git",{  message: "Release <%= nextRelease.version %> [skip ci]",  assets: ["*.csproj"],},],],branches: ${{ inputs.branches }} }' >> release.config.js
-      working-directory: ${{ inputs.csproj_path }} 
+        echo 'module.exports = { plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator", "@semantic-release/github",["semantic-release-dotnet",{paths: ["**/*.csproj"], debug: true }], ["semantic-release-nuget", { debug: true }], ["@semantic-release/git",{  message: "Release <%= nextRelease.version %> [skip ci]",  assets: ["*.csproj"],},],],branches: ${{ inputs.branches }} }' >> release.config.js
     - name: Install dependencies
-      run: npm i --no-save @semantic-release/git @semantic-release/github semantic-release-dotnet @semantic-release/exec
+      run: npm i --no-save @semantic-release/git @semantic-release/github semantic-release-dotnet semantic-release-nuget
       shell: bash
     - name: Release
       env:
@@ -52,7 +51,6 @@ runs:
         GH_TOKEN: ${{ inputs.github_token }}
         NUGET_PUSH_URL: "https://nuget.pkg.github.com/architecture-it/index.json"
         NUGET_TOKEN: ${{ inputs.github_token }}
-      working-directory: ${{ inputs.csproj_path }}
       run: npx semantic-release
       shell: bash
     
