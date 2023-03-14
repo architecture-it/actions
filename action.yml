@@ -41,7 +41,7 @@ runs:
     - name: Write configuration file
       shell: bash
       run: |
-        echo 'module.exports = { plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator", "@semantic-release/github",["semantic-release-dotnet",{paths: ["**/*.csproj"], debug: true }], ["semantic-release-nuget", { debug: true, pushFiles: ["**/bin/Release/*.nupkg"], packArguments: ["-c 'Release'"] }], ["@semantic-release/git",{  message: "Release <%= nextRelease.version %> [skip ci]",  assets: ["*.csproj"],},],],branches: ${{ inputs.branches }} }' >> release.config.js
+        echo 'module.exports = { plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator", "@semantic-release/github",["semantic-release-dotnet",{paths: ["**/*.csproj"], debug: true }], ["semantic-release-nuget", { debug: true, pushFiles: ["**/bin/Release/*.nupkg"], packArguments: ["-c", "Release"] }], ["@semantic-release/git",{  message: "Release <%= nextRelease.version %> [skip ci]",  assets: ["*.csproj"],},],],branches: ${{ inputs.branches }} }' >> release.config.js
     - name: Install dependencies
       run: npm i --no-save @semantic-release/git @semantic-release/github semantic-release-dotnet semantic-release-nuget
       shell: bash
