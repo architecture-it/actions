@@ -1,4 +1,4 @@
-name: "React CI"
+name: "Release npm"
 description: "Realiza el release basado en los commits y conventional commit"
 inputs:
   matrix_version:
