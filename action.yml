@@ -8,9 +8,9 @@ inputs:
     description: configuration to latest release and prerelease
     default: '["cicd", { name: "main", prerelease: "development" }]'
     required: false
-  csproj_paths: 
+  csproj_path: 
     description: paths related to csproj files. Admits glob patterns, Found all in
-    default: '["src/*.csproj"]'
+    default: "src/Api/"
     required: false
   pack_arguments:
     description: arguments passed to pack
@@ -40,9 +40,9 @@ runs:
     - name: Write configuration file
       shell: bash
       run: |
-        echo 'module.exports = { plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator", "@semantic-release/github",["semantic-release-dotnet",{paths: ${{ inputs.csproj_paths }} }], ["semantic-release-nuget", {packArguments: ${{ inputs.pack_arguments }} }], ["@semantic-release/git",{  message: "Release <%= nextRelease.version %> [skip ci]",  assets: ["README.md"],},],],branches: ${{ inputs.branches }} }' >> release.config.js
+        echo 'module.exports = { plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator", "@semantic-release/github",["semantic-release-dotnet",{paths: ["${{ inputs.csproj_path }}"] }], ["@semantic-release/exec",{  "prepareCmd": "dotnet restore && dotnet build --configuration 'Release' && dotnet pack -c 'Release'", "publishCmd": "dotnet nuget push --source github --api-key ${{ inputs.github_token }} --skip-duplicate bin/Release/*.nupkg" ,},], ["@semantic-release/git",{  message: "Release <%= nextRelease.version %> [skip ci]",  assets: ["README.md"],},],],branches: ${{ inputs.branches }} }' >> release.config.js
     - name: Install dependencies
-      run: npm i --no-save @semantic-release/git @semantic-release/github semantic-release-dotnet semantic-release-nuget
+      run: npm i --no-save @semantic-release/git @semantic-release/github semantic-release-dotnet @semantic-release/exec
       shell: bash
     - name: Release
       env:
@@ -50,6 +50,7 @@ runs:
         GH_TOKEN: ${{ inputs.github_token }}
         NUGET_PUSH_URL: "https://nuget.pkg.github.com/architecture-it/index.json"
         NUGET_TOKEN: ${{ inputs.github_token }}
+      working-directory: ${{ inputs.csproj_path }}
       run: npx semantic-release
       shell: bash
     
