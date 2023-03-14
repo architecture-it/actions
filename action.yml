@@ -16,11 +16,23 @@ inputs:
     description: arguments passed to pack
     default: '["--skip-duplicate bin/Release/*.nupkg"]'
     required: false
+  github_username: 
+    description: github user 
+    required: true
 
 
 runs:
   using: "composite"
   steps:
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+    - name: Add NuGet sources
+      run: |
+        dotnet nuget locals -c all       
+        dotnet nuget add source https://nuget.pkg.github.com/architecture-it/index.json --name github -u ${{ inputs.github_username }} -p ${{ inputs.github_token  }} --store-password-in-clear-text
+      shell: bash
     - name: Setup Node.js 18
       uses: actions/setup-node@v3
       with:
