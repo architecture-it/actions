@@ -11,6 +11,7 @@ inputs:
   branches:
     description: configuration to latest release and prerelease
     default: '["cicd", { name: "main", prerelease: "development" }]'
+    required: false
 
 runs:
   using: "composite"
