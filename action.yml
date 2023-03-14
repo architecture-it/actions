@@ -1,9 +1,6 @@
 name: "Release npm"
 description: "Realiza el release basado en los commits y conventional commit"
 inputs:
-  matrix_version:
-    description: "matrix de pruebas node"
-    required: true
   publish:
     description: "Publish to internal modules"
     required: false
@@ -14,7 +11,7 @@ runs:
     - name: Use Node.js ${{ inputs.matrix_version }} - Cache ${{ steps.package_manager.outputs.name }}
       uses: actions/setup-node@v3
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: 18.x
         cache: "npm"
     - name: Write configuration file
       shell: bash
