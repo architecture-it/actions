@@ -1,4 +1,4 @@
-name: "Release npm"
+name: "Release Dot Net"
 description: "Realiza el release basado en los commits y conventional commit"
 inputs:
   publish:
