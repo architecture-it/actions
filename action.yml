@@ -23,7 +23,6 @@ runs:
     - name: Install dependencies
       run: |
         npm i --no-save replace-json-property@1.8.0 
-        @semantic-release/changelog 
         @semantic-release/exec 
         @semantic-release/git 
         @semantic-release/github
