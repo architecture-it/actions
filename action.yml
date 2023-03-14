@@ -1,10 +1,6 @@
 name: "Release Dot Net"
 description: "Realiza el release basado en los commits y conventional commit"
 inputs:
-  publish:
-    description: "Publish to internal modules"
-    required: false
-    default: "false"
   github_token:
     description: Github Token
     required: true
