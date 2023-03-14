@@ -12,7 +12,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Use Node.js ${{ inputs.matrix_version }} - Cache ${{ steps.package_manager.outputs.name }}
+    - name: Setup Node.js 18
       uses: actions/setup-node@v3
       with:
         node-version: 18.x
