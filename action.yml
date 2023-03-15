@@ -1,5 +1,6 @@
-name: "Release Dot Net"
-description: "Realiza el release basado en los commits y conventional commit"
+name: "Release dotnet"
+description: "Make a Packages based on conventional commits, allow multiple csproj"
+
 inputs:
   github_token:
     description: Github Token
@@ -8,22 +9,29 @@ inputs:
     description: configuration to latest release and prerelease
     default: '["cicd", { name: "main", prerelease: "development" }]'
     required: false
-  csproj_path: 
-    description: paths related to csproj files. Admits glob patterns, Found all in
-    default: "src/Api/"
-    required: false
   pack_arguments:
     description: arguments passed to pack
-    default: '["--skip-duplicate bin/Release/*.nupkg"]'
+    default: '["-c", "Release"]'
     required: false
   github_username: 
     description: github user 
     required: true
+  push_files:
+    description: files to publish. Default all nupkg in Release folder in bin
+    default: '["**/bin/Release/*.nupkg"]'
+    required: false
+  debug:
+    description: allow debug mode
+    default: 'false'
+    required: false
+  release_paths:
+    default: '["**/*.csproj"]'
+    required: false
+    description: Glob patterns to find releases paths. By default point to all *.csproj
 
 
 runs:
   using: "composite"
-  
   steps:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
@@ -41,8 +49,9 @@ runs:
     - name: Write configuration file
       shell: bash
       run: |
-        echo 'module.exports = { plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator", "@semantic-release/github",["semantic-release-dotnet",{paths: ["**/*.csproj"], debug: true }], ["semantic-release-nuget", { debug: true, pushFiles: ["**/bin/Release/*.nupkg"], packArguments: ["-c", "Release"] }], ["@semantic-release/git",{  message: "Release <%= nextRelease.version %> [skip ci]",  assets: ["**/*.csproj"],},],],branches: ${{ inputs.branches }} }' >> release.config.js
+        echo 'module.exports = { plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator", "@semantic-release/github",["semantic-release-dotnet",{ paths: ${{ inputs.release_paths }}, debug: ${{ inputs.debug }} }], ["semantic-release-nuget", { debug: ${{ inputs.debug }}, pushFiles: ${{ inputs.push_files }}, packArguments: ${{ inputs.pack_arguments }}, ["@semantic-release/git",{  message: "Release <%= nextRelease.version %> [skip ci]",  assets: ["**/*.csproj"],},],],branches: ${{ inputs.branches }} }' >> release.config.js
     - name: Install dependencies
+      # with '--no-save' flag not generates any files (only generated for pipeline)
       run: npm i --no-save @semantic-release/git @semantic-release/github semantic-release-dotnet semantic-release-nuget
       shell: bash
     - name: Release
