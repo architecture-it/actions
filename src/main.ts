@@ -34,8 +34,10 @@ async function run(): Promise<void> {
     let schemaContentAsJson;
 
     if (isInWorkspace) {
+      core.info(`Obtaining local schema in '${inputJsonSchemaFile}'`);
       schemaContentAsJson = await getContentFromJson(inputJsonSchemaFile);
     } else {
+      core.info(`Obtaining Schema remote from ${inputJsonSchemaFile}`);
       schemaContentAsJson = await getContentFromUrl(inputJsonSchemaFile);
     }
 
