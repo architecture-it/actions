@@ -49,7 +49,7 @@ runs:
     - name: Write configuration file
       shell: bash
       run: |
-        echo 'module.exports = { plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator", "@semantic-release/github",["semantic-release-dotnet",{ paths: ${{ inputs.release_paths }}, debug: ${{ inputs.debug }} }], ["semantic-release-nuget", { debug: ${{ inputs.debug }}, pushFiles: ${{ inputs.push_files }}, packArguments: ${{ inputs.pack_arguments }}, ["@semantic-release/git",{  message: "Release <%= nextRelease.version %> [skip ci]",  assets: ["**/*.csproj"],},],],branches: ${{ inputs.branches }} }' >> release.config.js
+        echo 'module.exports = { plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator", "@semantic-release/github",["semantic-release-dotnet", { paths: ${{ inputs.release_paths }}, debug: ${{ inputs.debug }} }], ["semantic-release-nuget", { debug: ${{ inputs.debug }}, pushFiles: ${{ inputs.push_files }}, packArguments: ${{ inputs.pack_arguments }} }], ["@semantic-release/git",{  message: "Release <%= nextRelease.version %> [skip ci]",  assets: ["**/*.csproj"]},],],branches: ${{ inputs.branches }} }' >> release.config.js
     - name: Install dependencies
       # with '--no-save' flag not generates any files (only generated for pipeline)
       run: npm i --no-save @semantic-release/git @semantic-release/github semantic-release-dotnet semantic-release-nuget
