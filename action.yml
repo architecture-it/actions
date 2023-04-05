@@ -24,8 +24,6 @@ runs:
   using: "composite"
   steps:
     - name: Get package manager of Repo
-      env:
-        ENABLE_TEST_COMMENTS: ${{ inputs.skip_test != 'true' && github.event_name == 'pull_request' && github.actor != 'dependabot[bot]' }}
       run: |
         if [ -f "yarn.lock" ]; then 
           echo "name=yarn" >> $GITHUB_OUTPUT
@@ -50,7 +48,7 @@ runs:
     - name: Use pnpm Setup
       uses: pnpm/action-setup@v2
       with:
-        version: 6.32.9
+        version: latest
       if: ${{ steps.package_manager.outputs.name == 'pnpm' }}
     - name: Use Node.js ${{ inputs.matrix_version }} - Cache ${{ steps.package_manager.outputs.name }}
       uses: actions/setup-node@v3
@@ -95,18 +93,6 @@ runs:
       env:
         CI: ${{ inputs.ci == 'true' }}
       if: ${{ inputs.skip_test != 'true' }}
-    - name: Coverage reporter
-      uses: ArtiomTr/jest-coverage-report-action@v2
-      id: coverage-reporter
-      with:
-        output: report-markdown
-        skip-step: all
-      if: ${{ env.ENABLE_TEST_COMMENTS }}
-    - name: Coverage reporter Comment
-      uses: marocchino/sticky-pull-request-comment@v2
-      with:
-        message: ${{ steps.coverage-reporter.outputs.report }}
-      if: ${{ env.ENABLE_TEST_COMMENTS }}
     - name: Archive code coverage results
       uses: actions/upload-artifact@v3
       with:
