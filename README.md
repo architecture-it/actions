@@ -28,7 +28,7 @@ jobs:
         node-version: [18.x] #lts
     steps:
     - uses: actions/checkout@v3
-    - uses: architecture-it/actions@react-stable
+    - uses: architecture-it/actions@react-base
       with:
         matrix_version: ${{ matrix.node-version }}
         skip_test: ${{ env.SKIP_TEST }}
