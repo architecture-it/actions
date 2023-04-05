@@ -82,6 +82,9 @@ runs:
     - name: Lint
       run: ${{ steps.package_manager.outputs.name }} run lint --if-present
       shell: bash
+    - name: Lint
+      run: npm run lint --if-present
+      shell: bash
     - name: Build
       run: ${{ steps.package_manager.outputs.name }} run build
       shell: bash
