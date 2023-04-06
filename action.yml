@@ -12,14 +12,29 @@ inputs:
     description: configuration to latest release and prerelease
     default: '["main", { name: "beta", prerelease: "beta" }]'
     required: false
-  package_manager:
-    description: Package Manager
-    default: "npm"
-    required: false
 
 runs:
   using: "composite"
   steps:
+    - name: Get package manager executable
+      run: |
+        if [ -f "yarn.lock" ]; then 
+          echo "name=yarn" >> $GITHUB_OUTPUT
+          echo "exec=npx" >> $GITHUB_OUTPUT
+          echo "Using yarn and npx"
+        elif [ -f "package-lock.json" ]; then 
+          echo "name=npm" >> $GITHUB_OUTPUT 
+          echo "exec=npx" >> $GITHUB_OUTPUT 
+          echo "Using npm and npx"
+        elif [ -f pnpm-lock.yaml ]; then 
+          echo "name=pnpm" >> $GITHUB_OUTPUT 
+          echo "exec=pnpx" >> $GITHUB_OUTPUT
+          echo "Using pnpx and npx"
+        else 
+          echo "name=notfound" >> $GITHUB_OUTPUT  
+        fi
+      id: package_manager
+      shell: bash
     - name: Setup Node.js 18
       uses: actions/setup-node@v3
       with:
@@ -30,11 +45,11 @@ runs:
         echo 'module.exports = { pkgRoot: "dist", plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator", ["@semantic-release/changelog", { changelogFile: "CHANGELOG.md" }], ["@semantic-release/npm",{  "npmPublish": ${{ inputs.publish }},}],"@semantic-release/github",["@semantic-release/exec",{  prepareCmd: "npx rjp package.json version ${nextRelease.version}",},],["@semantic-release/git",{  message: "Release <%= nextRelease.version %> [skip ci]",  assets: ["package.json", "CHANGELOG.md"],},],],branches: ${{ inputs.branches }} }' >> release.config.js
     - name: Install dependencies
     # install globally to not affect internal project
-      run: ${{ inputs.package_manager }} i -g replace-json-property@1.8.0 @semantic-release/exec @semantic-release/git @semantic-release/github @semantic-release/changelog
+      run: ${{ steps.package_manager.outputs.name }} i -g replace-json-property@1.8.0 @semantic-release/exec @semantic-release/git @semantic-release/github @semantic-release/changelog
       shell: bash
     - name: Release
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
         GH_TOKEN: ${{ inputs.github_token }}
-      run: npx semantic-release
+      run: ${{ steps.package_manager.outputs.exec }} semantic-release
       shell: bash
