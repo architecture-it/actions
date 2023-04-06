@@ -25,7 +25,7 @@ runs:
       run: |
         echo 'module.exports = { pkgRoot: "dist", plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator", ["@semantic-release/changelog", { changelogFile: "CHANGELOG.md" }], ["@semantic-release/npm",{  "npmPublish": ${{ inputs.publish }},}],"@semantic-release/github",["@semantic-release/exec",{  prepareCmd: "npx rjp package.json version ${nextRelease.version}",},],["@semantic-release/git",{  message: "Release <%= nextRelease.version %> [skip ci]",  assets: ["package.json", "CHANGELOG.md"],},],],branches: ${{ inputs.branches }} }' >> release.config.js
     - name: Install dependencies
-      run: npm i --no-save replace-json-property@1.8.0 @semantic-release/exec @semantic-release/git @semantic-release/github @semantic-release/changelog
+      run: npm i -g replace-json-property@1.8.0 @semantic-release/exec @semantic-release/git @semantic-release/github @semantic-release/changelog
       shell: bash
     - name: Release
       env:
@@ -33,4 +33,3 @@ runs:
         GH_TOKEN: ${{ inputs.github_token }}
       run: npx semantic-release
       shell: bash
-
