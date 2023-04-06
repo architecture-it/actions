@@ -50,3 +50,59 @@ module.exports = {
     branches: ${{ inputs.branches }} 
 };
 ```
+
+## How to use
+
+```yml
+    #previous steps
+    - name: Release Library
+      uses: architecture-it/actions@release-npm-library
+      with:
+        github_token: ${{ secrets.ARQUITECTURA_DEPLOY }}
+```
+
+## Recommended use
+
+We recommend always test a clean build to revalidate if builds
+
+```yml
+name: Release
+on:
+  workflow_dispatch: # For run manually
+  push:
+    branches: [ beta, main ]
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.ARQUITECTURA_DEPLOY }}
+      - name: Generate .npmrc file
+        run: |
+          echo '@architecture-it:registry=https://npm.pkg.github.com/' >> .npmrc
+          echo '//npm.pkg.github.com/:_authToken=${{ secrets.ARQUITECTURA_DEPLOY }}' >> .npmrc
+          echo '@fortawesome:registry=https://npm.fontawesome.com/' >> .npmrc
+          echo '//npm.fontawesome.com/:_authToken=${{ secrets.NPM_FONTAWESOME_KEY }}' >> .npmrc
+      - name: Use pnpm Setup
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 'lts/*'
+          cache: 'pnpm'
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Build
+        run: pnpm run build
+      - name: Release Library
+        uses: architecture-it/actions@release-npm-library
+        with:
+          github_token: ${{ secrets.ARQUITECTURA_DEPLOY }}
+
+```
