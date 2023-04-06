@@ -31,7 +31,11 @@ runs:
           echo "exec=pnpm --package=replace-json-property@1.8.0 --package=@semantic-release/exec --package=@semantic-release/git --package=@semantic-release/github --package=@semantic-release/changelog --package=semantic-release dlx" >> $GITHUB_OUTPUT
           echo "Using pnpx dlx and pnpm"
         else 
-          echo "name=notfound" >> $GITHUB_OUTPUT  
+          echo "name=notfound" >> $GITHUB_OUTPUT
+          echo "El código debe contener algún archivo de lockfile ('package-lock.json', 'yarn.lock' o 'pnpm-lock.yaml')."
+          echo "Asegurate de subirlo."
+          echo "ERROR: Falta archivo lockfile. Ver más en https://architecture-it.github.io/docs/Platform/Front/#manejo-de-dependencias"
+          exit 1
         fi
       id: package_manager
       shell: bash
