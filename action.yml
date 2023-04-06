@@ -28,8 +28,8 @@ runs:
           echo "Using npm and npx"
         elif [ -f pnpm-lock.yaml ]; then 
           echo "name=pnpm" >> $GITHUB_OUTPUT 
-          echo "exec=pnpx" >> $GITHUB_OUTPUT
-          echo "Using pnpx and npx"
+          echo "exec=pnpx dlx" >> $GITHUB_OUTPUT
+          echo "Using pnpx dlx and pnpm"
         else 
           echo "name=notfound" >> $GITHUB_OUTPUT  
         fi
