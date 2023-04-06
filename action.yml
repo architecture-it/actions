@@ -19,16 +19,19 @@ runs:
     - name: Get package manager executable
       run: |
         if [ -f "yarn.lock" ]; then 
-          echo "name=yarn" >> $GITHUB_OUTPUT
+          echo "name=yarn add  -g " >> $GITHUB_OUTPUT
+          echo "command=yarn add  -g " >> $GITHUB_OUTPUT
           echo "exec=npx" >> $GITHUB_OUTPUT
           echo "Using yarn and npx"
         elif [ -f "package-lock.json" ]; then 
-          echo "name=npm" >> $GITHUB_OUTPUT 
+          echo "name=npm i --no-save" >> $GITHUB_OUTPUT 
+          echo "command=npm i --no-save" >> $GITHUB_OUTPUT 
           echo "exec=npx" >> $GITHUB_OUTPUT 
           echo "Using npm and npx"
         elif [ -f pnpm-lock.yaml ]; then 
-          echo "name=pnpm" >> $GITHUB_OUTPUT 
-          echo "exec=pnpx dlx" >> $GITHUB_OUTPUT
+          echo "name=pnpm" >> $GITHUB_OUTPUT
+          echo "command=pnpm" >> $GITHUB_OUTPUT
+          echo "exec=pnpx --package=replace-json-property@1.8.0 --package=@semantic-release/exec --package=@semantic-release/git --package=@semantic-release/github --package=@semantic-release/chagelog dlx" >> $GITHUB_OUTPUT
           echo "Using pnpx dlx and pnpm"
         else 
           echo "name=notfound" >> $GITHUB_OUTPUT  
@@ -45,8 +48,9 @@ runs:
         echo 'module.exports = { pkgRoot: "dist", plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator", ["@semantic-release/changelog", { changelogFile: "CHANGELOG.md" }], ["@semantic-release/npm",{  "npmPublish": ${{ inputs.publish }},}],"@semantic-release/github",["@semantic-release/exec",{  prepareCmd: "npx rjp package.json version ${nextRelease.version}",},],["@semantic-release/git",{  message: "Release <%= nextRelease.version %> [skip ci]",  assets: ["package.json", "CHANGELOG.md"],},],],branches: ${{ inputs.branches }} }' >> release.config.js
     - name: Install dependencies
     # install globally to not affect internal project
-      run: ${{ steps.package_manager.outputs.name }} i -g replace-json-property@1.8.0 @semantic-release/exec @semantic-release/git @semantic-release/github @semantic-release/changelog
+      run: ${{ steps.package_manager.outputs.command }} -g replace-json-property@1.8.0 @semantic-release/exec @semantic-release/git @semantic-release/github @semantic-release/changelog
       shell: bash
+      if: ${{ steps.package_manager.outputs.name != 'pnpm' }}
     - name: Release
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
