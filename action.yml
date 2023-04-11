@@ -76,14 +76,11 @@ runs:
         elif [ -f package-lock.json ]; then
           npm ci --no-progress --loglevel error
         elif [ -f pnpm-lock.yaml ]; then
-          yarn global add pnpm && pnpm install --frozen-lockfile
+          pnpm install --frozen-lockfile
         fi
       shell: bash
     - name: Lint
-      run: ${{ steps.package_manager.outputs.name }} run lint --if-present
-      shell: bash
-    - name: Lint
-      run: npm run lint --if-present
+      run: ${{ steps.package_manager.outputs.name }} run --if-present lint
       shell: bash
     - name: Build
       run: ${{ steps.package_manager.outputs.name }} run build
