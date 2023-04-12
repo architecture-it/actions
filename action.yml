@@ -1,63 +1,30 @@
-name: "Release npm"
-description: "Realiza el release basado en los commits y conventional commit"
+name: "Generate .npmrc"
+description: "Genera el archivo de configuración para los paquetes"
 inputs:
-  publish:
-    description: "Publish to internal modules"
-    required: false
-    default: "true"
-  github_token:
+  npm_token:
     description: Github Token
     required: true
-  branches:
-    description: configuration to latest release and prerelease
-    default: '["main", { name: "beta", prerelease: "beta" }]'
-    required: false
-  pkg_root:
-    description: Root of package by default is dist following the template of libraries
-    default: 'dist'
+  font_awesome_key:
+    description: Font Awesome key 
+    required: true
+  add_pnpm_flags:
+    description: Add defaults flags to pnpm works correctly
+    default: "true"
     required: false
 
 runs:
   using: "composite"
   steps:
-    - name: Get package manager executable
-      run: |
-        if [ -f "yarn.lock" ]; then 
-          echo "name=yarn" >> $GITHUB_OUTPUT
-          echo "exec=yarn dlx --package=replace-json-property@1.8.0 --package=@semantic-release/exec --package=@semantic-release/git --package=@semantic-release/github --package=@semantic-release/changelog --package=semantic-release" >> $GITHUB_OUTPUT 
-          echo "Using yarn and npx"
-        elif [ -f "package-lock.json" ]; then 
-          echo "name=npm" >> $GITHUB_OUTPUT 
-          echo "exec=npx" >> $GITHUB_OUTPUT
-          echo "Using yarn dlx and npx"
-        elif [ -f pnpm-lock.yaml ]; then 
-          echo "name=pnpm" >> $GITHUB_OUTPUT
-          echo "exec=pnpm --package=replace-json-property@1.8.0 --package=@semantic-release/exec --package=@semantic-release/git --package=@semantic-release/github --package=@semantic-release/changelog --package=semantic-release dlx" >> $GITHUB_OUTPUT
-          echo "Using pnpx dlx and pnpm"
-        else 
-          echo "name=notfound" >> $GITHUB_OUTPUT
-          echo "El código debe contener algún archivo de lockfile ('package-lock.json', 'yarn.lock' o 'pnpm-lock.yaml')."
-          echo "Asegurate de subirlo."
-          echo "ERROR: Falta archivo lockfile. Ver más en https://architecture-it.github.io/docs/Platform/Front/#manejo-de-dependencias"
-          exit 1
-        fi
-      id: package_manager
-      shell: bash
-    - name: Setup Node.js 18
-      uses: actions/setup-node@v3
-      with:
-        node-version: 18.x
-    - name: Write configuration file
-      shell: bash
-      run: |
-        echo 'module.exports = { pkgRoot: "${{ inputs.pkg_root }}", plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator", ["@semantic-release/changelog", { changelogFile: "CHANGELOG.md" }], ["@semantic-release/npm",{  "npmPublish": ${{ inputs.publish }},}],"@semantic-release/github",["@semantic-release/exec",{  prepareCmd: "npx replace-json-property package.json version ${nextRelease.version}",},],["@semantic-release/git",{  message: "Release <%= nextRelease.version %> [skip ci]",  assets: ["package.json", "CHANGELOG.md"],},],],branches: ${{ inputs.branches }} }' >> release.config.js
-    - name: Install dependencies temporary for npm
-      run: npm i --no-save replace-json-property@1.8.0 @semantic-release/exec @semantic-release/git @semantic-release/github @semantic-release/changelog
-      shell: bash
-      if: ${{ steps.package_manager.outputs.name == 'npm' }}
-    - name: Release
-      env:
-        GITHUB_TOKEN: ${{ inputs.github_token }}
-        GH_TOKEN: ${{ inputs.github_token }}
-      run: ${{ steps.package_manager.outputs.exec }} semantic-release
-      shell: bash
+  - name: Append or generate organizations config
+    run: |
+      echo '@customer-experience:registry=https://npm.pkg.github.com/' >> .npmrc
+      echo '@architecture-it:registry=https://npm.pkg.github.com/' >> .npmrc
+      echo '@operations-innovation:registry=https://npm.pkg.github.com/' >> .npmrc
+      echo '//npm.pkg.github.com/:_authToken=${{ inputs.npm_token }}' >> .npmrc
+      echo '@fortawesome:registry=https://npm.fontawesome.com/' >> .npmrc
+      echo '//npm.fontawesome.com/:_authToken=${{ inputs.font_awesome_key }}' >> .npmrc
+    shell: bash
+  - name: Add flags importants to pnpm
+    run: echo 'enable-pre-post-scripts=true' >> .npmrc
+    shell: bash
+    if: ${{ inputs.add_pnpm_flags }}
