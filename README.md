@@ -1,69 +1,22 @@
-# action | Release Npm library
+# action | Generate npmrc
 
-Use semantic release configuration about libraries. Take a dist folder like root (to empower threeshaking like material ui), updat ethe package.json and commit to branch.
-
-
-
-1. Take care about package manager based on lock file. IF not exist throwns an error and show link to Architecture documentation.
-
-2. Generates a semantic relase config
-3. Setup Node
-4. Install dependencies required for the release (not install any package)
-5. And execute semantic release
-
-```js
-module.exports = { 
-    pkgRoot: "dist", 
-    plugins: [
-        "@semantic-release/commit-analyzer", 
-        "@semantic-release/release-notes-generator", 
-        [
-            "@semantic-release/changelog", 
-            { 
-                changelogFile: "CHANGELOG.md" 
-            }
-        ], 
-        [
-            "@semantic-release/npm",
-            {  
-                "npmPublish": ${{ inputs.publish }},
-            }
-        ],
-        "@semantic-release/github",
-        [
-            "@semantic-release/exec",
-            {  
-                prepareCmd: "npx rjp package.json version ${nextRelease.version}",
-            },
-        ],
-        [
-            "@semantic-release/git",
-            {  
-                message: "Release <%= nextRelease.version %> [skip ci]",
-                assets: [
-                    "package.json", 
-                    "CHANGELOG.md"
-                ],
-            },
-        ]
-    ],
-    branches: ${{ inputs.branches }} 
-};
-```
+1. Generates or appends config from organization necesary for frontend packages
+2. Add flags necesary to pnpm
 
 ## How to use
 
 ```yml
     #previous steps
-    - name: Release Library
-      uses: architecture-it/actions@release-npm-library
+    - name: Generate .npmrc file
+      uses: architecture-it/actions@generate-npmrc
       with:
-        github_token: ${{ secrets.ARQUITECTURA_DEPLOY }}
+        npm_token: ${{ secrets.ARQUITECTURA_DEPLOY }}
+        font_awesome_key: ${{ secrets.NPM_FONTAWESOME_KEY }}
 ```
 
 ## Recommended use
 
-We recommend always test a clean build to revalidate if builds
+We use this action internally but its useful when we create libraries
 
 ```yml
 name: Release
@@ -82,11 +35,10 @@ jobs:
         with:
           token: ${{ secrets.ARQUITECTURA_DEPLOY }}
       - name: Generate .npmrc file
-        run: |
-          echo '@architecture-it:registry=https://npm.pkg.github.com/' >> .npmrc
-          echo '//npm.pkg.github.com/:_authToken=${{ secrets.ARQUITECTURA_DEPLOY }}' >> .npmrc
-          echo '@fortawesome:registry=https://npm.fontawesome.com/' >> .npmrc
-          echo '//npm.fontawesome.com/:_authToken=${{ secrets.NPM_FONTAWESOME_KEY }}' >> .npmrc
+        uses: architecture-it/actions@generate-npmrc
+        with:
+          npm_token: ${{ secrets.ARQUITECTURA_DEPLOY }}
+          font_awesome_key: ${{ secrets.NPM_FONTAWESOME_KEY }}
       - name: Use pnpm Setup
         uses: pnpm/action-setup@v2
         with:
