@@ -3,10 +3,12 @@ description: "Genera el archivo de configuración para los paquetes"
 inputs:
   npm_token:
     description: Github Token
-    required: true
+    default: ""
+    required: false
   font_awesome_key:
-    description: Font Awesome key 
-    required: true
+    description: Font Awesome key
+    default: ""
+    required: false
   add_pnpm_flags:
     description: Add defaults flags to pnpm works correctly
     default: "true"
@@ -15,15 +17,20 @@ inputs:
 runs:
   using: "composite"
   steps:
-  - name: Append or generate organizations config
+  - name: Add organization that have packages
     run: |
       echo '@customer-experience:registry=https://npm.pkg.github.com/' >> .npmrc
       echo '@architecture-it:registry=https://npm.pkg.github.com/' >> .npmrc
       echo '@operations-innovation:registry=https://npm.pkg.github.com/' >> .npmrc
       echo '//npm.pkg.github.com/:_authToken=${{ inputs.npm_token }}' >> .npmrc
+    shell: bash
+    if: ${{ inputs.npm_token != '' }}
+  - name: Add and autenticate fontawesome registry
+    run: |
       echo '@fortawesome:registry=https://npm.fontawesome.com/' >> .npmrc
       echo '//npm.fontawesome.com/:_authToken=${{ inputs.font_awesome_key }}' >> .npmrc
     shell: bash
+    if: ${{ inputs.font_awesome_key != '' }}
   - name: Add flags importants to pnpm
     run: echo 'enable-pre-post-scripts=true' >> .npmrc
     shell: bash
