@@ -28,6 +28,10 @@ inputs:
     required: false
     description: "Emulator version"
     default: "30.7.5"
+  java_version:
+    required: false
+    description: "Emulator version"
+    default: "11"
 
 runs:
   using: "composite"
@@ -38,27 +42,19 @@ runs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'yarn'
-    - name: config npmrc file fontawesome 
-      run: |
-        echo '@fortawesome:registry=https://npm.fontawesome.com/' >> .npmrc
-        echo '//npm.fontawesome.com/:_authToken=${{ inputs.fontawesome_token }}' >> .npmrc
-      shell: bash
-      if: ${{ inputs.fontawesome_token != '' }}
-    - name: config npmrc file github packages of company
-      run: |
-        echo '@architecture-it:registry=https://npm.pkg.github.com/' >> .npmrc
-        echo '//npm.pkg.github.com/:_authToken=${{ inputs.packages_token }}' >> .npmrc
-      shell: bash
-      if: ${{ inputs.packages_token != '' }}
+    - name: Generate .npmrc file
+      uses: architecture-it/actions@generate-npmrc
+      with:
+        npm_token: ${{ inputs.packages_token }}
+        font_awesome_key: ${{ inputs.fontawesome_token }}
     - name: Set up JDK 11
       uses: actions/setup-java@v2
       with:
-        java-version: '11'
-
+        java-version: ${{ inputs.java_version }}
     - name: Set up Android SDK and build tools
       uses: android-actions/setup-android-sdk@v2
       with:
-        sdk-platform: ${{ inputs.sdk_platfomr }}
+        sdk-platform: ${{ inputs.sdk_platform }}
         build-tools: ${{ inputs.build_tools }}
         sdk-tools: ${{ inputs.sdk_tools }}
         emulator-version: ${{ inputs.emulator_version }}
