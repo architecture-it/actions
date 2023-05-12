@@ -87,7 +87,7 @@ runs:
       shell: bash
       env:
         CI: ${{ inputs.ci == 'true' }}
-    - run: ${{ steps.package_manager.outputs.name }} test --outputFile=report.json -- --json --coverage --runInBand --testLocationInResults
+    - run: ${{ steps.package_manager.outputs.name }} test -- --json --coverage --runInBand --testLocationInResults --outputFile=report.json
       name: Unit tests
       shell: bash
       env:
