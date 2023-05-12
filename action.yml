@@ -1,4 +1,4 @@
-name: "React CI"
+name: "React CI test"
 description: "Realiza el lint, build, test and coverage"
 inputs:
   matrix_version:
