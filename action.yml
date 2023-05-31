@@ -12,6 +12,10 @@ inputs:
     description: "token github para autenticarse en packages"
     required: false
     default: ''
+  github_token:
+    description: "token de github"
+    required: false
+    default: ''
   skip_test:
     description: "permite skipear los procesos de testing"
     required: false
@@ -19,6 +23,14 @@ inputs:
   ci:
     description: "Esta variable forza el chequeo del linter y en caso de fallas rompe el flujo"
     required: false
+    default: 'false'
+  library_test:
+    description: "Esta variable indica si el workflow desde el que se está ejecutando el proceso es el de test unitarios"
+    required: true
+    default: 'true'
+  library_visual_test:
+    description: "Esta variable indica si el workflow desde el que se está ejecutando el proceso es el de test visuales"
+    required: true
     default: 'false'
 runs:
   using: "composite"
