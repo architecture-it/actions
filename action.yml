@@ -45,16 +45,6 @@ runs:
         exit 1
       shell: bash    
       # Use default with cache
-    - name: Use pnpm Setup
-      uses: pnpm/action-setup@v2
-      with:
-        version: 8
-      if: ${{ steps.package_manager.outputs.name == 'pnpm' }}
-    - name: Use Node.js ${{ inputs.matrix_version }} - Cache ${{ steps.package_manager.outputs.name }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: ${{ steps.package_manager.outputs.name }}
     - name: config npmrc file fontawesome 
       run: |
         echo '@fortawesome:registry=https://npm.fontawesome.com/' >> .npmrc
@@ -69,6 +59,16 @@ runs:
         echo '//npm.pkg.github.com/:_authToken=${{ inputs.packages_token }}' >> .npmrc
       shell: bash
       if: ${{ inputs.packages_token != '' }}
+    - name: Use pnpm Setup
+      uses: pnpm/action-setup@v2
+      with:
+        version: 8
+      if: ${{ steps.package_manager.outputs.name == 'pnpm' }}
+    - name: Use Node.js ${{ inputs.matrix_version }} - Cache ${{ steps.package_manager.outputs.name }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: ${{ steps.package_manager.outputs.name }}
     - name: Install dependencies
       run: |
         if [ -f yarn.lock ]; then 
