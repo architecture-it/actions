@@ -79,23 +79,17 @@ runs:
           pnpm install --frozen-lockfile
         fi
       shell: bash
-    - name: Lint
-      run: ${{ steps.package_manager.outputs.name }} run --if-present lint
-      shell: bash
-    - name: Build
-      run: ${{ steps.package_manager.outputs.name }} run build
-      shell: bash
-      env:
-        CI: ${{ inputs.ci == 'true' }}
-    - run: ${{ steps.package_manager.outputs.name }} test -- --json --coverage --runInBand --testLocationInResults --outputFile=report.json
-      name: Unit tests
+    - name: Unit tests
+      run: ${{ steps.package_manager.outputs.name }} run test
       shell: bash
       env:
         CI: ${{ inputs.ci == 'true' }}
       if: ${{ inputs.skip_test != 'true' }}
-    - name: Archive code coverage results
-      uses: actions/upload-artifact@v3
+    - name: Storybook Build
+      run: ${{ steps.package_manager.outputs.name }} run storybook:smoke-test
+      shell: bash
+    - name: Coverage
+      uses: artiomtr/jest-coverage-report-action@v2.0-rc.5
       with:
-        name: code-coverage-report
-        path: coverage
-      if: ${{ inputs.skip_test != 'true' }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        skip-step: install
