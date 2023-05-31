@@ -89,7 +89,14 @@ runs:
       run: ${{ steps.package_manager.outputs.name }} run storybook:smoke-test
       shell: bash
     - name: Coverage
+      if: ${{ inputs.library_test == 'true' }}
       uses: artiomtr/jest-coverage-report-action@v2.0-rc.5
       with:
         github-token: ${{ inputs.github_token }}
         skip-step: install
+    - name: Visual Regression Testing based on build for storybook
+      if: ${{ inputs.library_visual_test == 'true' }}
+      run: ${{ steps.package_manager.outputs.name }} run loki:ci
+      shell: bash
+
+      
