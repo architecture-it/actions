@@ -91,5 +91,5 @@ runs:
     - name: Coverage
       uses: artiomtr/jest-coverage-report-action@v2.0-rc.5
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+        github-token: ${{ inputs.github_token }}
         skip-step: install
