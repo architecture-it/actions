@@ -10,7 +10,7 @@ inputs:
     required: true
   branches:
     description: configuration to latest release and prerelease
-    default: '["main", { name: "beta", prerelease: "beta" }]'
+    default: '["main", { name: "development", prerelease: "development" }]'
     required: false
   pkg_root:
     description: Root of package by default is dist following the template of libraries
