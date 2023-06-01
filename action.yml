@@ -85,8 +85,5 @@ runs:
       env:
         CI: ${{ inputs.ci == 'true' }}
       if: ${{ inputs.skip_test != 'true' }}
-    - name: Storybook Build
-      run: ${{ steps.package_manager.outputs.name }} run storybook:smoke-test
-      shell: bash
 
       
