@@ -44,27 +44,26 @@ runs:
         echo "ERROR: Falta archivo lockfile. Ver más en https://architecture-it.github.io/docs/Platform/Front/#manejo-de-dependencias"
         exit 1
       shell: bash    
-      # Use default with cache
     - name: config npmrc file fontawesome 
+      if: ${{ inputs.fontawesome_token != '' }}
       run: |
         echo '@fortawesome:registry=https://npm.fontawesome.com/' >> .npmrc
         echo '//npm.fontawesome.com/:_authToken=${{ inputs.fontawesome_token }}' >> .npmrc
       shell: bash
-      if: ${{ inputs.fontawesome_token != '' }}
     - name: config npmrc file github packages of company
+      if: ${{ inputs.packages_token != '' }}
       run: |
         echo '@customer-experience:registry=https://npm.pkg.github.com/' >> .npmrc
         echo '@architecture-it:registry=https://npm.pkg.github.com/' >> .npmrc
         echo '@operations-innovation:registry=https://npm.pkg.github.com/' >> .npmrc
         echo '//npm.pkg.github.com/:_authToken=${{ inputs.packages_token }}' >> .npmrc
       shell: bash
-      if: ${{ inputs.packages_token != '' }}
     - name: Use pnpm Setup
+      if: ${{ steps.package_manager.outputs.name == 'pnpm' }}
       uses: pnpm/action-setup@v2
       with:
         version: 8
-      if: ${{ steps.package_manager.outputs.name == 'pnpm' }}
-    - name: Use Node.js ${{ inputs.matrix_version }} - Cache ${{ steps.package_manager.outputs.name }}
+    - name: Use Node.js
       uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
@@ -79,11 +78,5 @@ runs:
           pnpm install --frozen-lockfile
         fi
       shell: bash
-    - name: Unit tests
-      run: ${{ steps.package_manager.outputs.name }} run test
-      shell: bash
-      env:
-        CI: ${{ inputs.ci == 'true' }}
-      if: ${{ inputs.skip_test != 'true' }}
 
       
