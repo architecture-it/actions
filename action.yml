@@ -7,7 +7,7 @@ inputs:
     required: true
   branches:
     description: configuration to latest release and prerelease
-    default: '["cicd", { name: "main", prerelease: "development" }]'
+    default: '["main", { name: "alpha", prerelease: "alpha" }]'
     required: false
   pack_arguments:
     description: arguments passed to pack
