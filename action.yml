@@ -28,6 +28,10 @@ inputs:
     default: '["**/*.csproj"]'
     required: false
     description: Glob patterns to find releases paths. By default point to all *.csproj
+  assets: 
+    default: '["**/*.csproj"]'
+    required: false
+    description: Glob patterns to find assets. By default point to all *.csproj
 
 
 runs:
