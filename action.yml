@@ -7,7 +7,7 @@ inputs:
     required: true
   branches:
     description: configuration to latest release and prerelease
-    default: '["main", { name: "alpha", prerelease: "alpha" }]'
+    default: '["main", { name: "beta", prerelease: "beta" }]'
     required: false
   pack_arguments:
     description: arguments passed to pack
@@ -28,11 +28,6 @@ inputs:
     default: '["**/*.csproj"]'
     required: false
     description: Glob patterns to find releases paths. By default point to all *.csproj
-  assets: 
-    default: '["**/*.csproj"]'
-    required: false
-    description: Glob patterns to find assets. By default point to all *.csproj
-
 
 runs:
   using: "composite"
