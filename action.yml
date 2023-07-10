@@ -56,7 +56,7 @@ runs:
         id: cache-sonar-scanner
         uses: actions/cache@v1
         with:
-          path: .\.sonar\scanner
+          path: ${{ inputs.workdir_src }}/.sonar/scanner
           key: ${{ runner.os }}-sonar-scanner
           restore-keys: ${{ runner.os }}-sonar-scanner
       - name: Sonarqube Begin
@@ -85,6 +85,7 @@ runs:
         working-directory: ${{ inputs.workdir_test }}
         
       - name: Sonarqube end
+        working-directory: ${{ inputs.workdir_src }}
         run: dotnet sonarscanner end -d:sonar.login="${{ inputs.sonar_token }}"
         shell: bash
         env:
