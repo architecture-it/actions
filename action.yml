@@ -1,4 +1,4 @@
-name: .NET publish GitPackage
+name: .NET publish GitPackage Orleans
 
 inputs:
   github_username:
@@ -7,10 +7,13 @@ inputs:
   github_token:
     description: "token del usuario con permisos de lectura en packages"
     required: true
+  github_source:
+    description: "Es la organización donde se va publicar el packages, usar los nombres de las organizaciones tal como está en github"
+    required: true
   workdir_src:
     description: "directorio donde se encuentra el project a compilar DEFAULT: ./"
     required: false
-    default: './'
+    default: './grains/'
  
 runs:
   using: "composite"
@@ -20,10 +23,14 @@ runs:
     uses: actions/setup-dotnet@v1
     with:
       dotnet-version: 6.0.x
+      dotnet-version: 7.0.x
   - name: Add NuGet sources
     run: |
       dotnet nuget locals -c all       
-      dotnet nuget add source https://nuget.pkg.github.com/architecture-it/index.json --name github -u ${{ inputs.github_username }} -p ${{ inputs.github_token  }} --store-password-in-clear-text
+      dotnet nuget add source https://nuget.pkg.github.com/architecture-it/index.json --name architecture-it -u ${{ inputs.github_username }} -p ${{ inputs.github_token  }} --store-password-in-clear-text
+      dotnet nuget add source https://nuget.pkg.github.com/operations-innovation/index.json --name operations-innovation -u ${{ inputs.github_username }} -p ${{ inputs.github_token  }} --store-password-in-clear-text
+      dotnet nuget add source https://nuget.pkg.github.com/customer-experience/index.json --name customer-experience -u ${{ inputs.github_username }} -p ${{ inputs.github_token  }} --store-password-in-clear-text
+      dotnet nuget add source https://nuget.pkg.github.com/corporate-solutions-gla/index.json --name corporate-solutions-gla -u ${{ inputs.github_username }} -p ${{ inputs.github_token  }} --store-password-in-clear-text
     shell: bash
   - name: dotnet build and publish
     run: |
