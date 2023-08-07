@@ -13,7 +13,7 @@ inputs:
   workdir_src:
     description: "directorio donde se encuentra el project a compilar DEFAULT: grains/**/*.csproj"
     required: false
-    default: './grains/**/*.csproj'
+    default: 'grains/.'
  
 runs:
   using: "composite"
@@ -37,9 +37,11 @@ runs:
     run: |
       dotnet restore
       dotnet build --configuration 'Release'
-      dotnet pack -c 'Release' ${{ inputs.workdir_src }} 
+      dotnet pack -c 'Release' 
+    working-directory: ${{ inputs.workdir_src }}
     shell: bash
     
   - name: Nuget Push on Github
-    run: dotnet nuget push --source ${{ inputs.github_source}} --api-key ${{ inputs.github_token }} --skip-duplicate bin/Release/*.nupkg ${{ inputs.workdir_src }}
+    run: dotnet nuget push --source ${{ inputs.github_source}} --api-key ${{ inputs.github_token }} --skip-duplicate bin/Release/*.nupkg 
+    working-directory: ${{ inputs.workdir_src }}
     shell: bash
