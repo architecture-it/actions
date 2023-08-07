@@ -11,7 +11,7 @@ inputs:
     description: "Es la organización donde se va publicar el packages, usar los nombres de las organizaciones tal como está en github"
     required: true
   workdir_src:
-    description: "directorio donde se encuentra el project a compilar DEFAULT: ./"
+    description: "directorio donde se encuentra el project a compilar DEFAULT: ./grains/OrleansClient.Grain"
     required: false
     default: './grains/OrleansClient.Grain'
  
