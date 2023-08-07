@@ -13,7 +13,7 @@ inputs:
   workdir_src:
     description: "directorio donde se encuentra el project a compilar DEFAULT: ./"
     required: false
-    default: './grains'
+    default: './grains/OrleansClient.Grain'
  
 runs:
   using: "composite"
