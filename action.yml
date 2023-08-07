@@ -37,8 +37,7 @@ runs:
     run: |
       dotnet restore
       dotnet build --configuration 'Release'
-      dotnet pack -c 'Release' 
-    working-directory: ${{ inputs.workdir_src }}  
+      dotnet pack -c 'Release' ${{ inputs.workdir_src }} 
     shell: bash
     
   - name: Nuget Push on Github
