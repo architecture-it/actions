@@ -34,7 +34,7 @@ runs:
       dotnet nuget add source https://nuget.pkg.github.com/corporate-solutions-gla/index.json --name corporate-solutions-gla -u ${{ inputs.github_username }} -p ${{ inputs.github_token  }} --store-password-in-clear-text
     shell: bash
   - name: dotnet build and publish
-    run:  find . -name "*.csproj" -exec dotnet pack {} -c 'Release'\;
+    run: find . -name "*.csproj" -exec dotnet pack {} -c 'Release' \;
     working-directory: ${{ inputs.workdir_src }}
     shell: bash
     
