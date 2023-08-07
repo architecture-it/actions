@@ -13,7 +13,7 @@ inputs:
   workdir_src:
     description: "directorio donde se encuentra el project a compilar DEFAULT: grains/**/*.csproj"
     required: false
-    default: 'grains/*'
+    default: './grains'
  
 runs:
   using: "composite"
