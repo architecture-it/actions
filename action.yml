@@ -13,7 +13,7 @@ inputs:
   workdir_src:
     description: "directorio donde se encuentra el project a compilar DEFAULT: ./"
     required: false
-    default: './grains/OrleansClient.Grain'
+    default: './grains'
  
 runs:
   using: "composite"
@@ -42,6 +42,6 @@ runs:
     shell: bash
     
   - name: Nuget Push on Github
-    run: dotnet nuget push --source github --api-key ${{ inputs.github_token }} --skip-duplicate bin/Release/*.nupkg
+    run: dotnet nuget push --source ${{ inputs.github_source}} --api-key ${{ inputs.github_token }} --skip-duplicate bin/Release/*.nupkg
     working-directory: ${{ inputs.workdir_src }}
     shell: bash
