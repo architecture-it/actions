@@ -37,7 +37,7 @@ runs:
     run: |
       dotnet restore
       dotnet build --configuration 'Release'
-      dotnet pack -c 'Release' 
+      find . -name "*.csproj" -exec dotnet pack {} -c 'Release'\;
     working-directory: ${{ inputs.workdir_src }}
     shell: bash
     
