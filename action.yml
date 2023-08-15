@@ -37,9 +37,6 @@ inputs:
   sonar_custom:
     decription: "config sonar custom"
     default: ""
-  sonar_dir_exclude:
-    description: "La url de los archivos que se excluyen del analisis de sonar"
-    default: ""
 runs:
   using: "composite"
   steps:
@@ -74,20 +71,6 @@ runs:
           workdir_src: ${{ inputs.workdir_src }}
           workdir_test: ${{ inputs.workdir_test }}
         if: ${{ inputs.sonar_code == '.Net' }}
-
-      - name: Setup .NET Analyzer
-        uses: architecture-it/actions@sonar-net
-        with: 
-          github_username: ${{ inputs.github_username }}
-          github_token: ${{ inputs.github_token }}
-          sonar_url: ${{ inputs.sonar_url }}
-          sonar_token: ${{ inputs.sonar_token }}
-          sonar_key:  ${{ env.KEY_REPOSITORY }}
-          sonar_custom: ${{ inputs.sonar_custom }}
-          workdir_src: ${{ inputs.workdir_src }}
-          workdir_test: ${{ inputs.workdir_test }}
-          sonar_dir_exclude: ${{inputs.sonar_dir_exclude}}
-        if: ${{ inputs.sonar_code == '.Net2' }}
 
       - name: Setup Go Analyzer
         uses: architecture-it/actions@sonar-go
