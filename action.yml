@@ -1,0 +1,36 @@
+name: "Python CI"
+description: "Realiza el lint, build, test y coverage para proyectos Python"
+inputs:
+  matrix_version:
+    description: "matrix de versiones de Python"
+    required: true
+  skip_test:
+    description: "permite saltar los procesos de testing"
+    required: false
+    default: 'false' 
+  ci:
+    description: "Esta variable forza el chequeo del linter y en caso de fallas rompe el flujo"
+    required: false
+    default: 'false'
+runs:
+  using: "composite"
+  steps:
+    - name: Use Python ${{ inputs.matrix_version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ inputs.matrix_version }}
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+    - name: Lint
+      run: pylint --fail-under=8 .
+    - name: Test
+      run: pytest --cov=./
+      env:
+        CI: ${{ inputs.ci == 'true' }}
+      if: ${{ inputs.skip_test != 'true' }}
+    - name: Archive code coverage results
+      uses: actions/upload-artifact@v2
+      with:
+        name: code-coverage-report
+        path: htmlcov/
+      if: ${{ inputs.skip_test != 'true' }}
