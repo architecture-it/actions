@@ -34,3 +34,5 @@ runs:
         name: code-coverage-report
         path: htmlcov/
       if: ${{ inputs.skip_test != 'true' }}
+    - name: Build
+      run: python setup.py sdist bdist_wheel
