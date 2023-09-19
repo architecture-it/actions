@@ -11,6 +11,10 @@ inputs:
     description: "directorio donde se encuentra el project a compilar DEFAULT: ./"
     required: false
     default: './'
+  github_source:
+    description: "El source de la organización que va a utilizar. Default: architecture-it"
+    required: false
+    default: 'architecture-it'
  
 runs:
   using: "composite"
@@ -23,7 +27,8 @@ runs:
   - name: Add NuGet sources
     run: |
       dotnet nuget locals -c all       
-      dotnet nuget add source https://nuget.pkg.github.com/architecture-it/index.json --name github -u ${{ inputs.github_username }} -p ${{ inputs.github_token  }} --store-password-in-clear-text
+      dotnet nuget add source https://nuget.pkg.github.com/architecture-it/index.json --name architecture-it -u ${{ inputs.github_username }} -p ${{ inputs.github_token  }} --store-password-in-clear-text
+      dotnet nuget add source https://nuget.pkg.github.com/operations-innovation/index.json --name operations-innovation -u ${{ inputs.github_username }} -p ${{ inputs.github_token  }} --store-password-in-clear-text
     shell: bash
   - name: dotnet build and publish
     run: |
@@ -34,6 +39,6 @@ runs:
     shell: bash
     
   - name: Nuget Push on Github
-    run: dotnet nuget push --source github --api-key ${{ inputs.github_token }} --skip-duplicate bin/Release/*.nupkg
+    run: dotnet nuget push --source github_source --api-key ${{ inputs.github_token }} --skip-duplicate bin/Release/*.nupkg
     working-directory: ${{ inputs.workdir_src }}
     shell: bash
