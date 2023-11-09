@@ -16,6 +16,10 @@ inputs:
     description: Root of package by default is dist following the template of libraries
     default: 'dist'
     required: false
+  node_version:
+    description: Node version
+    default: '18.x'
+    required: false
 
 runs:
   using: "composite"
@@ -43,10 +47,10 @@ runs:
         fi
       id: package_manager
       shell: bash
-    - name: Setup Node.js 18
+    - name: Setup Node.js ${{ inputs.node_version }}
       uses: actions/setup-node@v3
       with:
-        node-version: 18.x
+        node-version: ${{ inputs.node_version }}
     - name: Write configuration file
       shell: bash
       run: |
