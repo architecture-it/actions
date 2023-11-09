@@ -1,5 +1,5 @@
-name: "React CI"
-description: "Realiza el lint, build, test and coverage"
+name: "Vite CI"
+description: "Realiza el lint, build, test and coverage para proyectos con Vite"
 inputs:
   matrix_version:
     description: "matrix de pruebas node"
@@ -87,8 +87,19 @@ runs:
       shell: bash
       env:
         CI: ${{ inputs.ci == 'true' }}
-    - run: ${{ steps.package_manager.outputs.name }} test -- --json --coverage --runInBand --testLocationInResults --outputFile=report.json
-      name: Unit tests
+    - name: Get tests flags
+      run: |
+        if [ -f package.json ]; then
+          if grep -q vitest package.json; then
+            echo "tests_flags=" >> $GITHUB_OUTPUT
+          else
+            echo "tests_flags=--json --runInBand --testLocationInResults --outputFile=report.json" >> $GITHUB_OUTPUT
+          fi
+        fi
+      id: flags
+      shell: bash
+    - name: Unit tests
+      run: ${{ steps.package_manager.outputs.name }} run test --coverage ${{ steps.flags.outputs.tests_flags }}
       shell: bash
       env:
         CI: ${{ inputs.ci == 'true' }}
