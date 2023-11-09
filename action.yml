@@ -1,5 +1,6 @@
-name: "React CI test"
-description: "Realiza el lint, build, test and coverage"
+name: "React Prepare"
+description: "Realiza la configuración necesaria e install de las dependencias(npm, yarn, pnpm)"
+
 inputs:
   matrix_version:
     description: "matrix de pruebas node"
@@ -58,6 +59,12 @@ runs:
         echo '@operations-innovation:registry=https://npm.pkg.github.com/' >> .npmrc
         echo '//npm.pkg.github.com/:_authToken=${{ inputs.packages_token }}' >> .npmrc
       shell: bash
+    - name: Enable config for pnpm
+      if: ${{ steps.package_manager.outputs.name == 'pnpm' }}
+      run: |
+        echo 'auto-install-peers=true' >> .npmrc
+        echo 'enable-pre-post-scripts=true' >> .npmrc
+      shell: bash
     - name: Use pnpm Setup
       if: ${{ steps.package_manager.outputs.name == 'pnpm' }}
       uses: pnpm/action-setup@v2
@@ -78,5 +85,3 @@ runs:
           pnpm install --frozen-lockfile
         fi
       shell: bash
-
-      
