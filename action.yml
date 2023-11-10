@@ -1,4 +1,4 @@
-name: "SonarQube Analyzer "
+name: "SonarQube Analyzer 🔍"
 description: "Se realiza el análisis en sonarqube"
 inputs:
   github_username:
@@ -105,8 +105,4 @@ runs:
       - name: Set Tags 📌
         shell: bash
         run: |
-          if [ -n "${{ inputs.tags }}" ]; then
-            curl -X POST -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/project_tags/set' -d tags='${{ inputs.sonar_code }}, github, ${{ inputs.tags }}' -d project=${{ env.KEY_REPOSITORY }}
-          else
-            curl -X POST -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/project_tags/set' -d tags='${{ inputs.sonar_code }}, github' -d project=${{ env.KEY_REPOSITORY }}
-          fi
+          curl -X POST -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/project_tags/set' -d tags='${{ inputs.sonar_code }}, github, ${{ inputs.tags }}' -d project=${{ env.KEY_REPOSITORY }}
