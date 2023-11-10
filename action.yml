@@ -3,6 +3,7 @@ description: "Realiza el agregado de los topics de un repositorio. Si no existe 
 inputs:
   github_token:
     description: "token github"
+    required: true
   topics:
     description: "Topics separated with comma. Example: topic1,topic2,topic3"
     default: ""
@@ -13,6 +14,7 @@ runs:
       with:
         retries: 3
         debug: true
+        github-token: ${{ github.event.inputs.github_token }}
         script: |
           const topics = '${{ github.event.inputs.topics }}';
           const { data: { names: actualTopics } } = await github.rest.repos.getAllTopics({
