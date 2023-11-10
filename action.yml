@@ -1,5 +1,5 @@
-name: "Sync topics"
-description: "Realiza el update/sync de los topics de un repositorio"
+name: "Add topics"
+description: "Realiza el agregado de los topics de un repositorio. Si no existe no actualiza nada"
 inputs:
   github_token:
     description: "token github"
@@ -24,12 +24,15 @@ runs:
           const newTopics = topics.split(',').map(topic => topic.trim());
           core.info(`New topics: ${newTopics.join(', ')}`);
 
-          const finalTopics = actualTopics.concat(newTopics);
+          const actualTopicsSet = new Set(actualTopics);
+          const uniqueNewTopics = newTopics.filter(topic => !actualTopicsSet.has(topic));
 
-          if(finalTopics === 0) {
-              core.info(`Not topics to sync`);
+          if (uniqueNewTopics.length === 0) {
+              core.info(`No new topics to sync`);
               return;
           }
+
+          const finalTopics = [...actualTopicsSet, ...uniqueNewTopics];
 
           await github.rest.repos.replaceAllTopics({
               owner: context.repo.owner,
