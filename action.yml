@@ -1,4 +1,4 @@
-name: "SonarQube Analyzer 🔍"
+name: "🔍 SonarQube Analyzer"
 description: "Se realiza el análisis en sonarqube"
 inputs:
   github_username:
@@ -46,7 +46,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-      - name: Key Repository 🔑
+      - name: '🔑 Key Repository'
         id: variables
         uses: actions/github-script@v5
         with:
@@ -55,14 +55,14 @@ runs:
             const organization = context.repo.owner
             core.exportVariable('KEY_REPOSITORY', `${organization}_${name}`)
 
-      - name: Setup Pre requisitos 📃
+      - name: '📃 Setup Pre requisitos'
         uses: architecture-it/actions@sonar-prerequisitos
         with:
           sonar_url: ${{ inputs.sonar_url }}
           sonar_token: ${{ inputs.sonar_token }}
           sonar_key:  ${{ env.KEY_REPOSITORY }}
 
-      - name: Setup .NET Analyzer 🔨
+      - name: '🔨 Setup .NET Analyzer'
         uses: architecture-it/actions@sonar-net
         with: 
           github_username: ${{ inputs.github_username }}
@@ -75,7 +75,7 @@ runs:
           workdir_test: ${{ inputs.workdir_test }}
         if: ${{ inputs.sonar_code == '.Net' }}
 
-      - name: Setup Go Analyzer 🔨
+      - name: '🔨 Setup Go Analyzer'
         uses: architecture-it/actions@sonar-go
         with: 
           sonar_url: ${{ inputs.sonar_url }}
@@ -84,7 +84,7 @@ runs:
           skip_test: ${{inputs.skip_test}}
         if: ${{ inputs.sonar_code == 'Go' }}
 
-      - name: Setup Javascript Analyzer 🔨
+      - name: '🔨 Setup Javascript Analyzer'
         uses: architecture-it/actions@sonar-js
         with: 
           sonar_url: ${{ inputs.sonar_url }}
@@ -93,7 +93,7 @@ runs:
           skip_test: ${{inputs.skip_test}}
         if: ${{ inputs.sonar_code == 'Js' }}
         
-      - name: Setup Python Analyzer 🔨
+      - name: '🔨 Setup Python Analyzer'
         uses: architecture-it/actions@sonar-py
         with: 
           sonar_url: ${{ inputs.sonar_url }}
@@ -102,7 +102,7 @@ runs:
           version: ${{ inputs.version }}
         if: ${{ inputs.sonar_code == 'Python' }}
       
-      - name: Set Tags 📌
+      - name: '📌 Set Tags'
         shell: bash
         run: |
           curl -X POST -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/project_tags/set' -d tags='${{ inputs.sonar_code }}, github, ${{ inputs.tags }}' -d project=${{ env.KEY_REPOSITORY }}
