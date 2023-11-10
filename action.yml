@@ -1,24 +1,39 @@
-name: validate-yaml
-description: A Github action for validating .yaml files using JSON schemas
-branding:
-  icon: check-square
-  color: blue
+name: "Sync topics"
+description: "Realiza el update/sync de los topics de un repositorio"
 inputs:
-  jsonSchemaFile:
-    description: A JSON schema file following the format used at https://www.schemastore.org
-    required: true
-  yamlFiles:
-    description: A list of files, directories, and wildcard patterns to be validated
-    required: true
-  filesSeparator:
-    description: "Separator used to split the files input"
-    default: ","
-    required: false
-outputs:
-  validFiles:
-    description: Comma separated list of files that passed
-  invalidFiles:
-    description: Comma separated list of files that failed
+  github_token:
+    description: "token github"
+    required: true  
 runs:
-  using: "node16"
-  main: "dist/index.js"
+  using: "composite"
+  steps:
+      - uses: actions/github-script@v6
+        with:
+          retries: 3
+          debug: true
+          github-token: ${{ inputs.github_token }}
+          script: |
+            const topics = '${{ github.event.inputs.topics }}';
+            const { data: { names: actualTopics } } = await github.rest.repos.getAllTopics({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+            });
+            core.info(`Actual topics: ${actualTopics.join(', ')}`);
+
+            const newTopics = topics.split(',').map(topic => topic.trim());
+            core.info(`New topics: ${newTopics.join(', ')}`);
+            
+            const finalTopics = actualTopics.concat(newTopics);
+
+            if(finalTopics === 0) {
+                core.info(`Not topics to sync`);
+                return;
+            }
+
+            await github.rest.repos.replaceAllTopics({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                names: finalTopics
+            });
+
+            core.info(`Topics sync: ${finalTopics.join(', ')}`);
