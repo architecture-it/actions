@@ -4,6 +4,9 @@ inputs:
   github_token:
     description: "token github"
     required: true
+  topics:
+    description: "Topics separated with comma. Example: topic1,topic2,topic3"
+    default: ""
 runs:
   using: "composite"
   steps:
