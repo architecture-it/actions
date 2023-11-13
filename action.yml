@@ -108,6 +108,7 @@ runs:
           curl -X POST -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/project_tags/set' -d tags='${{ inputs.sonar_code }}, github, ${{ inputs.tags }}' -d project=${{ env.KEY_REPOSITORY }}
 
       - name: Set topics
+        if: ${{ inputs.github_token != '' }}
         uses: architecture-it/actions@sync-topics
         with:
           github_token: ${{ inputs.github_token }}
