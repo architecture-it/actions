@@ -24,14 +24,17 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Get package manager of Repo
+    - name: Get package manager and install command
       run: |
         if [ -f "yarn.lock" ]; then 
-          echo "name=yarn" >> $GITHUB_OUTPUT
+          echo "name=yarn" >> $GITHUB_OUTPUT 
+          echo "command=yarn --frozen-lockfile" >> $GITHUB_OUTPUT 
         elif [ -f "package-lock.json" ]; then 
           echo "name=npm" >> $GITHUB_OUTPUT 
+          echo "command=npm ci --no-progress --loglevel error" >> $GITHUB_OUTPUT 
         elif [ -f pnpm-lock.yaml ]; then 
           echo "name=pnpm" >> $GITHUB_OUTPUT 
+          echo "command=pnpm install --frozen-lockfile" >> $GITHUB_OUTPUT 
         else 
           echo "name=notfound" >> $GITHUB_OUTPUT  
         fi
@@ -45,26 +48,11 @@ runs:
         echo "ERROR: Falta archivo lockfile. Ver más en https://architecture-it.github.io/docs/Platform/Front/#manejo-de-dependencias"
         exit 1
       shell: bash    
-    - name: config npmrc file fontawesome 
-      if: ${{ inputs.fontawesome_token != '' }}
-      run: |
-        echo '@fortawesome:registry=https://npm.fontawesome.com/' >> .npmrc
-        echo '//npm.fontawesome.com/:_authToken=${{ inputs.fontawesome_token }}' >> .npmrc
-      shell: bash
-    - name: config npmrc file github packages of company
-      if: ${{ inputs.packages_token != '' }}
-      run: |
-        echo '@customer-experience:registry=https://npm.pkg.github.com/' >> .npmrc
-        echo '@architecture-it:registry=https://npm.pkg.github.com/' >> .npmrc
-        echo '@operations-innovation:registry=https://npm.pkg.github.com/' >> .npmrc
-        echo '//npm.pkg.github.com/:_authToken=${{ inputs.packages_token }}' >> .npmrc
-      shell: bash
-    - name: Enable config for pnpm
-      if: ${{ steps.package_manager.outputs.name == 'pnpm' }}
-      run: |
-        echo 'auto-install-peers=true' >> .npmrc
-        echo 'enable-pre-post-scripts=true' >> .npmrc
-      shell: bash
+    - name: Generate .npmrc file
+      uses: architecture-it/actions@generate-npmrc
+      with:
+        npm_token: ${{ inputs.packages_token }}
+        font_awesome_key: ${{ inputs.fontawesome_token }}
     - name: Use pnpm Setup
       if: ${{ steps.package_manager.outputs.name == 'pnpm' }}
       uses: pnpm/action-setup@v2
@@ -76,12 +64,5 @@ runs:
         node-version: ${{ matrix.node-version }}
         cache: ${{ steps.package_manager.outputs.name }}
     - name: Install dependencies
-      run: |
-        if [ -f yarn.lock ]; then 
-          yarn --frozen-lockfile
-        elif [ -f package-lock.json ]; then
-          npm ci --no-progress --loglevel error
-        elif [ -f pnpm-lock.yaml ]; then
-          pnpm install --frozen-lockfile
-        fi
+      run: ${{ steps.package_manager.outputs.command }}
       shell: bash
