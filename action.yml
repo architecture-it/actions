@@ -32,6 +32,8 @@ runs:
     shell: bash
     if: ${{ inputs.font_awesome_key != '' }}
   - name: Add flags importants to pnpm
-    run: echo 'enable-pre-post-scripts=true' >> .npmrc
-    shell: bash
     if: ${{ inputs.add_pnpm_flags }}
+    run: |
+      echo 'auto-install-peers=true' >> .npmrc
+      echo 'enable-pre-post-scripts=true' >> .npmrc
+    shell: bash
