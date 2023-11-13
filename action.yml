@@ -23,7 +23,7 @@ runs:
           });
           core.info(`Actual topics: ${actualTopics.join(', ')}`);
 
-          const newTopics = topics.split(',').map(topic => topic.trim());
+          const newTopics = topics.split(',').filter(t => t !== '').map(topic => topic.trim());
           core.info(`New topics: ${newTopics.join(', ')}`);
 
           const actualTopicsSet = new Set(actualTopics);
