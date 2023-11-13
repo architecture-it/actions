@@ -35,11 +35,7 @@ runs:
           echo "name=pnpm" >> $GITHUB_OUTPUT 
           echo "command=pnpm install --frozen-lockfile" >> $GITHUB_OUTPUT 
         else 
-          echo "name=notfound" >> $GITHUB_OUTPUT  
-          echo "El código debe contener algún archivo de lockfile ('package-lock.json', 'yarn.lock' o 'pnpm-lock.yaml')."
-          echo "Asegurate de subirlo."
-          echo "ERROR: Falta archivo lockfile. Ver más en https://architecture-it.github.io/docs/Platform/Front/#manejo-de-dependencias"
-          exit 1
+          echo "name=notfound" >> $GITHUB_OUTPUT
         fi
       id: package_manager
       shell: bash
