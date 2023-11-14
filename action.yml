@@ -75,6 +75,8 @@ runs:
       run: ${{ steps.package_manager.outputs.name }} run lint
       shell: bash
       if: ${{ steps.has-lint-script.outputs.result }}
+      env:
+        CI: ${{ inputs.ci == 'true' }}
     - name: Build
       run: ${{ steps.package_manager.outputs.name }} run build
       shell: bash
