@@ -20,6 +20,10 @@ inputs:
     description: "Esta variable forza el chequeo del linter y en caso de fallas rompe el flujo"
     required: false
     default: 'false'
+  skip_lint:
+    description: "permite skipear los procesos de linter y formateo"
+    required: false
+    default: 'false'
 runs:
   using: "composite"
   steps:
@@ -74,9 +78,7 @@ runs:
     - name: Lint
       run: ${{ steps.package_manager.outputs.name }} run lint
       shell: bash
-      if: ${{ steps.has-lint-script.outputs.result }}
-      env:
-        CI: ${{ inputs.ci == 'true' }}
+      if: ${{ steps.has-lint-script.outputs.result && inputs.skip_lint != 'true' }}
     - name: Build
       run: ${{ steps.package_manager.outputs.name }} run build
       shell: bash
