@@ -92,7 +92,7 @@ runs:
       id: flags
       shell: bash
     - name: Unit tests
-      run: ${{ steps.package_manager.outputs.name }} run test --coverage ${{ steps.flags.outputs.tests_flags }}
+      run: ${{ steps.package_manager.outputs.name }} run test -- --coverage ${{ steps.flags.outputs.tests_flags }}
       shell: bash
       env:
         CI: ${{ inputs.ci == 'true' }}
