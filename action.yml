@@ -62,6 +62,12 @@ runs:
           sonar_token: ${{ inputs.sonar_token }}
           sonar_key:  ${{ env.KEY_REPOSITORY }}
 
+      - name: Set Quality Profile
+        shell: bash
+        run: |
+          curl -X POST -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/qualitygates/select' -d projectKey=${{ env.KEY_REPOSITORY }} -d gateName="SecondLevel"
+
+
       - name: Setup .NET Analyzer
         uses: architecture-it/actions@sonar-net
         with: 
@@ -113,3 +119,9 @@ runs:
         with:
           github_token: ${{ inputs.github_token }}
           topics: 'sonarqube'
+      
+      - name: Deselect Quality Profile (return to default)
+        shell: bash
+        run: |
+          curl -X POST -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/qualitygates/deselect' -d projectKey=${{ env.KEY_REPOSITORY }}
+
