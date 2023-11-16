@@ -84,6 +84,16 @@ runs:
       shell: bash
       env:
         CI: ${{ inputs.ci == 'true' }}
+    - name: Get extra slash
+      # if node version is 16, add extra slash
+      run: |
+        if [ ${{ inputs.matrix_version }} == '16.x' ] || [ ${{ inputs.matrix_version }} == '16' ]; then
+          echo "extra_slash=--" >> $GITHUB_OUTPUT
+        else
+          echo "extra_slash=" >> $GITHUB_OUTPUT
+        fi
+      id: extra_slash
+      shell: bash
     - name: Get tests flags
       run: |
         if [ -f package.json ]; then
@@ -96,7 +106,7 @@ runs:
       id: flags
       shell: bash
     - name: Unit tests
-      run: ${{ steps.package_manager.outputs.name }} run test -- --coverage ${{ steps.flags.outputs.tests_flags }}
+      run: ${{ steps.package_manager.outputs.name }} run test ${{ steps.extra_slash.outputs.extra_slash }} --coverage ${{ steps.flags.outputs.tests_flags }}
       shell: bash
       env:
         CI: ${{ inputs.ci == 'true' }}
