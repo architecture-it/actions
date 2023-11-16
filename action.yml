@@ -92,10 +92,10 @@ runs:
         cmd: 'jq .scripts.test package.json -r'
     - name: Get extra slash
       run: |
-        if [ ${{ steps.test-script.outputs.value != "jest" }} ]; then
-          echo "extra_slash=--" >> $GITHUB_OUTPUT
-        else
+        if [ ${{ steps.test-script.outputs.value == 'jest' }} ]; then
           echo "extra_slash=" >> $GITHUB_OUTPUT
+        else
+          echo "extra_slash=--" >> $GITHUB_OUTPUT
         fi
       id: extra_slash
       shell: bash
