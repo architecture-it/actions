@@ -72,22 +72,27 @@ runs:
       run: ${{ steps.package_manager.outputs.command }}
       shell: bash
     - name: Has lint script
-      run: echo "result=[[ $(cat package.json| jq .scripts.lint) != null ]]" >> $GITHUB_OUTPUT
-      shell: bash
-      id: has-lint-script
+      uses: sergeysova/jq-action@v2
+      id: has-lint
+      with:
+        cmd: 'jq .scripts.lint package.json -r'
     - name: Lint
       run: ${{ steps.package_manager.outputs.name }} run lint
       shell: bash
-      if: ${{ steps.has-lint-script.outputs.result && inputs.skip_lint != 'true' }}
+      if: ${{ steps.has-lint.outputs.value != null || inputs.skip_lint != 'true' }}
     - name: Build
       run: ${{ steps.package_manager.outputs.name }} run build
       shell: bash
       env:
         CI: ${{ inputs.ci == 'true' }}
+    - name: Test script
+      id: test-script
+      uses: sergeysova/jq-action@v2
+      with:
+        cmd: 'jq .scripts.test package.json -r'
     - name: Get extra slash
-      # if node version is 16, add extra slash
       run: |
-        if [ ${{ inputs.matrix_version }} == '16.x' ] || [ ${{ inputs.matrix_version }} == '16' ]; then
+        if [ ${{ steps.test-script.outputs.value != "jest" }} ]; then
           echo "extra_slash=--" >> $GITHUB_OUTPUT
         else
           echo "extra_slash=" >> $GITHUB_OUTPUT
