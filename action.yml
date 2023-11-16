@@ -71,23 +71,35 @@ runs:
     - name: Install dependencies
       run: ${{ steps.package_manager.outputs.command }}
       shell: bash
+    - name: "Read Package Json"
+      uses: actions/github-script@v6
+      id: package
+      with:
+        script: |
+          const fs = require('fs')
+          try {
+            const jsonString = fs.readFileSync('./package.json', 'utf8');
+            const json = JSON.parse(jsonString);
+            const lint = json.scripts?.lint || '';
+            const test = json.scripts?.test || '';
+
+            return { lint, test }
+          } catch(err) {
+            core.error("Error while reading or parsing the 'package.json' file")
+            core.setFailed(err.message)
+          }
     - name: Lint
       run: ${{ steps.package_manager.outputs.name }} run lint
       shell: bash
-      if: ${{ inputs.skip_lint != 'true' }}
+      if: ${{ inputs.skip_lint != 'true' && fromJson(steps.package.outputs.result).lint != '' }}
     - name: Build
       run: ${{ steps.package_manager.outputs.name }} run build
       shell: bash
       env:
         CI: ${{ inputs.ci == 'true' }}
-    - name: Test script
-      id: test-script
-      uses: sergeysova/jq-action@v2
-      with:
-        cmd: 'jq .scripts.test package.json -r'
     - name: Get extra slash
       run: |
-        if [ ${{ steps.test-script.outputs.value == 'jest' }} ]; then
+        if [ ${{ fromJson(steps.package.outputs.result).test == 'jest' }} ]; then
           echo "extra_slash=" >> $GITHUB_OUTPUT
         else
           echo "extra_slash=--" >> $GITHUB_OUTPUT
