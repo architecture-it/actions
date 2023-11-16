@@ -82,8 +82,9 @@ runs:
             const json = JSON.parse(jsonString);
             const lint = json.scripts?.lint || '';
             const test = json.scripts?.test || '';
+            const extraSlash = json.scripts?.test === 'jest' ? '' : '--';
 
-            return { lint, test }
+            return { lint, test, extraSlash }
           } catch(err) {
             core.error("Error while reading or parsing the 'package.json' file")
             core.setFailed(err.message)
@@ -97,15 +98,6 @@ runs:
       shell: bash
       env:
         CI: ${{ inputs.ci == 'true' }}
-    - name: Get extra slash
-      run: |
-        if [ ${{ fromJson(steps.package.outputs.result).test == 'jest' }} ]; then
-          echo "extra_slash=" >> $GITHUB_OUTPUT
-        else
-          echo "extra_slash=--" >> $GITHUB_OUTPUT
-        fi
-      id: extra_slash
-      shell: bash
     - name: Get tests flags
       run: |
         if [ -f package.json ]; then
@@ -118,7 +110,7 @@ runs:
       id: flags
       shell: bash
     - name: Unit tests
-      run: ${{ steps.package_manager.outputs.name }} run test ${{ steps.extra_slash.outputs.extra_slash }} --coverage ${{ steps.flags.outputs.tests_flags }}
+      run: ${{ steps.package_manager.outputs.name }} run test ${{ fromJson(steps.package.outputs.result).extraSlash }} --coverage ${{ steps.flags.outputs.tests_flags }}
       shell: bash
       env:
         CI: ${{ inputs.ci == 'true' }}
