@@ -71,15 +71,10 @@ runs:
     - name: Install dependencies
       run: ${{ steps.package_manager.outputs.command }}
       shell: bash
-    - name: Has lint script
-      uses: sergeysova/jq-action@v2
-      id: has-lint
-      with:
-        cmd: 'jq .scripts.lint package.json -r'
     - name: Lint
       run: ${{ steps.package_manager.outputs.name }} run lint
       shell: bash
-      if: ${{ steps.has-lint.outputs.value != null || inputs.skip_lint != 'true' }}
+      if: ${{ inputs.skip_lint != 'true' }}
     - name: Build
       run: ${{ steps.package_manager.outputs.name }} run build
       shell: bash
