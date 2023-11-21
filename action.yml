@@ -10,9 +10,12 @@ inputs:
     default: '["main"]'
 
 outputs:
-  result:
+  new-version:
     description: The version of the release
-    value: ${{ steps.next-version.outputs.version }}
+    value: ${{ steps.next-version.outputs.newVersion }}
+  previous-version:
+    description: The previous version of the release
+    value: ${{ steps.next-version.outputs.previousVersion }}
 
 runs:
   using: "composite"
@@ -28,12 +31,13 @@ runs:
       shell: bash
       run: |
         echo '#!/bin/bash' >> version.sh
-        echo 'echo "version=$1" >> $GITHUB_OUTPUT' >> version.sh
+        echo 'echo "newVersion=$1" >> $GITHUB_OUTPUT' >> version.sh
+        echo 'echo "previousVersion=$2" >> $GITHUB_OUTPUT' >> version.sh
         chmod +x version.sh
     - name: Write config file
       shell: bash
       run: |
-        echo 'module.exports = { plugins: ["@semantic-release/commit-analyzer", [ "@semantic-release/exec", { verifyReleaseCmd: "./version.sh ${nextRelease.version}" } ] ], branches: ${{ inputs.branches }}, dryRun: true };' >> release.config.js
+        echo 'module.exports = { plugins: ["@semantic-release/commit-analyzer", [ "@semantic-release/exec", { verifyReleaseCmd: "./version.sh ${nextRelease.version} ${lastRelease.version}" } ] ], branches: ${{ inputs.branches }}, dryRun: true };' >> release.config.js
     - name: Get the version
       run: npx semantic-release
       env:
@@ -42,5 +46,7 @@ runs:
       id: next-version
       shell: bash
     - name: show version
-      run: echo "The new version is '${{ steps.next-version.outputs.version }}'"
+      run: |
+        echo "The new version is '${{ steps.next-version.outputs.newVersion }}'"
+        echo "The previous version is '${{ steps.next-version.outputs.previousVersion }}'"
       shell: bash
