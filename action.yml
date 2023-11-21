@@ -1,0 +1,35 @@
+name: "Next Version"
+description: "Realiza el release basado en los commits y conventional commit"
+inputs:
+  github_token:
+    description: Github Token
+    required: true
+  branches:
+    description: configuration to latest release and prerelease
+    default: '["cicd", { name: "main", prerelease: "development" }]'
+    required: false
+outputs:
+  result:
+    description: The version of the release
+    value: ${{ steps.release.outputs.version }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Node.js 18
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18.x
+    - name: Write configuration file
+      shell: bash
+      run: |
+        echo 'module.exports = { plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator","@semantic-release/github",["@semantic-release/exec",{ "cmd": "echo \"version=${nextRelease.version}\" >> $GITHUB_OUTPUT" },],["@semantic-release/git",{  message: "Release <%= nextRelease.version %> [skip ci]",},],], branches: ${{ inputs.branches }} }' >> release.config.js
+    - name: Install dependencies temporary for npm
+      run: npm i --no-save @semantic-release/exec @semantic-release/git @semantic-release/github
+      shell: bash
+    - name: Release
+      env:
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+        GH_TOKEN: ${{ inputs.github_token }}
+      run: npx semantic-release
+      shell: bash
