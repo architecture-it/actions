@@ -6,7 +6,7 @@ inputs:
     required: true
   branches:
     description: configuration to latest release and prerelease
-    default: '["main", { name: "development", prerelease: "development" }]'
+    default: '["main"]'
     required: false
 outputs:
   result:
