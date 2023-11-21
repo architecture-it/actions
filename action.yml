@@ -49,8 +49,3 @@ runs:
         GH_TOKEN: ${{ inputs.github_token }}
       id: next-version
       shell: bash
-    - name: show version
-      run: |
-        echo "The new version is '${{ steps.next-version.outputs.newVersion }}'"
-        echo "The previous version is '${{ steps.next-version.outputs.previousVersion }}'"
-      shell: bash
