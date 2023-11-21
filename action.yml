@@ -4,10 +4,7 @@ inputs:
   github_token:
     description: Github Token
     required: true
-  branches:
-    description: configuration to latest release and prerelease
-    default: '[{ name: "main", prerelease: false }]'
-    required: false
+
 outputs:
   result:
     description: The version of the release
@@ -23,7 +20,7 @@ runs:
     - name: Write config file
       shell: bash
       run: |
-        echo `module.exports = { plugins: ["@semantic-release/commit-analyzer", ["@semantic-release/npm", { "npmPublish": false, }], [ "@semantic-release/exec", { verifyReleaseCmd: "echo 'version=${nextRelease.version}' >> $GITHUB_OUTPUT" } ] ], branches: ${{ inputs.branches }}, dryRun: true };` >> release.config.js
+        echo `module.exports = { plugins: ["@semantic-release/commit-analyzer", ["@semantic-release/npm", { "npmPublish": false, }], [ "@semantic-release/exec", { verifyReleaseCmd: "echo 'version=${nextRelease.version}' >> $GITHUB_OUTPUT" } ] ], branches: [{ name: "main" }], dryRun: true };` >> release.config.js
     - name: Get the version
       run: npx -p @semantic-release/exec semantic-release
       env:
