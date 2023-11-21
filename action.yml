@@ -1,6 +1,10 @@
 name: "Release npm"
 description: "Realiza el release basado en los commits y conventional commit"
 inputs:
+  publish:
+    description: "Publish to internal modules"
+    required: false
+    default: "false"
   github_token:
     description: Github Token
     required: true
@@ -8,14 +12,33 @@ inputs:
     description: configuration to latest release and prerelease
     default: '["cicd", { name: "main", prerelease: "development" }]'
     required: false
-outputs:
-  version:
-    description: The version of the release
-    value: ${{ steps.release.outputs.version }}
 
 runs:
   using: "composite"
   steps:
+    - name: Get package manager executable
+      run: |
+        if [ -f "yarn.lock" ]; then 
+          echo "name=yarn" >> $GITHUB_OUTPUT
+          echo "exec=yarn dlx --package=replace-json-property@1.8.0 --package=@semantic-release/exec --package=@semantic-release/git --package=@semantic-release/github --package=semantic-release" >> $GITHUB_OUTPUT 
+          echo "Using yarn and npx"
+        elif [ -f "package-lock.json" ]; then 
+          echo "name=npm" >> $GITHUB_OUTPUT 
+          echo "exec=npx" >> $GITHUB_OUTPUT
+          echo "Using npm and npx"
+        elif [ -f pnpm-lock.yaml ]; then 
+          echo "name=pnpm" >> $GITHUB_OUTPUT
+          echo "exec=pnpm --package=replace-json-property@1.8.0 --package=@semantic-release/exec --package=@semantic-release/git --package=@semantic-release/github --package=semantic-release dlx" >> $GITHUB_OUTPUT
+          echo "Using pnpx dlx and pnpm"
+        else 
+          echo "name=notfound" >> $GITHUB_OUTPUT
+          echo "El código debe contener algún archivo de lockfile ('package-lock.json', 'yarn.lock' o 'pnpm-lock.yaml')."
+          echo "Asegurate de subirlo."
+          echo "ERROR: Falta archivo lockfile. Ver más en https://architecture-it.github.io/docs/Platform/Front/#manejo-de-dependencias"
+          exit 1
+        fi
+      id: package_manager
+      shell: bash
     - name: Setup Node.js 18
       uses: actions/setup-node@v3
       with:
@@ -23,13 +46,14 @@ runs:
     - name: Write configuration file
       shell: bash
       run: |
-        echo 'module.exports = { plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator","@semantic-release/github",["@semantic-release/exec",{ "cmd": "echo \"version=${nextRelease.version}\" >> $GITHUB_OUTPUT" },],["@semantic-release/git",{  message: "Release <%= nextRelease.version %> [skip ci]",},],], branches: ${{ inputs.branches }} }' >> release.config.js
+        echo 'module.exports = { plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator", ["@semantic-release/npm",{  "npmPublish": false, }],"@semantic-release/github",["@semantic-release/exec",{  prepareCmd: "npx replace-json-property package.json version ${nextRelease.version}",},],["@semantic-release/git",{  message: "Release <%= nextRelease.version %> [skip ci]",  assets: ["package.json"],},],],branches: ${{ inputs.branches }} }' >> release.config.js
     - name: Install dependencies temporary for npm
-      run: npm i --no-save @semantic-release/exec @semantic-release/git @semantic-release/github
+      run: npm i --no-save replace-json-property@1.8.0 @semantic-release/exec @semantic-release/git @semantic-release/github
       shell: bash
+      if: ${{ steps.package_manager.outputs.name == 'npm' }}
     - name: Release
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
         GH_TOKEN: ${{ inputs.github_token }}
-      run: npx semantic-release
+      run: ${{ steps.package_manager.outputs.exec }} semantic-release
       shell: bash
