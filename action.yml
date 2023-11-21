@@ -23,11 +23,12 @@ runs:
     - name: Write configuration file
       shell: bash
       run: |                                                                                                                                                             
-        echo 'module.exports = { plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator","@semantic-release/github",["@semantic-release/exec",{ "prepareCmd": "version=${nextRelease.version} >> $GITHUB_OUTPUT" },],["@semantic-release/git",{  message: "Release <%= nextRelease.version %> [skip ci]",},],], branches: ${{ inputs.branches }} }' >> release.config.js
+        echo 'module.exports = { plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator","@semantic-release/github",["@semantic-release/exec",{ "prepareCmd": "version=${nextRelease.version} >> $GITHUB_OUTPUT" },],["@semantic-release/git",{  message: "Release <%= nextRelease.version %> [skip ci]",},],], dry: true, branches: ${{ inputs.branches }} }' >> release.config.js
     - name: Install dependencies temporary for npm
       run: npm i --no-save @semantic-release/exec @semantic-release/git @semantic-release/github
       shell: bash
     - name: Release
+      id: release
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
         GH_TOKEN: ${{ inputs.github_token }}
