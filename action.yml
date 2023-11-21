@@ -4,6 +4,10 @@ inputs:
   github_token:
     description: Github Token
     required: true
+  branches:
+    description: Branches to release
+    required: false
+    default: '["main"]'
 
 outputs:
   result:
@@ -23,7 +27,7 @@ runs:
     - name: Write config file
       shell: bash
       run: |
-        echo `module.exports = { plugins: ["@semantic-release/commit-analyzer", [ "@semantic-release/exec", { prepareCmd: "echo 'version=${nextRelease.version}' >> $GITHUB_OUTPUT" } ] ], branches: ["main"], dryRun: true };` >> release.config.js
+        echo `module.exports = { plugins: ["@semantic-release/commit-analyzer", [ "@semantic-release/exec", { verifyReleaseCmd: "version=${nextRelease.version} >> $GITHUB_OUTPUT" } ] ], branches: ${{ inputs.branches }}, dryRun: true };` >> release.config.js
     - name: Get the version
       run: npx semantic-release
       env:
