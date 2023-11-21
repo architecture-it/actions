@@ -11,7 +11,7 @@ inputs:
 outputs:
   result:
     description: The version of the release
-    value: ${{ steps.release.outputs.version }}
+    value: ${{ steps.next-version.outputs.version }}
 
 runs:
   using: "composite"
@@ -20,20 +20,17 @@ runs:
       uses: actions/setup-node@v3
       with:
         node-version: 18.x
-    - name: Write configuration file
+    - name: Write config file
       shell: bash
-      run: |                                                                                                                                                             
-        echo 'module.exports = { plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator","@semantic-release/github",["@semantic-release/exec",{ "prepareCmd": "version=${nextRelease.version} >> .version" },],["@semantic-release/git",{  message: "Release <%= nextRelease.version %> [skip ci]",},],], dry: true, branches: ${{ inputs.branches }} }' >> release.config.js
-    - name: Install dependencies temporary for npm
-      run: npm i --no-save @semantic-release/exec @semantic-release/git @semantic-release/github
-      shell: bash
-    - name: Release
+      run: |
+        echo `module.exports = { plugins: ["@semantic-release/commit-analyzer", ["@semantic-release/npm", { "npmPublish": false, }], [ "@semantic-release/exec", { verifyReleaseCmd: "echo 'version=${nextRelease.version}' >> $GITHUB_OUTPUT" } ] ], branches: ${{ inputs.branches }} }` >> release.config.js
+    - name: Get the version
+      run: npx -p @semantic-release/exec semantic-release --dry-run
       env:
-        GITHUB_TOKEN: ${{ inputs.github_token }}
-        GH_TOKEN: ${{ inputs.github_token }}
-      run: npx semantic-release
+        GITHUB_TOKEN: ${{ secrets.ARQUITECTURA_DEPLOY }}
+        GH_TOKEN: ${{ secrets.ARQUITECTURA_DEPLOY }}
+      id: next-version
       shell: bash
-    - name: Get version from file
-      id: release
-      run: echo "version=$(cat .version)"
+    - name: show version
+      run: echo "The new version is '${{ steps.next-version.outputs.version }}'"
       shell: bash
