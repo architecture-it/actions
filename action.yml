@@ -6,7 +6,7 @@ inputs:
     required: true
   branches:
     description: configuration to latest release and prerelease
-    default: '["cicd", { name: "main", prerelease: "development" }]'
+    default: '["main", { name: "test", prerelease: "development" }]'
     required: false
 outputs:
   result:
