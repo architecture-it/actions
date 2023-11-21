@@ -23,9 +23,9 @@ runs:
     - name: Write config file
       shell: bash
       run: |
-        echo `module.exports = { plugins: ["@semantic-release/commit-analyzer", ["@semantic-release/npm", { "npmPublish": false, }], [ "@semantic-release/exec", { verifyReleaseCmd: "echo 'version=${nextRelease.version}' >> $GITHUB_OUTPUT" } ] ], branches: [ "main", "develop" ] }` >> release.config.js
+        echo `module.exports = { plugins: ["@semantic-release/commit-analyzer", ["@semantic-release/npm", { "npmPublish": false, }], [ "@semantic-release/exec", { verifyReleaseCmd: "echo 'version=${nextRelease.version}' >> $GITHUB_OUTPUT" } ] ], branches: [ "main", "develop" ], dryRun: true };` >> release.config.js
     - name: Get the version
-      run: npx -p @semantic-release/exec semantic-release --dry-run
+      run: npx -p @semantic-release/exec semantic-release
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
         GH_TOKEN: ${{ inputs.github_token }}
