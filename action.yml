@@ -17,12 +17,15 @@ runs:
       uses: actions/setup-node@v3
       with:
         node-version: 18.x
+    - name: Install dependencies temporary for npm
+      run: npm i --no-save @semantic-release/exec @semantic-release/git @semantic-release/github
+      shell: bash
     - name: Write config file
       shell: bash
       run: |
-        echo `module.exports = { plugins: ["@semantic-release/commit-analyzer", ["@semantic-release/npm", { "npmPublish": false, }], [ "@semantic-release/exec", { verifyReleaseCmd: "echo 'version=${nextRelease.version}' >> $GITHUB_OUTPUT" } ] ], branches: [{ name: "main" }], dryRun: true };` >> release.config.js
+        echo `module.exports = { plugins: ["@semantic-release/commit-analyzer", [ "@semantic-release/exec", { prepareCmd: "echo 'version=${nextRelease.version}' >> $GITHUB_OUTPUT" } ] ], branches: ["main"], dryRun: true };` >> release.config.js
     - name: Get the version
-      run: npx -p @semantic-release/exec semantic-release
+      run: npx semantic-release
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
         GH_TOKEN: ${{ inputs.github_token }}
