@@ -27,8 +27,8 @@ runs:
     - name: Get the version
       run: npx -p @semantic-release/exec semantic-release --dry-run
       env:
-        GITHUB_TOKEN: ${{ secrets.ARQUITECTURA_DEPLOY }}
-        GH_TOKEN: ${{ secrets.ARQUITECTURA_DEPLOY }}
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+        GH_TOKEN: ${{ inputs.github_token }}
       id: next-version
       shell: bash
     - name: show version
