@@ -82,7 +82,7 @@ runs:
             const json = JSON.parse(jsonString);
             const lint = json.scripts?.lint || '';
             const test = json.scripts?.test || '';
-            const extraSlash = ${{ steps.package_manager.outputs.name }} === 'pnpm' ? '' : '--';
+            const extraSlash = '${{ steps.package_manager.outputs.name }}' === 'pnpm' ? '' : '--';
 
             return { lint, test, extraSlash }
           } catch(err) {
