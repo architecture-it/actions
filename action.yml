@@ -41,7 +41,7 @@ runs:
     - name: Write config file
       shell: bash
       run: |
-        echo 'module.exports = { plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator", "@semantic-release/github", [ "@semantic-release/exec", { verifyReleaseCmd: "./version.sh ${nextRelease.version} ${lastRelease.version}" } ] ], branches: "${{ inputs.branches }}", dryRun: ${{ inputs.only_version == 'true' }} };' >> release.config.js
+        echo 'module.exports = { plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator", "@semantic-release/github", [ "@semantic-release/exec", { verifyReleaseCmd: "./version.sh ${nextRelease.version} ${lastRelease.version}" } ] ], branches: ${{ inputs.branches }}, dryRun: ${{ inputs.only_version == 'true' }} };' >> release.config.js
     - name: Get the version
       run: npx semantic-release
       env:
