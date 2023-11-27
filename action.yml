@@ -23,32 +23,8 @@ runs:
   steps:
     - name: "Create Project"
       run: |
-        curl -X POST -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/projects/create' -d name=${{ inputs.sonar_key }} -d project=${{ inputs.sonar_key }}
+        curl -X GET -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/qualitygates/project_status' -d projectKey=${{ inputs.sonar_key }} >> request.txt
       shell: bash 
-    - name: "Rename Branch default"
-      run: |
-        curl -s -X POST -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/project_branches/rename' -d project=${{ inputs.sonar_key }} -d name=${{ github.event.repository.default_branch }} -D- -o /dev/null -w %{http_code} > http.txt
-      shell: bash 
-    - name: "Analisis rename branch"
-      id: rename
-      run: |
-        cat http.txt
-        if grep -q "204" http.txt;
-        then
-          echo "Todo OK"
-          echo "OUTPUT=0" >> $GITHUB_OUTPUT 
-        else 
-          echo "la branch no se seteo por defecto se eliminara la branch para definir la nueva por defecto"
-          echo "OUTPUT=1" >> $GITHUB_OUTPUT 
-        fi
+    - name: "Show response"
       shell: bash
-    - name: "Delete and Rename branch"
-      run: |
-          curl -X POST -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/project_branches/delete' -d project=${{ inputs.sonar_key }} -d branch=${{ github.event.repository.default_branch }}
-          curl -X POST -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/project_branches/rename' -d project=${{ inputs.sonar_key }} -d name=${{ github.event.repository.default_branch }}
-      if: steps.rename.outputs.OUTPUT == 1
-      shell: bash
-    - name: "Set ALM Setting binding"
-      run: |
-        curl -X POST -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/alm_settings/set_github_binding' -d almSetting=${{ inputs.alm_setting }} -d monorepo=${{ inputs.alm_setting_monorepo }} -d project=${{ inputs.sonar_key }} -d repository=${{ github.event.repository.full_name }}
-      shell: bash
+      run: cat request.txt
