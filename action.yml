@@ -21,10 +21,12 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: "Create Project"
-      run: |
-        curl -X GET -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/qualitygates/project_status' -d projectKey=${{ inputs.sonar_key }} >> request.txt
-      shell: bash 
-    - name: "Show response"
+    - run: echo Validacion
       shell: bash
-      run: cat request.txt
+    # - name: "Create Project"
+    #   run: |
+    #     curl -X GET -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/qualitygates/project_status' -d projectKey=${{ inputs.sonar_key }} >> request.txt
+    #   shell: bash 
+    # - name: "Show response"
+    #   shell: bash
+    #   run: cat request.txt
