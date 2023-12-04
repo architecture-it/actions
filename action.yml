@@ -92,6 +92,15 @@ runs:
           sonar_key:  ${{ env.KEY_REPOSITORY }}
           skip_test: ${{inputs.skip_test}}
         if: ${{ inputs.sonar_code == 'Js' }}
+
+      - name: Setup React Native Analyzer
+        uses: architecture-it/actions@sonar-react-native
+        with: 
+          sonar_url: ${{ inputs.sonar_url }}
+          sonar_token: ${{ inputs.sonar_token }}
+          sonar_key:  ${{ env.KEY_REPOSITORY }}
+          skip_test: ${{inputs.skip_test}}
+        if: ${{ inputs.sonar_code == 'React Native' }}
         
       - name: Setup Python Analyzer
         uses: architecture-it/actions@sonar-py
