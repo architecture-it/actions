@@ -1,5 +1,5 @@
-name: "Sonar Analizer Javascript/Typescript"
-description: "Realiza el análisis de sonarqube para Javascript/Typescript"
+name: "Sonar Analizer React Native"
+description: "Realiza el análisis de sonarqube para React Native (Javascript/Typescript)"
 inputs:
   sonar_url: 
     description: "url sonarqube"
@@ -32,5 +32,6 @@ runs:
         with:
           args: >
             -Dsonar.projectKey=${{ inputs.sonar_key }}
+            -Dsonar.exclusions=.github/**, .vscode/**, android/**, assets/**, build/**, ios/**, node_modules/**, scripts/**
             -Dsonar.test.inclusions=src/**/*.spec.js,src/**/*.spec.jsx,src/**/*.test.js,src/**/*.test.jsx,src/**/*.spec.ts,src/**/*.spec.tsx,src/**/*.test.ts,src/**/*.test.tsx
             -Dsonar.javascript.lcov.reportPaths=**/coverage/lcov.info
