@@ -32,6 +32,6 @@ runs:
         with:
           args: >
             -Dsonar.projectKey=${{ inputs.sonar_key }}
-            -Dsonar.exclusions=.github/**,.vscode/**,android/**,assets/**,build/**,ios/**,node_modules/**,scripts/**,**/__mocks__/**,*.config.js,*rc.js,*.styles.js,*.styles.ts,*.stories.tsx,*.stories.jsx
+            -Dsonar.exclusions=.github/**,.vscode/**,android/**,assets/**,build/**,ios/**,node_modules/**,scripts/**,**/__mocks__/**,*.config.js,*rc.js,**/*.styles.js,**/*.styles.ts,**/*.stories.tsx,**/*.stories.jsx
             -Dsonar.test.inclusions=src/**/*.spec.js,src/**/*.spec.jsx,src/**/*.test.js,src/**/*.test.jsx,src/**/*.spec.ts,src/**/*.spec.tsx,src/**/*.test.ts,src/**/*.test.tsx
             -Dsonar.javascript.lcov.reportPaths=**/coverage/lcov.info
