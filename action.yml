@@ -1,4 +1,4 @@
-name: "React CI"
+name: "✨ React CI"
 description: "Realiza el lint, build, test and coverage"
 inputs:
   matrix_version:
@@ -24,6 +24,11 @@ inputs:
     description: "permite skipear los procesos de linter y formateo"
     required: false
     default: 'false'
+  cache:
+    description: "permite cachear la carpeta node_modules"
+    required: false
+    default: 'false'
+
 runs:
   using: "composite"
   steps:
@@ -68,10 +73,24 @@ runs:
         npm_token: ${{ inputs.packages_token }}
         font_awesome_key: ${{ inputs.fontawesome_token }}
       if: ${{ inputs.packages_token != '' }}
+
+    - name: 'Cache Node Modules Dependencies'
+      uses: 'actions/cache@v3'
+      id: cache-node-modules
+      with:
+        path: 'node_modules'
+        # key depends on package manager
+        key: deps-node-modules-${{ hashFiles(format('**/{0}', steps.package_manager.outputs.lock_file)) }}        
+        restore-keys: |
+          deps-node-modules-${{ hashFiles(format('**/{0}', steps.package_manager.outputs.lock_file)) }}
+      if: inputs.cache == 'true'
+    
     - name: Install dependencies
       run: ${{ steps.package_manager.outputs.command }}
       shell: bash
-    - name: "Read Package Json"
+      if: inputs.cache == 'false' || steps.cache-node-modules.outputs.cache-hit != 'true'
+
+    - name: "Extract info from Package Json"
       uses: actions/github-script@v6
       id: package
       with:
