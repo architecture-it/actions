@@ -1,4 +1,4 @@
-name: "Generate .npmrc"
+name: "🔧 Generate .npmrc"
 description: "Genera el archivo de configuración para los paquetes"
 inputs:
   npm_token:
