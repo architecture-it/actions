@@ -36,7 +36,7 @@ runs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 5.x   
+          dotnet-version: 8.x   
 
       - name: Get Avro Gen
         run: dotnet tool install Apache.Avro.Tools --version ${{ inputs.AVRO_VERSION }} --global
