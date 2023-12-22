@@ -13,6 +13,10 @@ inputs:
     description: "token github para autenticarse en packages"
     required: false
     default: ''
+  cache:
+    description: "Cache for node_modules"
+    required: false
+    default: 'true'
 
 runs:
   using: "composite"
@@ -22,14 +26,17 @@ runs:
         if [ -f "yarn.lock" ]; then 
           echo "name=yarn" >> $GITHUB_OUTPUT 
           echo "command=yarn --frozen-lockfile" >> $GITHUB_OUTPUT 
+          echo "lock_file=yarn.lock" >> $GITHUB_OUTPUT
         elif [ -f "package-lock.json" ]; then 
           echo "name=npm" >> $GITHUB_OUTPUT 
           echo "command=npm ci --no-progress --loglevel error" >> $GITHUB_OUTPUT 
+          echo "lock_file=package-lock.json" >> $GITHUB_OUTPUT
         elif [ -f pnpm-lock.yaml ]; then 
           echo "name=pnpm" >> $GITHUB_OUTPUT 
           echo "command=pnpm install --frozen-lockfile" >> $GITHUB_OUTPUT 
+          echo "lock_file=pnpm-lock.yaml" >> $GITHUB_OUTPUT
         else 
-          echo "name=notfound" >> $GITHUB_OUTPUT  
+          echo "name=notfound" >> $GITHUB_OUTPUT
         fi
       id: package_manager
       shell: bash
@@ -56,6 +63,19 @@ runs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: ${{ steps.package_manager.outputs.name }}
+
+    - name: 'Cache Node Modules Dependencies'
+      uses: 'actions/cache@v3'
+      id: cache-node-modules
+      with:
+        path: 'node_modules'
+        # key depends on package manager
+        key: deps-node-modules-${{ hashFiles(format('**/{0}', steps.package_manager.outputs.lock_file)) }}        
+        restore-keys: |
+          deps-node-modules-${{ hashFiles(format('**/{0}', steps.package_manager.outputs.lock_file)) }}
+      if: inputs.cache == 'true'
+    
     - name: Install dependencies
       run: ${{ steps.package_manager.outputs.command }}
       shell: bash
+      if: inputs.cache == 'false' || steps.cache-node-modules.outputs.cache-hit != 'true'
