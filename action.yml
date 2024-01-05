@@ -28,9 +28,6 @@ runs:
       uses: actions/setup-node@v3
       with:
         node-version: 18.x
-    - name: Install dependencies temporary for npm
-      run: npm i --no-save @semantic-release/exec @semantic-release/git @semantic-release/github
-      shell: bash
     - name: Write bash script
       shell: bash
       run: |
@@ -43,7 +40,7 @@ runs:
       run: |
         echo 'module.exports = { plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator", "@semantic-release/github", [ "@semantic-release/exec", { verifyReleaseCmd: "./version.sh ${nextRelease.version} ${lastRelease.version}" } ] ], branches: ${{ inputs.branches }}, dryRun: ${{ inputs.only_version == 'true' }} };' >> release.config.js
     - name: Get the version
-      run: npx semantic-release
+      run: npx --no-install -y -p @semantic-release/exec -p @semantic-release/git -p @semantic-release/github -c semantic-release
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
         GH_TOKEN: ${{ inputs.github_token }}
