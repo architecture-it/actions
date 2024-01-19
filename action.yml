@@ -23,10 +23,9 @@ runs:
       shell: bash
       run: |
         status=$(curl -X GET -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/qualitygates/project_status?projectKey=${{ inputs.projectKey }}&branch=${{ inputs.branch }}' | jq '.projectStatus.status')
-        
-        if [[ $status != '"OK"' ]]; then
+        if [[ "$status" != '"OK"' ]]; then
           echo "❌ SonarQube Quality Gate failed for Project '${{ inputs.projectKey }}' in branch '${{ inputs.branch }}'. Project Status: $status"
-          if [[ $status == '"NONE"' ]]; then
+          if [[ "$status" == '"NONE"' ]]; then
             echo "❗ Appears that is no quality gate associated with the project."
           fi
           exit 1
