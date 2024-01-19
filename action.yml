@@ -49,7 +49,7 @@ runs:
 
           //Returns an HTTP code 404 if the analysis associated with the task is not found or does not exist.
           if (statusCode === 404) {
-            core.setFailed(`The analysis associated with the task is not found or does not exist`);
+            core.setFailed(`The analysis associated with the Project: '${projectKey}' is not found or does not exist`);
           }
 
           const responseSonar = await json();
