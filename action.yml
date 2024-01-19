@@ -21,44 +21,51 @@ inputs:
 #           sonar_token: ${{ secrets.SONAR_TOKEN }}
 #           projectKey: architecture-it_stylesystem
 #           branch: "main"
+
+# curl -X POST -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/project_tags/set' -d tags='${{ inputs.sonar_code }}, github, ${{ inputs.tags }}' -d project=${{ env.KEY_REPOSITORY }}
+
 runs:
   using: "composite"
   steps:
-    - uses: actions/github-script@v7
-      id: validate-sonar
-      with:     
-        script: |
-          const name = context.repo.repo;
-          const organization = context.repo.owner;
+    - name: Validate
+      shell: bash
+      run: |
+        curl -X GET -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/qualitygates/project_status?projectKey=${{ inputs.projectKey }}&branch=${{ inputs.branch }}' | jq '.projectStatus.status' | grep -q "OK" || exit 1
+    # - uses: actions/github-script@v7
+    #   id: validate-sonar
+    #   with:     
+    #     script: |
+    #       const name = context.repo.repo;
+    #       const organization = context.repo.owner;
 
-          const projectKey = '${{inputs.projectKey}}' || `${organization}_${name}`;
-          const branch = core.getInput('branch');
+    #       const projectKey = '${{ inputs.projectKey }}' || `${organization}_${name}`;
+    #       const branch = core.getInput('branch');
           
-          const url = `${{inputs.sonar_url}}/api/qualitygates/project_status`;
-          const params = new URLSearchParams({
-            branch: branch,
-            projectKey: projectKey,
-          });
+    #       const url = `${{ inputs.sonar_url }}/api/qualitygates/project_status`;
+    #       const params = new URLSearchParams({
+    #         branch: branch,
+    #         projectKey: projectKey,
+    #       });
 
-          const response = await fetch(`${url}?${params}`, {
-              method: 'GET',
-              headers: {
-                'Authorization': 'Basic ' + Buffer.from(`${{inputs.sonar_token}}:`).toString('base64'),
-              },
-          });
+    #       const response = await fetch(`${url}?${params}`, {
+    #           method: 'GET',
+    #           headers: {
+    #             'Authorization': 'Basic ' + Buffer.from(`${{ inputs.sonar_token }}:`).toString('base64'),
+    #           },
+    #       });
 
-          //Returns an HTTP code 404 if the analysis associated with the task is not found or does not exist.
-          if (response.status === 404) {
-            core.setFailed(`The analysis associated with the Project: '${projectKey}' is not found or does not exist`);
-          }
+    #       //Returns an HTTP code 404 if the analysis associated with the task is not found or does not exist.
+    #       if (response.status === 404) {
+    #         core.setFailed(`The analysis associated with the Project: '${projectKey}' is not found or does not exist`);
+    #       }
 
-          const responseSonar = await response.json();
+    #       const responseSonar = await response.json();
 
-          const { projectStatus } = responseSonar;
+    #       const { projectStatus } = responseSonar;
 
-          if (projectStatus.status !== 'OK') {
-            core.setFailed(`SonarQube Quality Gate failed. Project Status: ${projectStatus.status}`);
-            core.debug(JSON.stringify(responseSonar));
-          }
+    #       if (projectStatus.status !== 'OK') {
+    #         core.setFailed(`SonarQube Quality Gate failed. Project Status: ${projectStatus.status}`);
+    #         core.debug(JSON.stringify(responseSonar));
+    #       }
 
 
