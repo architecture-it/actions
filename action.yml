@@ -31,18 +31,9 @@ runs:
           const organization = context.repo.owner;
 
           const projectKey = core.getInput('projectKey') || `${organization}_${name}`;
-          const sonar_url = core.getInput('sonar_url');
           const branch = core.getInput('branch');
-          const sonar_token = core.getInput('sonar_token');
-
-          core.debug({
-            projectKey,
-            sonar_url,
-            branch,
-            sonar_token
-          })
           
-          const url = `${sonar_url}/api/qualitygates/project_status`;
+          const url = `${{inputs.sonar_url}}/api/qualitygates/project_status`;
           const params = new URLSearchParams({
             branch: branch,
             projectKey: projectKey,
@@ -51,7 +42,7 @@ runs:
           const { json, status: statusCode } = await fetch(`${url}?${params}`, {
               method: 'GET',
               headers: {
-                'Authorization': 'Basic ' + Buffer.from(`${sonar_token}:`).toString('base64'),
+                'Authorization': 'Basic ' + Buffer.from(`${{inputs.sonar_token}}:`).toString('base64'),
               },
           });
 
