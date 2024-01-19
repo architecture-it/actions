@@ -23,41 +23,41 @@ runs:
     #     curl -X GET -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/qualitygates/project_status' -d branch=${{ inputs.branch }} -d projectKey=${{ inputs.projectKey }}
     #   shell: bash
     #   id: verify_status
-    - name: "Verify Status Project"
-      run: |
-        const name = context.repo.repo;
-        const organization = context.repo.owner;
-        const projectKey = '${{ inputs.projectKey }}' || `${organization}_${name}`;
-        
-        const url = `${inputs.sonar_url}/api/qualitygates/project_status`;
-        const params = new URLSearchParams({
-          branch: inputs.branch,
-          projectKey: projectKey,
-        });
+    - uses: actions/github-script@v7
+      id: validate-sonar
+      with:     
+        script: |
+          const name = context.repo.repo;
+          const organization = context.repo.owner;
+          const projectKey = '${{ inputs.projectKey }}' || `${organization}_${name}`;
+          
+          const url = `${inputs.sonar_url}/api/qualitygates/project_status`;
+          const params = new URLSearchParams({
+            branch: inputs.branch,
+            projectKey: projectKey,
+          });
 
-        const { json, status: statusCode } = await fetch(`${url}?${params}`, {
-            method: 'GET',
-            headers: {
-              'Authorization': 'Basic ' + Buffer.from(`${inputs.sonar_token}:`).toString('base64'),
-            },
-        });
+          const { json, status: statusCode } = await fetch(`${url}?${params}`, {
+              method: 'GET',
+              headers: {
+                'Authorization': 'Basic ' + Buffer.from(`${inputs.sonar_token}:`).toString('base64'),
+              },
+          });
 
-        //Returns an HTTP code 404 if the analysis associated with the task is not found or does not exist.
-        if (statusCode === 404) {
-          core.setFailed(`The analysis associated with the task is not found or does not exist`);
-        }
+          //Returns an HTTP code 404 if the analysis associated with the task is not found or does not exist.
+          if (statusCode === 404) {
+            core.setFailed(`The analysis associated with the task is not found or does not exist`);
+          }
 
-        const responseSonar = await json();
+          const responseSonar = await json();
 
-        const { projectStatus: { status } } = responseSonar;
+          const { projectStatus: { status } } = responseSonar;
 
-        if (status !== 'OK') {
-          core.setFailed(`SonarQube Quality Gate failed. Project Status: ${status}`);
-          core.debug(JSON.stringify(responseSonar));
-        }
+          if (status !== 'OK') {
+            core.setFailed(`SonarQube Quality Gate failed. Project Status: ${status}`);
+            core.debug(JSON.stringify(responseSonar));
+          }
 
-        core.setOutput('sonar_status', status);
-        core.exportVariable('SONAR_STATUS', status);
-      shell: bash
-      id: verify_status
-    
+          core.setOutput('sonar_status', status);
+          core.exportVariable('SONAR_STATUS', status);
+
