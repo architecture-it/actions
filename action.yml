@@ -40,7 +40,7 @@ runs:
             projectKey: projectKey,
           });
 
-          const { json, status: statusCode } = await fetch(`${url}?${params}`, {
+          const response = await fetch(`${url}?${params}`, {
               method: 'GET',
               headers: {
                 'Authorization': 'Basic ' + Buffer.from(`${{inputs.sonar_token}}:`).toString('base64'),
@@ -48,11 +48,11 @@ runs:
           });
 
           //Returns an HTTP code 404 if the analysis associated with the task is not found or does not exist.
-          if (statusCode === 404) {
+          if (response.status === 404) {
             core.setFailed(`The analysis associated with the Project: '${projectKey}' is not found or does not exist`);
           }
 
-          const responseSonar = await json();
+          const responseSonar = await response.json();
 
           const { projectStatus: { status } } = responseSonar;
 
