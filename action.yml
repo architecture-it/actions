@@ -26,7 +26,7 @@ runs:
         
         if [[ $status != '"OK"' ]]; then
           echo "❌ SonarQube Quality Gate failed for Project '${{ inputs.projectKey }}' in branch '${{ inputs.branch }}'. Project Status: $status"
-          if [[ $status == '"NONE"']]; then
+          if [[ $status == '"NONE"' ]]; then
             echo "❗ Appears that is no quality gate associated with the project."
           fi
           exit 1
