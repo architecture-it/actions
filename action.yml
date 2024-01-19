@@ -30,6 +30,4 @@ runs:
           fi
           exit 1
         fi
-        # print name and owner
-        echo "${{ github.repository }}"
         echo "✅ SonarQube Quality Gate passed for Project '${{ inputs.projectKey }}' in branch '${{ inputs.branch }}'."
