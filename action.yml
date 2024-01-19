@@ -57,7 +57,7 @@ runs:
           const { projectStatus } = responseSonar;
 
           if (projectStatus.status !== 'OK') {
-            core.setFailed(`SonarQube Quality Gate failed. Project Status: ${status}`);
+            core.setFailed(`SonarQube Quality Gate failed. Project Status: ${projectStatus.status}`);
             core.debug(JSON.stringify(responseSonar));
           }
 
