@@ -22,7 +22,7 @@ runs:
     - name: Validate
       shell: bash
       run: |
-        status=$(curl -X GET -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/qualitygates/project_status?projectKey=${{ inputs.projectKey }}&branch=${{ inputs.branch }}' | jq '.projectStatus.status')
+        status=$(curl --silent -X GET -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/qualitygates/project_status?projectKey=${{ inputs.projectKey }}&branch=${{ inputs.branch }}' | jq '.projectStatus.status')
         if [[ "$status" != '"OK"' ]]; then
           echo "❌ SonarQube Quality Gate failed for Project '${{ inputs.projectKey }}' in branch '${{ inputs.branch }}'. Project Status: $status"
           if [[ "$status" == '"NONE"' ]]; then
