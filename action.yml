@@ -27,11 +27,12 @@ runs:
 
           const projectKey = core.getInput('projectKey') || `${organization}_${name}`;
           const sonar_url = core.getInput('sonar_url');
+          const branch = core.getInput('branch');
           const sonar_token = core.getInput('sonar_token');
           
           const url = `${sonar_url}/api/qualitygates/project_status`;
           const params = new URLSearchParams({
-            branch: inputs.branch,
+            branch: branch,
             projectKey: projectKey,
           });
 
