@@ -30,7 +30,11 @@ runs:
     - name: Validate
       shell: bash
       run: |
-        curl -X GET -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/qualitygates/project_status?projectKey=${{ inputs.projectKey }}&branch=${{ inputs.branch }}' | jq '.projectStatus.status' | grep -q "OK" || exit 1
+        curl -X GET -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/qualitygates/project_status?projectKey=${{ inputs.projectKey }}&branch=${{ inputs.branch }}' | jq '.projectStatus.status' |
+        if [[ $1 != '"OK"' ]]; then
+          echo "SonarQube Quality Gate failed for Project '${{ inputs.projectKey }}' in branch '${{ inputs.branch }}'. Project Status: $1"
+          exit 1
+        fi
     # - uses: actions/github-script@v7
     #   id: validate-sonar
     #   with:     
