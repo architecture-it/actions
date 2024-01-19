@@ -7,9 +7,6 @@ inputs:
   sonar_token:
     description: "Token de acceso SonarQube"
     required: true
-  projectKey:
-    description: "Project Key SonarQube"
-    required: true
   branch:
     description: "Branch SonarQube"
     required: false
@@ -25,10 +22,14 @@ runs:
     #   id: verify_status
     - name: "Verify Status Project"
       run: |
+        const name = context.repo.repo;
+        const organization = context.repo.owner;
+        const projectKey = `${organization}_${name}`;
+        
         const url = `${inputs.sonar_url}/api/qualitygates/project_status`;
         const params = new URLSearchParams({
           branch: inputs.branch,
-          projectKey: inputs.projectKey,
+          projectKey: projectKey,
         });
 
         const { json, status: statusCode } = await fetch(`${url}?${params}`, {
