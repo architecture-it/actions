@@ -15,6 +15,11 @@ inputs:
     required: false
     default: "main"
 
+
+# sonar_url: ${{ secrets.SONAR_HOST_URL }}
+#           sonar_token: ${{ secrets.SONAR_TOKEN }}
+#           projectKey: architecture-it_stylesystem
+#           branch: "main"
 runs:
   using: "composite"
   steps:
@@ -29,6 +34,13 @@ runs:
           const sonar_url = core.getInput('sonar_url');
           const branch = core.getInput('branch');
           const sonar_token = core.getInput('sonar_token');
+
+          core.debug({
+            projectKey,
+            sonar_url,
+            branch,
+            sonar_token
+          })
           
           const url = `${sonar_url}/api/qualitygates/project_status`;
           const params = new URLSearchParams({
