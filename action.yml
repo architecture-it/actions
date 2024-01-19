@@ -1,32 +1,59 @@
-name: "SonarQube Pre-requisitos"
-description: "Se realiza la configuración de los proyectos en sonarqube, se deben realizar a mano hasta que exista el endpoint de import from github"
+name: 'Validate Status Project (SonarQ)'
+description: 'Unique step to Validate Status Project (SonarQ)'
 inputs:
-  sonar_url: 
-    description: "url sonarqube"
+  sonar_url:
+    description: "Url SonarQube"
     required: true
-  sonar_token: 
-    description: "token sonarqube"
+  sonar_token:
+    description: "Token de acceso SonarQube"
     required: true
-  sonar_key:
-    description: "Key del repositorio"
+  projectKey:
+    description: "Project Key SonarQube"
     required: true
-  alm_setting :
-    description: "config alm github settings"
+  branch:
+    description: "Branch SonarQube"
     required: false
-    default: 'GitHubGLA'
-  alm_setting_monorepo :
-    description: "config alm github settings monorepo"
-    required: false
-    default: 'false'
+    default: "main"
+
 runs:
   using: "composite"
   steps:
-    - run: echo Validacion
-      shell: bash
-    # - name: "Create Project"
+    # - name: "Verify status Project"
     #   run: |
-    #     curl -X GET -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/qualitygates/project_status' -d projectKey=${{ inputs.sonar_key }} >> request.txt
-    #   shell: bash 
-    # - name: "Show response"
+    #     curl -X GET -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/qualitygates/project_status' -d branch=${{ inputs.branch }} -d projectKey=${{ inputs.projectKey }}
     #   shell: bash
-    #   run: cat request.txt
+    #   id: verify_status
+    - name: "Verify Status Project"
+      run: |
+        const url = `${inputs.sonar_url}/api/qualitygates/project_status`;
+        const params = new URLSearchParams({
+          branch: inputs.branch,
+          projectKey: inputs.projectKey,
+        });
+
+        const { json, status: statusCode } = await fetch(`${url}?${params}`, {
+            method: 'GET',
+            headers: {
+              'Authorization': 'Basic ' + Buffer.from(`${inputs.sonar_token}:`).toString('base64'),
+            },
+        });
+
+        //Returns an HTTP code 404 if the analysis associated with the task is not found or does not exist.
+        if (statusCode === 404) {
+          core.setFailed(`The analysis associated with the task is not found or does not exist`);
+        }
+
+        const responseSonar = await json();
+
+        const { projectStatus: { status } } = responseSonar;
+
+        if (status !== 'OK') {
+          core.setFailed(`SonarQube Quality Gate failed. Project Status: ${status}`);
+          core.debug(JSON.stringify(responseSonar));
+        }
+
+        core.setOutput('sonar_status', status);
+        core.exportVariable('SONAR_STATUS', status);
+      shell: bash
+      id: verify_status
+    
