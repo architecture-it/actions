@@ -7,10 +7,6 @@ inputs:
   sonar_token:
     description: "Token de acceso SonarQube"
     required: true
-  projectKey:
-    description: "Project Key SonarQube"
-    required: false
-    default: ""
   branch:
     description: "Branch SonarQube"
     required: false
@@ -19,15 +15,22 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Key Repository
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const name = context.repo.repo
+          const organization = context.repo.owner
+          core.exportVariable('KEY_REPOSITORY', `${organization}_${name}`)
     - name: Validate
       shell: bash
       run: |
-        status=$(curl --silent -X GET -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/qualitygates/project_status?projectKey=${{ inputs.projectKey }}&branch=${{ inputs.branch }}' | jq '.projectStatus.status')
+        status=$(curl --silent -X GET -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/qualitygates/project_status?projectKey=${{ env.KEY_REPOSITORY }}&branch=${{ inputs.branch }}' | jq '.projectStatus.status')
         if [[ "$status" != '"OK"' ]]; then
-          echo "❌ SonarQube Quality Gate failed for Project '${{ inputs.projectKey }}' in branch '${{ inputs.branch }}'. Project Status: $status"
+          echo "❌ SonarQube Quality Gate failed for Project '${{ env.KEY_REPOSITORY }}' in branch '${{ inputs.branch }}'. Project Status: $status"
           if [[ "$status" == '"NONE"' ]]; then
             echo "❗ Appears that is no quality gate associated with the project."
           fi
           exit 1
         fi
-        echo "✅ SonarQube Quality Gate passed for Project '${{ inputs.projectKey }}' in branch '${{ inputs.branch }}'."
+        echo "✅ SonarQube Quality Gate passed for Project '${{ env.KEY_REPOSITORY }}' in branch '${{ inputs.branch }}'."
