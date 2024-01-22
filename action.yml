@@ -59,13 +59,13 @@ runs:
       with:
         version: 8
     - name: Use Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: ${{ inputs.matrix_version }}
         cache: ${{ steps.package_manager.outputs.name }}
 
     - name: 'Cache Node Modules Dependencies'
-      uses: 'actions/cache@v3'
+      uses: actions/cache@v3
       id: cache-node-modules
       with:
         path: 'node_modules'
