@@ -15,6 +15,9 @@ inputs:
     description: "El source de la organización que va a utilizar. Default: architecture-it"
     required: false
     default: 'architecture-it'
+  dotnet-version:
+    required: false
+    default: 6.0.x
  
 runs:
   using: "composite"
@@ -23,7 +26,7 @@ runs:
   - name: Setup .NET
     uses: actions/setup-dotnet@v1
     with:
-      dotnet-version: 6.0.x
+      dotnet-version: ${{ inputs.dotnet-version }}
   - name: Add NuGet sources
     run: |
       dotnet nuget locals -c all       
