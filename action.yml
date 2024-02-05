@@ -1,0 +1,53 @@
+name: "Generate a Jira Version"
+description: "Generate a Jira Version from PR that follows the conventional commit and Pull Request information"
+inputs:
+  hook_id:
+    description: Hook ID. The id generated with the rule following the url https://automation.atlassian.com/pro/hooks/<HOOK_ID>
+    required: true
+  project_key:
+    description: Project Key to generate version
+    required: true
+  version:
+    description: The version to be created
+    required: true
+
+
+outputs:
+  new-version:
+    description: The version of the release
+    value: ${{ steps.next-version.outputs.newVersion }}
+  previous-version:
+    description: The previous version of the release
+    value: ${{ steps.next-version.outputs.previousVersion }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Extract all commits and name of pr with valid incidents keys
+      id: extract-commits
+      shell: bash
+      run: |
+        echo "::set-output name=commits::$(git log --pretty=format:"%s" ${{ github.event.before }}..${{ github.sha }} | grep -E '([A-Z]{2,}-[0-9]{1,})' | awk '{print $1}' | sort -u)"
+        echo "::set-output name=pr-title::$(echo ${{ github.event.pull_request.title }} | grep -E '([A-Z]{2,}-[0-9]{1,})' | awk '{print $1}')"
+    - name: Use Jira Automation
+      uses: actions/github-script@v7
+      with: 
+        script: |
+          const hookId = '${{ inputs.hook_id }}';
+          const projectKey = '${{ inputs.project_key }}';
+          console.log({hookId, projectKey});
+          # const resp = await fetch(`https://automation.atlassian.com/pro/hooks/${hookId}`, {
+          #   method: 'POST',
+          #   headers: {
+          #     'Content-Type': 'application/json',
+          #   },
+          #   body: JSON.stringify({
+          #     "projectKey": projectKey,
+          #     "version": "${{ inputs.version }}"
+          #   }),
+          # });
+
+
+        
+          
+    
