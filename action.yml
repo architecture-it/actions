@@ -4,9 +4,6 @@ inputs:
   hook_id:
     description: Hook ID. The id generated with the rule following the url https://automation.atlassian.com/pro/hooks/<HOOK_ID>
     required: true
-  project_key:
-    description: Project Key to generate version
-    required: true
   version:
     description: The version to be created
     required: true
@@ -23,29 +20,29 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - name: Extract all commits and name of pr with valid incidents keys
-      id: extract-commits
+    
+    - name: Get the latest tag
+      id: latest-tag
       shell: bash
       run: |
-        echo "::set-output name=commits::$(git log --pretty=format:"%s" ${{ github.event.before }}..${{ github.sha }} | grep -E '([A-Z]{2,}-[0-9]{1,})' | awk '{print $1}' | sort -u)"
-        echo "::set-output name=pr-title::$(echo ${{ github.event.pull_request.title }} | grep -E '([A-Z]{2,}-[0-9]{1,})' | awk '{print $1}')"
+        echo "result=$(git tag --sort=-taggerdate | tail -1)" >> $GITHUB_OUTPUT
+        # get the name of repo
+        echo "repo=$(basename -s .git `git config --get remote.origin.url`)" >> $GITHUB_ENV
+    
     - name: Use Jira Automation
       uses: actions/github-script@v7
       with: 
         script: |
           const hookId = '${{ inputs.hook_id }}';
-          const projectKey = '${{ inputs.project_key }}';
-          console.log({hookId, projectKey});
-          # const resp = await fetch(`https://automation.atlassian.com/pro/hooks/${hookId}`, {
-          #   method: 'POST',
-          #   headers: {
-          #     'Content-Type': 'application/json',
-          #   },
-          #   body: JSON.stringify({
-          #     "projectKey": projectKey,
-          #     "version": "${{ inputs.version }}"
-          #   }),
-          # });
+          const resp = await fetch(`https://automation.atlassian.com/pro/hooks/${hookId}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              "version": "${{ steps.latest-tag.outputs.repo }}-${{ steps.latest-tag.outputs.result }}"
+            }),
+          });
 
 
         
