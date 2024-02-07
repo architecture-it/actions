@@ -1,13 +1,34 @@
 name: "Generate a Jira Version"
 description: "Generate a Jira Version from PR that follows the conventional commit and Pull Request information"
 inputs:
-  hook_id:
-    description: Hook ID. The id generated with the rule following the url https://automation.atlassian.com/pro/hooks/<HOOK_ID>
+  github_token:
+    description: "The GitHub token"
     required: true
-  version:
-    description: The version to be created
+  project_id:
+    description: "The Jira project id"
     required: true
-
+  ticket_prefixes:
+    description: "The ticket prefixes"
+    required: true
+  host_url:
+    description: "The Jira host url"
+    required: false
+    default: "andreani.atlassian.net"
+  release_template:
+    description: "The release name template"
+    required: false
+    default: "Test v${version}"
+  branches:
+    description: Branches to release
+    required: false
+    default: '["main"]'
+  only_version:
+    description: Only version
+    required: false
+    default: 'false'
+  jira_auth:
+    description: Jira auth
+    required: true
 
 outputs:
   new-version:
@@ -20,35 +41,23 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+    - name: Setup Node
+      uses: actions/setup-node@v4
       with:
-        fetch-depth: 0
-        
-    - name: Get the latest tag
-      id: latest-tag
+        node-version: 20.x
+    - name: Add npm config
+      uses: architecture-it/actions@generate-npmrc
+      with:
+        npm_token: ${{ inputs.github_token }}
+    - name: Write config file
       shell: bash
       run: |
-        echo "result=$(git tag --sort=-taggerdate | tail -1)" >> $GITHUB_OUTPUT
-        # get the name of repo
-        echo "repo=$(basename -s .git `git config --get remote.origin.url`)" >> $GITHUB_ENV
-    
-    - name: Use Jira Automation
-      uses: actions/github-script@v7
-      with: 
-        script: |
-          const hookId = '${{ inputs.hook_id }}';
-          const resp = await fetch(`https://automation.atlassian.com/pro/hooks/${hookId}`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              "version": "${{ steps.latest-tag.outputs.repo }}-${{ steps.latest-tag.outputs.result }}"
-            }),
-          });
-
-
-        
-          
-    
+        echo 'module.exports = { plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator", "@semantic-release/github", [ "@semantic-release/exec", { verifyReleaseCmd: "./version.sh ${nextRelease.version} ${lastRelease.version}" } ], ["@architecture-it/semantic-release-jira", { "projectId": ${{ inputs.project_id }}, "releaseNameTemplate": ${{ inputs.release_template }}, "jiraHost": ${{ inputs.host_url }}, "ticketPrefixes": [ ${{ inputs.ticket_prefixes }} ], }] ], branches: ${{ inputs.branches }}, dryRun: ${{ inputs.only_version == 'true' }} };' >> release.config.js
+    - name: Get the version
+      run: npx --no-install -y -p @semantic-release/exec -p @semantic-release/git -p @semantic-release/github -p @architecture-it/semantic-release-jira -c semantic-release
+      env:
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+        GH_TOKEN: ${{ inputs.github_token }}
+        JIRA_AUTH: ${{ inputs.jira_auth }}
+      id: next-version
+      shell: bash
