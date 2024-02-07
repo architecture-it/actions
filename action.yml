@@ -20,7 +20,11 @@ outputs:
 runs:
   using: "composite"
   steps:
-    
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
     - name: Get the latest tag
       id: latest-tag
       shell: bash
