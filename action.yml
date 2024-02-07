@@ -26,8 +26,11 @@ inputs:
     description: Only version
     required: false
     default: 'false'
-  jira_auth:
-    description: Jira auth
+  jira_email:
+    description: Jira email of service account
+    required: true
+  jira_api_token:
+    description: Jira api token of service account
     required: true
 
 outputs:
@@ -58,6 +61,7 @@ runs:
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
         GH_TOKEN: ${{ inputs.github_token }}
-        JIRA_AUTH: ${{ inputs.jira_auth }}
+        JIRA_EMAIL: ${{ inputs.jira_email }}
+        JIRA_API_TOKEN: ${{ inputs.jira_api_token }}
       id: next-version
       shell: bash
