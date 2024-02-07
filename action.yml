@@ -52,7 +52,7 @@ runs:
     - name: Write config file
       shell: bash
       run: |
-        echo 'module.exports = { plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator", "@semantic-release/github", [ "@semantic-release/exec", { verifyReleaseCmd: "./version.sh ${nextRelease.version} ${lastRelease.version}" } ], ["@architecture-it/semantic-release-jira", { "projectId": ${{ inputs.project_id }}, "releaseNameTemplate": "${{ inputs.release_template }}", "jiraHost": "${{ inputs.host_url }}", "ticketPrefixes": [ "${{ inputs.ticket_prefix }}" ], released: true, setReleaseDate: true }] ], branches: ${{ inputs.branches }}, dryRun: ${{ inputs.only_version == 'true' }} };' >> release.config.js
+        echo 'module.exports = { plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator", "@semantic-release/github", [ "@semantic-release/exec", { verifyReleaseCmd: "./version.sh ${nextRelease.version} ${lastRelease.version}" } ], ["@architecture-it/semantic-release-jira", { "projectId": ${{ inputs.project_id }}, "releaseNameTemplate": "${{ inputs.release_template }}", "jiraHost": "${{ inputs.host_url }}", "ticketPrefixes": [ "${{ inputs.ticket_prefix }}" ], released: true, setReleaseDate: true }] ], branches: ${{ inputs.branches }}, dryRun: ${{ inputs.only_version == 'true' }} };' >> release.config.cjs
     - name: Get the version
       run: npx --no-install -y -p @semantic-release/exec -p @semantic-release/git -p @semantic-release/github -p @architecture-it/semantic-release-jira -c semantic-release
       env:
