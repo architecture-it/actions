@@ -13,7 +13,7 @@ inputs:
   host_url:
     description: "The Jira host url"
     required: false
-    default: "andreani.atlassian.net"
+    default: "https://andreani.atlassian.net"
   release_template:
     description: "The release name template"
     required: false
