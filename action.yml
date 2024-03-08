@@ -12,6 +12,53 @@ inputs:
     description: Only version
     required: false
     default: 'true'
+  # todos no son requeridos para habilitar una integración progresiva
+  jira_project_id:
+    description: Jira Project Id (e.g. "PE20"). This will be used as prefix in tickets
+    required: false
+  jira_api_token:
+    description: Jira API Token
+    required: false
+  jira_email:
+    description: Jira Email
+    required: false
+  jira_host_url:
+    description: Jira Host URL
+    required: false
+    default: "https://andreani.atlassian.net"
+  # generado con la información de los inputs
+  jira_release_template:
+    description: "Title of the release name template. This will be used in name of publication in JIRA"
+    required: false
+    default: "Test v${version}"
+
+
+# echo 'module.exports = { plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator", "@semantic-release/github", [ "@semantic-release/exec", { verifyReleaseCmd: "./version.sh ${nextRelease.version} ${lastRelease.version}" } ], ["@architecture-it/semantic-release-jira", { "projectId": "${{ inputs.project_id }}", "releaseNameTemplate": "${{ inputs.release_template }}", "jiraHost": "${{ inputs.host_url }}", "ticketPrefixes": [ "${{ inputs.ticket_prefix }}" ], released: true, setReleaseDate: true }] ], branches: ${{ inputs.branches }}, dryRun: ${{ inputs.only_version == 'true' }} };' >> release.config.cjs
+# name: 📑Jira integration
+#         uses: architecture-it/actions@next-version-test-jira
+#         with:
+#           github_token: ${{ secrets.ARQUITECTURA_DEPLOY }}
+#           jira_email: ${{ secrets.JIRA_EMAIL }}
+#           jira_project_id: "PE20"
+#           ticket_prefix: "PE20"
+#           jira_api_token: ${{ secrets.JIRA_API_TOKEN }}
+
+# {
+#   "plugins": [
+#     "@semantic-release/commit-analyzer",
+#     "@semantic-release/release-notes-generator",
+#     "@semantic-release/git",
+#     ["@architecture-it/semantic-release-jira", {
+#       "projectId": "UH",
+#       "releaseNameTemplate": "Test v${version}",
+#       "jiraHost": "uphabit.atlassian.net",
+#       "ticketPrefixes": [ "TEST", "UH"],
+#       "ticketRegex": "[a-zA-Z]{3,5}-\\d{3,5}"
+#     }]
+#   ]
+# }
+
+# echo 'module.exports = { plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator", "@semantic-release/github", [ "@semantic-release/exec", { verifyReleaseCmd: "./version.sh ${nextRelease.version} ${lastRelease.version}" } ] ], branches: ${{ inputs.branches }}, dryRun: ${{ inputs.only_version == 'true' }} };' >> release.config.js
 
 outputs:
   new-version:
@@ -38,11 +85,13 @@ runs:
     - name: Write config file
       shell: bash
       run: |
-        echo 'module.exports = { plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator", "@semantic-release/github", [ "@semantic-release/exec", { verifyReleaseCmd: "./version.sh ${nextRelease.version} ${lastRelease.version}" } ] ], branches: ${{ inputs.branches }}, dryRun: ${{ inputs.only_version == 'true' }} };' >> release.config.js
+        echo 'module.exports = { plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator", "@semantic-release/github", [ "@semantic-release/exec", { verifyReleaseCmd: "./version.sh ${nextRelease.version} ${lastRelease.version}" } ], ["@architecture-it/semantic-release-jira", { "projectId": "${{ inputs.jira_project_id }}", "releaseNameTemplate": "${{ inputs.jira_release_template }}", "jiraHost": "${{ inputs.jira_host_url }}", "ticketPrefixes": [ "${{ inputs.jira_project_id }}" ], released: ${{ inputs.only_version != 'true' }}, setReleaseDate: ${{ inputs.only_version != 'true' }} }] ], branches: ${{ inputs.branches }}, dryRun: ${{ inputs.only_version == 'true' }} };' >> release.config.js
     - name: Get the version
       run: npx --no-install -y -p @semantic-release/exec -p @semantic-release/git -p @semantic-release/github -c semantic-release
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
         GH_TOKEN: ${{ inputs.github_token }}
+        JIRA_EMAIL: ${{ inputs.jira_email }}
+        JIRA_API_TOKEN: ${{ inputs.jira_api_token }}
       id: next-version
       shell: bash
