@@ -91,7 +91,7 @@ runs:
       run: |
         echo 'module.exports = { plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator", "@semantic-release/github", [ "@semantic-release/exec", { verifyReleaseCmd: "./version.sh ${nextRelease.version} ${lastRelease.version}" } ], ["@architecture-it/semantic-release-jira", { "projectId": "${{ inputs.jira_project_id }}", "releaseNameTemplate": "${{ inputs.jira_release_template }}", "jiraHost": "${{ inputs.jira_host_url }}", "ticketPrefixes": [ "${{ inputs.jira_project_id }}" ], released: ${{ inputs.only_version != 'true' }}, setReleaseDate: ${{ inputs.only_version != 'true' }} }] ], branches: ${{ inputs.branches }}, dryRun: ${{ inputs.only_version == 'true' }} };' >> release.config.cjs
     - name: Get the version
-      run: npx --no-install -y -p @semantic-release/exec -p @semantic-release/git -p @semantic-release/github -c semantic-release
+      run: npx --no-install -y -p @semantic-release/exec -p @semantic-release/git -p @semantic-release/github -p @architecture-it/semantic-release-jira -c semantic-release
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
         GH_TOKEN: ${{ inputs.github_token }}
