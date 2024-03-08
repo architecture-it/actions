@@ -71,10 +71,15 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - name: Setup Node.js 18
-      uses: actions/setup-node@v3
+    - name: Setup Node.js 20
+      uses: actions/setup-node@v4
       with:
         node-version: 20.x
+    - name: Generate .npmrc file
+      uses: architecture-it/actions@generate-npmrc
+      with:
+        npm_token: ${{ secrets.ARQUITECTURA_DEPLOY }}
+        font_awesome_key: ${{ secrets.NPM_FONTAWESOME_KEY }}
     - name: Write bash script
       shell: bash
       run: |
