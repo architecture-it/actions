@@ -40,4 +40,3 @@ runs:
         name: code-coverage-report
         path: test
       if: ${{ inputs.skip_test != 'true' }}
-      working-directory: ${{ inputs.workdir_test }}
