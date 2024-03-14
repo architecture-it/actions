@@ -27,6 +27,7 @@ runs:
       working-directory: ${{ inputs.workdir_src }}
     - run: mkdir test
       shell: bash
+      working-directory: ${{ inputs.workdir_test }}
     - name: Test
       run: |
         go test -cover ./... -json > test/report.json -coverprofile=test/coverage.out
@@ -39,3 +40,4 @@ runs:
         name: code-coverage-report
         path: test
       if: ${{ inputs.skip_test != 'true' }}
+      working-directory: ${{ inputs.workdir_test }}
