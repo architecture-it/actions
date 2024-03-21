@@ -23,7 +23,7 @@ runs:
           name: code-coverage-report
           path: coverage.out
         if: ${{ inputs.skip_test != 'true' }}
-        
+
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
         env:
@@ -35,7 +35,6 @@ runs:
             -Dsonar.projectKey=${{ inputs.sonar_key }}
             -Dsonar.test.inclusions=**/*_test.go
             -Dsonar.test.exclusions=**/*__constructor.go
-            -Dsonar.go.coverage.reportPaths=**/coverage.out
-            -Dsonar.exclusions=**/*__constructor.go
-            -Dsonar.exclusions=**/*_test.go
-            -Dsonar.exclusions=**/*.html
+            -Dsonar.go.coverage.reportPaths=coverage.out
+            -Dsonar.exclusions=**/*__constructor.go,**/*_test.go,**/*.html
+
