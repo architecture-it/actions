@@ -50,6 +50,8 @@ runs:
           sonar_url: ${{ inputs.sonar_url }}
           sonar_token: ${{ inputs.sonar_token }}
           skip_test: ${{inputs.skip_test}}
+          workdir_src: ${{ inputs.workdir_src }}
+          workdir_test: ${{ inputs.workdir_test }}
         if: ${{ inputs.sonar_code == 'Go' }}
       - name: Setup Javascript Analyzer
         uses: architecture-it/actions@sonar-js
