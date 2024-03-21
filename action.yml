@@ -39,5 +39,5 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: code-coverage-report
-        path: ./coverage.out
+        path: ${{ inputs.workdir_test }}/coverage.out
       if: ${{ inputs.skip_test != 'true' }}
