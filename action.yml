@@ -26,6 +26,8 @@ inputs:
 runs:
   using: "composite"
   steps:
+      - run: cd ${{ inputs.workdir_src }}
+        shell: bash
       - name: Download code coverage results
         uses: actions/download-artifact@v4
         with:
