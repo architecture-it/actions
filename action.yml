@@ -25,20 +25,18 @@ runs:
       shell: bash
 
     - name: Build
-      run: go build -v ./main.go
+      run: go build -v ${{ inputs.workdir_src }}/main.go
       shell: bash
-      working-directory: ${{ inputs.workdir_src }}
         
     - name: Test
       run: |
-        go test ./... -coverprofile=coverage.out
+        go test ${{ inputs.workdir_test }} ./... -coverprofile=coverage.out
       shell: bash
-      working-directory: ${{ inputs.workdir_test }}
       if: ${{ inputs.skip_test != 'true' }}
 
     - name: Archive code coverage results
       uses: actions/upload-artifact@v4
       with:
         name: code-coverage-report
-        path: ${{ inputs.workdir_test }}/coverage.out
+        path: ./coverage.out
       if: ${{ inputs.skip_test != 'true' }}
