@@ -41,8 +41,6 @@ runs:
           LC_ALL: "ru_RU.UTF-8"
         with:
           args: >
-            -Dsonar.sources=${{ inputs.workdir_src }}
-            -Dsonar.tests=${{ inputs.workdir_test }}
             -Dsonar.projectKey=${{ inputs.sonar_key }}
             -Dsonar.test.inclusions=**/*_test.go
             -Dsonar.test.exclusions=**/*__constructor.go
