@@ -19,21 +19,27 @@ runs:
     - name: Set up Go
       uses: actions/setup-go@v3
       with:
-        go-version: 1.18
+        go-version: '1.20'
+
+    - run: go version
+      shell: bash
 
     - name: Build
       run: go build -v ./main.go
       shell: bash
       working-directory: ${{ inputs.workdir_src }}
+      
     - run: mkdir test
       shell: bash
       working-directory: ${{ inputs.workdir_test }}
+      
     - name: Test
       run: |
         go test -cover ./... -json > test/report.json -coverprofile=test/coverage.out
       shell: bash
       working-directory: ${{ inputs.workdir_test }}
       if: ${{ inputs.skip_test != 'true' }}
+      
     - name: Archive code coverage results
       uses: actions/upload-artifact@v1
       with:
