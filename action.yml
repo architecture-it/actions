@@ -1,4 +1,4 @@
-name: "SonarQube Analyzer"
+name: SonarQube Analyzer
 description: "Se realiza el análisis en sonarqube"
 inputs:
   github_username:
@@ -29,13 +29,39 @@ inputs:
   skip_test: 
     description: "Omite el analisis de test"
     required: false
-    default: 'true'
+    default: 'false'
+  version:
+    description: "version de lenguaje, ej 3.7, 3.8..."
+    required: false
+    default: '3.8'
+  sonar_custom:
+    description: "config sonar custom"
+    default: ""
+    required: false
+  tags:
+    description: "extra tags, ej: 'react-18, microfrontend'"
+    default: ""
+    required: false
+
 runs:
   using: "composite"
   steps:
-      - run: echo hi!, we working.
-        shell: bash
-        # Setup .NET Core SDK
+      - name: Key Repository
+        id: variables
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const name = context.repo.repo
+            const organization = context.repo.owner
+            core.exportVariable('KEY_REPOSITORY', `${organization}_${name}`)
+
+      - name: Setup Pre requisitos
+        uses: architecture-it/actions@sonar-prerequisitos
+        with:
+          sonar_url: ${{ inputs.sonar_url }}
+          sonar_token: ${{ inputs.sonar_token }}
+          sonar_key:  ${{ env.KEY_REPOSITORY }}
+
       - name: Setup .NET Analyzer
         uses: architecture-it/actions@sonar-net
         with: 
@@ -43,26 +69,51 @@ runs:
           github_token: ${{ inputs.github_token }}
           sonar_url: ${{ inputs.sonar_url }}
           sonar_token: ${{ inputs.sonar_token }}
+          sonar_key:  ${{ env.KEY_REPOSITORY }}
+          sonar_custom: ${{ inputs.sonar_custom }}
+          workdir_src: ${{ inputs.workdir_src }}
+          workdir_test: ${{ inputs.workdir_test }}
         if: ${{ inputs.sonar_code == '.Net' }}
+
       - name: Setup Go Analyzer
         uses: architecture-it/actions@sonar-go
         with: 
           sonar_url: ${{ inputs.sonar_url }}
           sonar_token: ${{ inputs.sonar_token }}
+          sonar_key:  ${{ env.KEY_REPOSITORY }}
           skip_test: ${{inputs.skip_test}}
           workdir_src: ${{ inputs.workdir_src }}
           workdir_test: ${{ inputs.workdir_test }}
         if: ${{ inputs.sonar_code == 'Go' }}
+
       - name: Setup Javascript Analyzer
         uses: architecture-it/actions@sonar-js
         with: 
           sonar_url: ${{ inputs.sonar_url }}
           sonar_token: ${{ inputs.sonar_token }}
+          sonar_key:  ${{ env.KEY_REPOSITORY }}
           skip_test: ${{inputs.skip_test}}
         if: ${{ inputs.sonar_code == 'Js' }}
+
+      - name: Setup React Native Analyzer
+        uses: architecture-it/actions@sonar-react-native
+        with: 
+          sonar_url: ${{ inputs.sonar_url }}
+          sonar_token: ${{ inputs.sonar_token }}
+          sonar_key:  ${{ env.KEY_REPOSITORY }}
+          skip_test: ${{inputs.skip_test}}
+        if: ${{ inputs.sonar_code == 'React Native' }}
+        
       - name: Setup Python Analyzer
         uses: architecture-it/actions@sonar-py
         with: 
           sonar_url: ${{ inputs.sonar_url }}
           sonar_token: ${{ inputs.sonar_token }}
+          sonar_key:  ${{ env.KEY_REPOSITORY }}
+          version: ${{ inputs.version }}
         if: ${{ inputs.sonar_code == 'Python' }}
+      
+      - name: Set Tags
+        shell: bash
+        run: |
+          curl -X POST -u ${{ inputs.sonar_token }}: '${{ inputs.sonar_url }}/api/project_tags/set' -d tags='${{ inputs.sonar_code }}, github, ${{ inputs.tags }}' -d project=${{ env.KEY_REPOSITORY }}
