@@ -103,7 +103,7 @@ runs:
           sonar_token: ${{ inputs.sonar_token }}
           sonar_key:  ${{ env.KEY_REPOSITORY }}
           skip_test: ${{inputs.skip_test}}
-        if: ${{ inputs.sonar_code == 'NextJs' }}
+        if: ${{ inputs.sonar_code == 'Next.js' }}
 
       - name: Setup React Native Analyzer
         uses: architecture-it/actions@sonar-react-native
