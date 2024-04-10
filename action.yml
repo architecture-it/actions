@@ -1,5 +1,5 @@
-name: "Sonar Analizer Javascript/Typescript"
-description: "Realiza el análisis de sonarqube para Javascript/Typescript"
+name: "Sonar Analizer Javascript/Typescript for NextJs Apps"
+description: "Realiza el análisis de sonarqube para aplicaciones en NextJs"
 inputs:
   sonar_url: 
     description: "url sonarqube"
@@ -34,3 +34,4 @@ runs:
             -Dsonar.projectKey=${{ inputs.sonar_key }}
             -Dsonar.test.inclusions=src/**/*.spec.js,src/**/*.spec.jsx,src/**/*.test.js,src/**/*.test.jsx,src/**/*.spec.ts,src/**/*.spec.tsx,src/**/*.test.ts,src/**/*.test.tsx
             -Dsonar.javascript.lcov.reportPaths=**/coverage/lcov.info
+            -Dsonar.coverage.exclusions=src/pages/**
