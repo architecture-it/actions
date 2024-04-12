@@ -24,8 +24,8 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - name: Setup Node.js 18
-      uses: actions/setup-node@v3
+    - name: Setup Node.js 20
+      uses: actions/setup-node@v4
       with:
         node-version: 20.x
     - name: Write bash script
@@ -38,7 +38,7 @@ runs:
     - name: Write config file
       shell: bash
       run: |
-        echo 'module.exports = { plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator", "@semantic-release/github", [ "@semantic-release/exec", { verifyReleaseCmd: "./version.sh ${nextRelease.version} ${lastRelease.version}" } ] ], branches: ${{ inputs.branches }}, dryRun: ${{ inputs.only_version == 'true' }} };' >> release.config.js
+        echo 'module.exports = { plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator", "@semantic-release/github", [ "@semantic-release/exec", { verifyReleaseCmd: "./version.sh ${nextRelease.version} ${lastRelease.version}" } ] ], branches: ${{ inputs.branches }}, dryRun: ${{ inputs.only_version == 'true' }} };' >> release.config.cjs
     - name: Get the version
       run: npx --no-install -y -p @semantic-release/exec -p @semantic-release/git -p @semantic-release/github -c semantic-release
       env:
