@@ -1,0 +1,30 @@
+name: 'Publish-to-AppLivery'
+description: 'Connect to API AppLivery and publish the APK for new build deployment'
+
+runs:
+  using: "composite"
+
+  steps:
+  - name: Checkout
+    uses: actions/checkout@v4
+    with:
+      fetch-depth: 0
+
+  - name: Download artifact
+    uses: actions/download-artifact@v4
+    with:
+      name: app-release.apk
+      path: android/app/build/outputs/
+
+  - name: Deploy APK to AppLivery
+    shell: bash
+    run: |
+        # Ejecutar el script de despliegue
+        bash ./deploy.sh
+        if [ $? -ne 0 ]; then
+              echo "❌ Failed"
+              exit 1
+        fi
+
+  - shell: bash
+    run: echo "✅ Success"
