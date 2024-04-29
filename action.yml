@@ -20,7 +20,7 @@ runs:
     shell: bash
     run: |
         # Ejecutar el script de despliegue
-        bash ./deploy.sh
+        bash .github/workflows/deploy.sh
         if [ $? -ne 0 ]; then
               echo "❌ Failed"
               exit 1
