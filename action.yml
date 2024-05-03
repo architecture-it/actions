@@ -36,7 +36,7 @@ runs:
       run: |
         if [ -f "yarn.lock" ]; then 
           echo "name=yarn" >> $GITHUB_OUTPUT 
-          echo "command=yarn --frozen-lockfile" >> $GITHUB_OUTPUT 
+          echo "command=yarn install --frozen-lockfile" >> $GITHUB_OUTPUT 
           echo "lock_file=yarn.lock" >> $GITHUB_OUTPUT
         elif [ -f "package-lock.json" ]; then 
           echo "name=npm" >> $GITHUB_OUTPUT 
