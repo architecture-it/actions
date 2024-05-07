@@ -28,6 +28,10 @@ inputs:
     description: "permite cachear la carpeta node_modules"
     required: false
     default: 'false'
+  pnpm_version:
+    description: "version de pnpm"
+    required: false
+    default: '8'
 
 runs:
   using: "composite"
@@ -61,12 +65,12 @@ runs:
       shell: bash    
       # Use default with cache
     - name: Use pnpm Setup
-      uses: pnpm/action-setup@v2
+      uses: pnpm/action-setup@v3
       with:
-        version: 8
+        version: ${{ inputs.pnpm_version }}
       if: ${{ steps.package_manager.outputs.name == 'pnpm' }}
     - name: Use Node.js ${{ inputs.matrix_version }} - Cache ${{ steps.package_manager.outputs.name }}
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
         cache: ${{ steps.package_manager.outputs.name }}
@@ -94,7 +98,7 @@ runs:
       if: inputs.cache == 'false' || steps.cache-node-modules.outputs.cache-hit != 'true'
 
     - name: "Extract info from Package Json"
-      uses: actions/github-script@v6
+      uses: actions/github-script@v7
       id: package
       with:
         script: |
