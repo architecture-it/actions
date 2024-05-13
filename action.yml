@@ -17,6 +17,11 @@ inputs:
     description: "Cache for node_modules"
     required: false
     default: 'true'
+  pnpm_version:
+    description: "version de pnpm"
+    required: false
+    default: '9'
+
 
 runs:
   using: "composite"
@@ -57,7 +62,7 @@ runs:
       if: ${{ steps.package_manager.outputs.name == 'pnpm' }}
       uses: pnpm/action-setup@v2
       with:
-        version: 8
+        version: ${{ inputs.pnpm_version }}
     - name: Use Node.js
       uses: actions/setup-node@v4
       with:
