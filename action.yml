@@ -17,7 +17,7 @@ inputs:
     default: 'architecture-it'
   dotnet-version:
     required: false
-    default: 6.0.x
+    default: 8.0.x
  
 runs:
   using: "composite"
