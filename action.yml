@@ -130,7 +130,7 @@ runs:
           if grep -q vitest package.json; then
             echo "tests_flags=" >> $GITHUB_OUTPUT
           else
-            echo "tests_flags=--json --runInBand --testLocationInResults --outputFile=report.json" >> $GITHUB_OUTPUT
+            echo "tests_flags=--runInBand --silent" >> $GITHUB_OUTPUT
           fi
         fi
       id: flags
