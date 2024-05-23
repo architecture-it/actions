@@ -29,9 +29,9 @@ inputs:
     required: false
     default: 'false'
   pnpm_version:
-    description: "version de pnpm"
+    description: "version default pnpm"
     required: false
-    default: '8'
+    default: '9'
 
 runs:
   using: "composite"
