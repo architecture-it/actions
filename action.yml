@@ -41,7 +41,10 @@ runs:
     - name: Add NuGet sources
       run: |
         dotnet nuget locals -c all       
-        dotnet nuget add source https://nuget.pkg.github.com/architecture-it/index.json --name github -u ${{ inputs.github_username }} -p ${{ inputs.github_token  }} --store-password-in-clear-text
+        dotnet nuget add source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json --name github -u ${{ inputs.github_username }} -p ${{ inputs.github_token }} --store-password-in-clear-text || echo "Source already exists or cannot be added"
+        if [ "${{ github.repository_owner }}" != "architecture-it" ]; then
+          dotnet nuget add source https://nuget.pkg.github.com/architecture-it/index.json --name github-architecture-it -u ${{ inputs.github_username }} -p ${{ inputs.github_token }} --store-password-in-clear-text || echo "Source already exists or cannot be added"
+        fi
       shell: bash
     - name: Setup Node.js 20
       uses: actions/setup-node@v3
@@ -63,4 +66,3 @@ runs:
         NUGET_TOKEN: ${{ inputs.github_token }}
       run: npx semantic-release
       shell: bash
-    
