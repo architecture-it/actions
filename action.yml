@@ -27,7 +27,7 @@ inputs:
   cache:
     description: "permite cachear la carpeta node_modules"
     required: false
-    default: 'false'
+    default: 'true'
   pnpm_version:
     description: "version default pnpm"
     required: false
