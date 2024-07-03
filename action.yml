@@ -60,7 +60,7 @@ runs:
         font_awesome_key: ${{ inputs.fontawesome_token }}
     - name: Use pnpm Setup
       if: ${{ steps.package_manager.outputs.name == 'pnpm' }}
-      uses: pnpm/action-setup@v2
+      uses: pnpm/action-setup@v4
       with:
         version: ${{ inputs.pnpm_version }}
     - name: Use Node.js
