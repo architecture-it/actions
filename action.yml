@@ -26,7 +26,7 @@ runs:
 
     - name: Install dependencies
       run: |
-        pip install -r requirements.txt
+#        pip install -r requirements.txt
         pip install coverage  # Instalar coverage para generar informes
 
     - name: Run tests with coverage
