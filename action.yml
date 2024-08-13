@@ -16,6 +16,31 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '${{ inputs.version }}'  # Usa la versión de Python proporcionada en inputs
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install coverage  # Instalar coverage para generar informes
+
+    - name: Run tests with coverage
+      run: |
+        coverage run -m unittest discover -s test/app
+        coverage report
+        coverage xml  # Generar el informe en formato XML
+
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-report
+        path: coverage.xml  
+
     - name: SonarQube Scan
       uses: sonarsource/sonarqube-scan-action@master
       env:
@@ -28,3 +53,35 @@ runs:
           -Dsonar.projectKey=${{ inputs.sonar_key }}
           -Dsonar.verbose=true
           -Dsonar.python.version=${{ inputs.version }}
+          -Dsonar.python.coverage.reportPaths=coverage.xml  # Ruta del informe de cobertura
+
+# name: "SonarQube Python Analyzer"
+# description: "Se realiza el análisis en sonarqube para proyectos python"
+# inputs:
+#   sonar_url: 
+#     description: "url sonarqube"
+#     required: true
+#   sonar_token: 
+#     description: "token sonarqube"
+#     required: true
+#   sonar_key:
+#     description: "Key del repositorio"
+#     required: true
+#   version:
+#     description: "version de lenguaje, ej 3.7, 3.8..."
+#     required: true
+# runs:
+#   using: "composite"
+#   steps:
+#     - name: SonarQube Scan
+#       uses: sonarsource/sonarqube-scan-action@master
+#       env:
+#         SONAR_TOKEN: ${{ inputs.sonar_token }}
+#         SONAR_HOST_URL: ${{ inputs.sonar_url }}
+#         LC_ALL: "ru_RU.UTF-8"
+#       with:
+#         projectBaseDir: .
+#         args: >
+#           -Dsonar.projectKey=${{ inputs.sonar_key }}
+#           -Dsonar.verbose=true
+#           -Dsonar.python.version=${{ inputs.version }}
