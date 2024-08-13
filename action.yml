@@ -22,24 +22,24 @@ runs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '${{ inputs.version }}'  # Usa la versión de Python proporcionada en inputs
+        python-version: ${{ inputs.version }}  
 
     - name: Install dependencies
       run: |
-#        pip install -r requirements.txt
+        pip install -r requirements.txt
         pip install coverage  # Instalar coverage para generar informes
 
     - name: Run tests with coverage
       run: |
         coverage run -m unittest discover -s test/app
         coverage report
-        coverage xml  # Generar el informe en formato XML
+        coverage html  # Generar un informe HTML opcional
 
     - name: Upload coverage report
       uses: actions/upload-artifact@v3
       with:
         name: coverage-report
-        path: coverage.xml  
+        path: htmlcov/
 
     - name: SonarQube Scan
       uses: sonarsource/sonarqube-scan-action@master
