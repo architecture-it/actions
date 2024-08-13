@@ -27,21 +27,21 @@ runs:
     - name: Install dependencies
       run: |
         pip install -r requirements.txt
-        pip install coverage  # Instalar coverage para generar informes
-      shell: bash  # Especificar el shell
+        pip install coverage
+      shell: bash
 
     - name: Run tests with coverage
       run: |
         coverage run -m unittest discover -s test/. -p "*.py"
         coverage report
-        coverage xml  # Generar el informe en formato XML
-      shell: bash  # Especificar el shell
+        coverage xml
+      shell: bash
 
     - name: Upload coverage report
       uses: actions/upload-artifact@v3
       with:
         name: coverage-report
-        path: coverage.xml  # Archivo de informe de cobertura en formato XML
+        path: coverage.xml
 
     - name: SonarQube Scan
       uses: sonarsource/sonarqube-scan-action@master
@@ -51,7 +51,7 @@ runs:
           -Dsonar.projectKey=${{ inputs.sonar_key }}
           -Dsonar.verbose=true
           -Dsonar.python.version=${{ inputs.version }}
-          -Dsonar.python.coverage.reportPaths=coverage.xml  # Ruta del informe de cobertura
+          -Dsonar.python.coverage.reportPaths=coverage.xml
       env:
         SONAR_TOKEN: ${{ inputs.sonar_token }}
         SONAR_HOST_URL: ${{ inputs.sonar_url }}
