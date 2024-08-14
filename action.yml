@@ -1,88 +1,88 @@
-name: "SonarQube Python Analyzer"
-description: "Se realiza el análisis en SonarQube para proyectos Python"
-inputs:
-  sonar_url: 
-    description: "URL de SonarQube"
-    required: true
-  sonar_token: 
-    description: "Token de SonarQube"
-    required: true
-  sonar_key:
-    description: "Clave del repositorio en SonarQube"
-    required: true
-  version:
-    description: "Versión de Python, ej. 3.7, 3.8..."
-    required: true
-runs:
-  using: "composite"
-  steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ inputs.version }}
-
-    - name: Install dependencies
-      run: |
-        pip install -r requirements.txt
-        pip install coverage
-      shell: bash
-
-    - name: Run tests with coverage
-      run: |
-        coverage run -m unittest discover -s test/. -p "*.py"
-        coverage report
-        coverage xml
-      shell: bash
-
-    - name: Upload coverage report
-      uses: actions/upload-artifact@v3
-      with:
-        name: coverage-report
-        path: coverage.xml
-
-    - name: SonarQube Scan
-      uses: sonarsource/sonarqube-scan-action@master
-      with:
-        projectBaseDir: .
-        args: >
-          -Dsonar.projectKey=${{ inputs.sonar_key }}
-          -Dsonar.verbose=true
-          -Dsonar.python.version=${{ inputs.version }}
-          -Dsonar.python.coverage.reportPaths=coverage.xml
-      env:
-        SONAR_TOKEN: ${{ inputs.sonar_token }}
-        SONAR_HOST_URL: ${{ inputs.sonar_url }}
-
 # name: "SonarQube Python Analyzer"
-# description: "Se realiza el análisis en sonarqube para proyectos python"
+# description: "Se realiza el análisis en SonarQube para proyectos Python"
 # inputs:
 #   sonar_url: 
-#     description: "url sonarqube"
+#     description: "URL de SonarQube"
 #     required: true
 #   sonar_token: 
-#     description: "token sonarqube"
+#     description: "Token de SonarQube"
 #     required: true
 #   sonar_key:
-#     description: "Key del repositorio"
+#     description: "Clave del repositorio en SonarQube"
 #     required: true
 #   version:
-#     description: "version de lenguaje, ej 3.7, 3.8..."
+#     description: "Versión de Python, ej. 3.7, 3.8..."
 #     required: true
 # runs:
 #   using: "composite"
 #   steps:
+#     - name: Checkout code
+#       uses: actions/checkout@v3
+
+#     - name: Set up Python
+#       uses: actions/setup-python@v4
+#       with:
+#         python-version: ${{ inputs.version }}
+
+#     - name: Install dependencies
+#       run: |
+#         pip install -r requirements.txt
+#         pip install coverage
+#       shell: bash
+
+#     - name: Run tests with coverage
+#       run: |
+#         coverage run -m unittest discover -s test/. -p "*.py"
+#         coverage report
+#         coverage xml
+#       shell: bash
+
+#     - name: Upload coverage report
+#       uses: actions/upload-artifact@v3
+#       with:
+#         name: coverage-report
+#         path: coverage.xml
+
 #     - name: SonarQube Scan
 #       uses: sonarsource/sonarqube-scan-action@master
-#       env:
-#         SONAR_TOKEN: ${{ inputs.sonar_token }}
-#         SONAR_HOST_URL: ${{ inputs.sonar_url }}
-#         LC_ALL: "ru_RU.UTF-8"
 #       with:
 #         projectBaseDir: .
 #         args: >
 #           -Dsonar.projectKey=${{ inputs.sonar_key }}
 #           -Dsonar.verbose=true
 #           -Dsonar.python.version=${{ inputs.version }}
+#           -Dsonar.python.coverage.reportPaths=coverage.xml
+#       env:
+#         SONAR_TOKEN: ${{ inputs.sonar_token }}
+#         SONAR_HOST_URL: ${{ inputs.sonar_url }}
+
+name: "SonarQube Python Analyzer"
+description: "Se realiza el análisis en sonarqube para proyectos python"
+inputs:
+  sonar_url: 
+    description: "url sonarqube"
+    required: true
+  sonar_token: 
+    description: "token sonarqube"
+    required: true
+  sonar_key:
+    description: "Key del repositorio"
+    required: true
+  version:
+    description: "version de lenguaje, ej 3.7, 3.8..."
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: SonarQube Scan
+      uses: sonarsource/sonarqube-scan-action@master
+      env:
+        SONAR_TOKEN: ${{ inputs.sonar_token }}
+        SONAR_HOST_URL: ${{ inputs.sonar_url }}
+        LC_ALL: "ru_RU.UTF-8"
+      with:
+        projectBaseDir: .
+        args: >
+          -Dsonar.projectKey=${{ inputs.sonar_key }}
+          -Dsonar.verbose=true
+          -Dsonar.python.version=${{ inputs.version }}
