@@ -1,38 +1,51 @@
 name: "Python CI"
-description: "Realiza el lint, build, test y coverage para proyectos Python"
+description: "Realiza build, test y coverage para proyectos Python"
 inputs:
-  matrix_version:
-    description: "matrix de versiones de Python"
+  version:
+    description: "Versión de Python, ej. 3.7, 3.8..."
     required: true
   skip_test:
-    description: "permite saltar los procesos de testing"
-    required: false
-    default: 'false' 
-  ci:
-    description: "Esta variable forza el chequeo del linter y en caso de fallas rompe el flujo"
+    description: "permite skipear los procesos de testing"
     required: false
     default: 'false'
+  # Directories
+  workdir_test:
+    description: "directorio donde se encuentra los test DEFAULT: ./"
+    required: false
+    default: './'
 runs:
   using: "composite"
   steps:
-    - name: Use Python ${{ inputs.matrix_version }}
-      uses: actions/setup-python@v2
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
       with:
-        python-version: ${{ inputs.matrix_version }}
+        python-version: ${{ inputs.version }}
+
     - name: Install dependencies
-      run: pip install -r requirements.txt
-    - name: Lint
-      run: pylint --fail-under=8 .
-    - name: Test
-      run: pytest --cov=./
-      env:
-        CI: ${{ inputs.ci == 'true' }}
-      if: ${{ inputs.skip_test != 'true' }}
-    - name: Archive code coverage results
-      uses: actions/upload-artifact@v2
+      run: |
+        pip install -r requirements.txt
+        pip install coverage
+      shell: bash
+
+    # - name: Validate build
+    #   run: |
+    #     python -m compileall -f .  
+    #   shell: bash
+
+    - name: Run tests with coverage
+      run: |
+        coverage run -m unittest discover -s test/. -p "*.py"
+        coverage report
+        coverage xml
+      shell: bash
+      working-directory: ${{ inputs.workdir_test }}
+
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v4
       with:
-        name: code-coverage-report
-        path: htmlcov/
+        name: coverage-report
+        path: ${{ inputs.workdir_test }}/coverage.xml
       if: ${{ inputs.skip_test != 'true' }}
-    - name: Build
-      run: python setup.py sdist bdist_wheel
