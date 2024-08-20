@@ -72,7 +72,7 @@ runs:
     - name: Use Node.js ${{ inputs.matrix_version }} - Cache ${{ steps.package_manager.outputs.name }}
       uses: actions/setup-node@v4
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: ${{ inputs.matrix_version }}
         cache: ${{ steps.package_manager.outputs.name }}
     - name: Generate .npmrc file
       uses: architecture-it/actions@generate-npmrc
