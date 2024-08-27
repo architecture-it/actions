@@ -65,7 +65,7 @@ runs:
       shell: bash    
       # Use default with cache
     - name: Use pnpm Setup
-      uses: pnpm/action-setup@v3
+      uses: pnpm/action-setup@v4
       with:
         version: ${{ inputs.pnpm_version }}
       if: ${{ steps.package_manager.outputs.name == 'pnpm' }}
@@ -73,7 +73,7 @@ runs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ inputs.matrix_version }}
-        cache: ${{ steps.package_manager.outputs.name }}
+        cache: ${{ steps.package_manager.outputs.name }}     
     - name: Generate .npmrc file
       uses: architecture-it/actions@generate-npmrc
       with:
@@ -82,7 +82,7 @@ runs:
       if: ${{ inputs.packages_token != '' }}
 
     - name: 'Cache Node Modules Dependencies'
-      uses: 'actions/cache@v3'
+      uses: actions/cache@v4
       id: cache-node-modules
       with:
         path: 'node_modules'
@@ -142,8 +142,9 @@ runs:
         CI: ${{ inputs.ci == 'true' }}
       if: ${{ inputs.skip_test != 'true' }}
     - name: Archive code coverage results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: code-coverage-report
         path: coverage
+        overwrite: true
       if: ${{ inputs.skip_test != 'true' }}
