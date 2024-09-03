@@ -40,7 +40,7 @@ runs:
       run: |
         echo 'module.exports = { plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator", "@semantic-release/github", [ "@semantic-release/exec", { verifyReleaseCmd: "./version.sh ${nextRelease.version} ${lastRelease.version}" } ] ], branches: ${{ inputs.branches }}, dryRun: ${{ inputs.only_version == 'true' }} };' >> release.config.cjs
     - name: Get the version
-      run: npx --no-install -y -p semantic-release -p @semantic-release/exec -p @semantic-release/git -p @semantic-release/github -c semantic-release
+      run: npx --no-install -y -p semantic-release -p @semantic-release/exec -p @semantic-release/git -p @semantic-release/github@10.0.0 -c semantic-release
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
         GH_TOKEN: ${{ inputs.github_token }}
