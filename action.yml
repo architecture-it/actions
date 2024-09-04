@@ -32,34 +32,6 @@ inputs:
     required: false
     default: ""
 
-
-# echo 'module.exports = { plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator", "@semantic-release/github", [ "@semantic-release/exec", { verifyReleaseCmd: "./version.sh ${nextRelease.version} ${lastRelease.version}" } ], ["@architecture-it/semantic-release-jira", { "projectId": "${{ inputs.project_id }}", "releaseNameTemplate": "${{ inputs.release_template }}", "jiraHost": "${{ inputs.host_url }}", "ticketPrefixes": [ "${{ inputs.ticket_prefix }}" ], released: true, setReleaseDate: true }] ], branches: ${{ inputs.branches }}, dryRun: ${{ inputs.only_version == 'true' }} };' >> release.config.cjs
-# name: 📑Jira integration
-#         uses: architecture-it/actions@next-version-test-jira
-#         with:
-#           github_token: ${{ secrets.ARQUITECTURA_DEPLOY }}
-#           jira_email: ${{ secrets.JIRA_EMAIL }}
-#           jira_project_id: "PE20"
-#           ticket_prefix: "PE20"
-#           jira_api_token: ${{ secrets.JIRA_API_TOKEN }}
-
-# {
-#   "plugins": [
-#     "@semantic-release/commit-analyzer",
-#     "@semantic-release/release-notes-generator",
-#     "@semantic-release/git",
-#     ["@architecture-it/semantic-release-jira", {
-#       "projectId": "UH",
-#       "releaseName": "Test",
-#       "jiraHost": "example.atlassian.net",
-#       "ticketPrefixes": [ "TEST", "UH"],
-#       "ticketRegex": "[a-zA-Z]{3,5}-\\d{3,5}"
-#     }]
-#   ]
-# }
-
-# echo 'module.exports = { plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator", "@semantic-release/github", [ "@semantic-release/exec", { verifyReleaseCmd: "./version.sh ${nextRelease.version} ${lastRelease.version}" } ] ], branches: ${{ inputs.branches }}, dryRun: ${{ inputs.only_version == 'true' }} };' >> release.config.js
-
 outputs:
   new-version:
     description: The version of the release
@@ -88,10 +60,38 @@ runs:
         chmod +x version.sh
     - name: Write config file
       shell: bash
+      # run: |
+      #   echo 'module.exports = { plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator", "@semantic-release/github", [ "@semantic-release/exec", { verifyReleaseCmd: "./version.sh ${nextRelease.version} ${lastRelease.version}" } ], ["@architecture-it/semantic-release-jira", { "projectId": "${{ inputs.jira_project_id }}", "releaseName": "${{ inputs.jira_release_name }}", "jiraHost": "${{ inputs.jira_host_url }}", "ticketPrefixes": [ "${{ inputs.jira_project_id }}" ], released: ${{ inputs.only_version != 'true' }}, setReleaseDate: ${{ inputs.only_version != 'true' }} }] ], branches: ${{ inputs.branches }}, dryRun: ${{ inputs.only_version == 'true' }} };' >> release.config.cjs
       run: |
-        echo 'module.exports = { plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator", "@semantic-release/github", [ "@semantic-release/exec", { verifyReleaseCmd: "./version.sh ${nextRelease.version} ${lastRelease.version}" } ], ["@architecture-it/semantic-release-jira", { "projectId": "${{ inputs.jira_project_id }}", "releaseName": "${{ inputs.jira_release_name }}", "jiraHost": "${{ inputs.jira_host_url }}", "ticketPrefixes": [ "${{ inputs.jira_project_id }}" ], released: ${{ inputs.only_version != 'true' }}, setReleaseDate: ${{ inputs.only_version != 'true' }} }] ], branches: ${{ inputs.branches }}, dryRun: ${{ inputs.only_version == 'true' }} };' >> release.config.cjs
+        echo 'module.exports = {
+          plugins: [
+            "@semantic-release/commit-analyzer",
+            "@semantic-release/release-notes-generator",
+            "@semantic-release/github",
+            [
+              "@semantic-release/exec",
+              {
+                verifyReleaseCmd: "./version.sh ${nextRelease.version} ${lastRelease.version}"
+              }
+            ],
+            [
+              "@architecture-it/semantic-release-jira",
+              {
+                "projectId": "${{ inputs.jira_project_id }}",
+                "releaseName": "${{ inputs.jira_release_name }}",
+                "jiraHost": "${{ inputs.jira_host_url }}",
+                "ticketPrefixes": ["${{ inputs.jira_project_id }}"],
+                released: ${{ inputs.only_version != 'true' }},
+                setReleaseDate: ${{ inputs.only_version != 'true' }}
+              }
+            ]
+          ],
+          branches: ${{ inputs.branches }},
+          dryRun: ${{ inputs.only_version == 'true' }}
+        };' >> release.config.cjs
+
     - name: Get the version
-      run: npx --no-install -y -p @semantic-release/exec -p @semantic-release/git -p @semantic-release/github -p @architecture-it/semantic-release-jira -c semantic-release
+      run: npx --no-install -y -p @semantic-release/exec -p @semantic-release/git -p @semantic-release/github@10.0.0 -p @architecture-it/semantic-release-jira -c semantic-release
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
         GH_TOKEN: ${{ inputs.github_token }}
