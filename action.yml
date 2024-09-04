@@ -91,7 +91,7 @@ runs:
         };' >> release.config.cjs
 
     - name: Get the version
-      run: npx --no-install -y -p @semantic-release/exec -p @semantic-release/git -p @semantic-release/github@10.0.0 -p @architecture-it/semantic-release-jira -c semantic-release
+      run: npx --no-install -y -p @semantic-release/exec -p @semantic-release/git -p @semantic-release/github@10.0.0 -p @architecture-it/semantic-release-jira -c semantic-release --debug
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
         GH_TOKEN: ${{ inputs.github_token }}
