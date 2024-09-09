@@ -37,7 +37,7 @@ runs:
         run: java -jar avro-tools-${{inputs.AVRO_VERSION}}.jar idl ${{ inputs.file_idl }} ${{ inputs.OUTPUT }}/schemas.avpr
         shell: bash
       - name: Archive schema avro result
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: avro-schema
           path: ${{ inputs.OUTPUT }}
