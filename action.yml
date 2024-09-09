@@ -43,7 +43,7 @@ runs:
 
         # Se descarga los archivos avsc del step anterior.
       - name: Download avro results
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4
         with:
           name: avro-schema
           path: ${{ inputs.INPUT }}
