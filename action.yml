@@ -95,7 +95,7 @@ runs:
         working-directory: Andreani/${{ steps.sub.outputs.result }}/Events
       
       - name: Archive schema avro result
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: nuget-packages
           path: Andreani/${{ steps.sub.outputs.result }}/Events
