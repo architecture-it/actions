@@ -32,6 +32,8 @@ runs:
         with:
           args: >
             -Dsonar.projectKey=${{ inputs.sonar_key }}
-            -Dsonar.tests=src/__test__
-            -Dsonar.sources=src
+            -Dsonar.tests=src/
+            -Dsonar.sources=src/
             -Dsonar.javascript.lcov.reportPaths=**/coverage/lcov.info
+            -Dsonar.exclusions=src/__test__/**
+            -Dsonar.test.inclusions=src/__test__/**
