@@ -8,9 +8,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
     - name: Get Name of commits title and branch name
       id: get_pr_name
       run: |
@@ -64,7 +61,7 @@ runs:
           `;
 
 
-            github.issues.createComment({
+            github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
