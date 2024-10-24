@@ -45,20 +45,22 @@ runs:
           const anyJiraIntegrationValid = isValidTitleOfPRForJira || isValidBranchNameForJira;
 
           const body = `
-
-          
           <details>
-          <summary>Conventional Commit ${willTriggerNewVersion ? ':white_check_mark:' : ':x:'}</summary>
+          <summary> Conventional Commit ${willTriggerNewVersion ? ':white_check_mark:' : ':x:'} </summary>
           
           - Will trigger new version: ${willTriggerNewVersion ? ':heavy_check_mark:' : ':exclamation:'}.
             if you want to trigger a new version, you must use the following format: (feat|fix): message. See more in [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
+
           </details>
+
           <details>
-            <summary>Jira Integration ${anyJiraIntegrationValid ? ':white_check_mark:' : ':x:'}</summary>
+            <summary> Jira Integration ${anyJiraIntegrationValid ? ':white_check_mark:' : ':x:'} </summary>
 
             - Title of PR: ${isValidTitleOfPRForJira ? ':heavy_check_mark:' : ':exclamation:'}
             - Branch Name: ${isValidBranchNameForJira ? ':heavy_check_mark:' : ':exclamation:'}
+
           </details>
+          
           `;
 
 
