@@ -16,10 +16,8 @@ runs:
       run: |
         pr_name=$(jq -r .pull_request.title $GITHUB_EVENT_PATH)
         branch_name=$(jq -r .pull_request.head.ref $GITHUB_EVENT_PATH)
-        commit_messages=$(git log --pretty=format:"%s" $branch_name)
         echo "pr_name=$pr_name" >> $GITHUB_ENV
         echo "branch_name=$branch_name" >> $GITHUB_ENV
-        echo "commit_messages=$commit_messages" >> $GITHUB_ENV
       shell: bash
 
     - name: Validate Format
@@ -28,8 +26,7 @@ runs:
       with:
         github-token: ${{ inputs.github_token }}
         script: |
-          const { pr_name, branch_name, commit_messages } = process.env;
-          // const { valid, message } = validateFormat(pr_name, branch_name, commit_messages);
+          const { pr_name, branch_name } = process.env;
 
 
           const regexOfIssue = /^.*?[A-Z0-9-]+.*$/g;
@@ -43,13 +40,9 @@ runs:
 
           const isValidBranchNameForJira = branchName.match(regexOfIssue);`
           
-          const isValidAnyCommitMessagesForJira = commit_messages.split('\n').some((message) => {
-            return message.match(regexOfIssue);
-          });`
-
           const willTriggerNewVersion = pr_name.match(regexConventionCommit);
 
-          const anyJiraIntegrationValid = isValidTitleOfPRForJira || isValidBranchNameForJira || isValidAnyCommitMessagesForJira;
+          const anyJiraIntegrationValid = isValidTitleOfPRForJira || isValidBranchNameForJira;
 
           const body = `
 
@@ -65,7 +58,6 @@ runs:
 
             - Title of PR: ${isValidTitleOfPRForJira ? ':heavy_check_mark:' : ':exclamation:'}
             - Branch Name: ${isValidBranchNameForJira ? ':heavy_check_mark:' : ':exclamation:'}
-            - Some Commit Messages: ${isValidAnyCommitMessagesForJira ? ':heavy_check_mark:' : ':exclamation:'}
           </details>
           `;
 
