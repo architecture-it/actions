@@ -1,99 +1,80 @@
-name: "Next Version"
-description: "Realiza el release basado en los commits y conventional commit"
+name: "Validate PR Format"
+description: "Realiza la validacion del formato del PR"
 inputs:
   github_token:
     description: Github Token
     required: true
-  branches:
-    description: Branches to release
-    required: false
-    default: '["main"]'
-  only_version:
-    description: Only version
-    required: false
-    default: 'true'
-  # todos no son requeridos para habilitar una integración progresiva
-  jira_project_id:
-    description: Jira Project Id (e.g. "PE20"). This will be used as prefix in tickets
-    required: false
-  jira_api_token:
-    description: Jira API Token
-    required: false
-  jira_email:
-    description: Jira Email
-    required: false
-  jira_host_url:
-    description: Jira Host URL
-    required: false
-    default: "https://andreani.atlassian.net"
-  # generado con la información de los inputs
-  jira_release_name:
-    description: "Title of the release name template. This will be used in name of publication in JIRA and followed by version. e.g. 'Test v${version}'"
-    required: false
-    default: ""
-
-outputs:
-  new-version:
-    description: The version of the release
-    value: ${{ steps.next-version.outputs.newVersion }}
-  previous-version:
-    description: The previous version of the release
-    value: ${{ steps.next-version.outputs.previousVersion }}
 
 runs:
   using: "composite"
   steps:
-    - name: Setup Node.js 20
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20.x
-    - name: Generate .npmrc file
-      uses: architecture-it/actions@generate-npmrc
-      with:
-        npm_token: ${{ inputs.github_token }}
-    - name: Write bash script
-      shell: bash
-      run: |
-        echo '#!/bin/bash' >> version.sh
-        echo 'echo "newVersion=$1" >> $GITHUB_OUTPUT' >> version.sh
-        echo 'echo "previousVersion=$2" >> $GITHUB_OUTPUT' >> version.sh
-        chmod +x version.sh
-    - name: Write config file
-      shell: bash
-      run: |
-        echo 'module.exports = {
-          plugins: [
-            "@semantic-release/commit-analyzer",
-            "@semantic-release/release-notes-generator",
-            "@semantic-release/github",
-            [
-              "@semantic-release/exec",
-              {
-                verifyReleaseCmd: "./version.sh ${nextRelease.version} ${lastRelease.version}"
-              }
-            ],
-            [
-              "@architecture-it/semantic-release-jira",
-              {
-                "projectId": "${{ inputs.jira_project_id }}",
-                "releaseName": "${{ inputs.jira_release_name }}",
-                "jiraHost": "${{ inputs.jira_host_url }}",
-                "ticketPrefixes": ["${{ inputs.jira_project_id }}"],
-                released: ${{ inputs.only_version != 'true' }},
-                setReleaseDate: ${{ inputs.only_version != 'true' }}
-              }
-            ]
-          ],
-          branches: ${{ inputs.branches }},
-          dryRun: ${{ inputs.only_version == 'true' }}
-        };' >> release.config.cjs
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-    - name: Get the version
-      run: npx --no-install -y -p semantic-release -p @semantic-release/exec -p @semantic-release/git -p @semantic-release/github@10.0.0 -p @architecture-it/semantic-release-jira -c semantic-release
-      env:
-        GITHUB_TOKEN: ${{ inputs.github_token }}
-        GH_TOKEN: ${{ inputs.github_token }}
-        JIRA_EMAIL: ${{ inputs.jira_email }}
-        JIRA_API_TOKEN: ${{ inputs.jira_api_token }}
-      id: next-version
+    - name: Get Name of commits title and branch name
+      id: get_pr_name
+      run: |
+        pr_name=$(jq -r .pull_request.title $GITHUB_EVENT_PATH)
+        branch_name=$(jq -r .pull_request.head.ref $GITHUB_EVENT_PATH)
+        commit_messages=$(git log --pretty=format:"%s" $branch_name)
+        echo "pr_name=$pr_name" >> $GITHUB_ENV
+        echo "branch_name=$branch_name" >> $GITHUB_ENV
+        echo "commit_messages=$commit_messages" >> $GITHUB_ENV
       shell: bash
+
+    - name: Validate Format
+      id: validate_format
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ inputs.github_token }}
+        script: |
+          const { pr_name, branch_name, commit_messages } = process.env;
+          // const { valid, message } = validateFormat(pr_name, branch_name, commit_messages);
+
+
+          const regexOfIssue = /^.*?[A-Z0-9-]+.*$/g;
+          const regexConventionCommit = /^(feat|fix)\:\s.*$/g;
+
+          const branchName = branch_name.replace(/refs\/heads\//, '');
+
+
+          // JIRA VALIDATIONS
+          const isValidTitleOfPRForJira = pr_name.match(/^(feat|fix)\([A-Z0-9-]+\)\:\s.*$/);
+
+          const isValidBranchNameForJira = branchName.match(regexOfIssue);`
+          
+          const isValidAnyCommitMessagesForJira = commit_messages.split('\n').some((message) => {
+            return message.match(regexOfIssue);
+          });`
+
+          const willTriggerNewVersion = pr_name.match(regexConventionCommit);
+
+          const anyJiraIntegrationValid = isValidTitleOfPRForJira || isValidBranchNameForJira || isValidAnyCommitMessagesForJira;
+
+          const body = `
+
+          
+          <details>
+          <summary>Conventional Commit ${willTriggerNewVersion ? ':white_check_mark:' : ':x:'}</summary>
+          
+          - Will trigger new version: ${willTriggerNewVersion ? ':heavy_check_mark:' : ':exclamation:'}.
+            if you want to trigger a new version, you must use the following format: (feat|fix): message. See more in [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
+          </details>
+          <details>
+            <summary>Jira Integration ${anyJiraIntegrationValid ? ':white_check_mark:' : ':x:'}</summary>
+
+            - Title of PR: ${isValidTitleOfPRForJira ? ':heavy_check_mark:' : ':exclamation:'}
+            - Branch Name: ${isValidBranchNameForJira ? ':heavy_check_mark:' : ':exclamation:'}
+            - Some Commit Messages: ${isValidAnyCommitMessagesForJira ? ':heavy_check_mark:' : ':exclamation:'}
+          </details>
+          `;
+
+
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body,
+            });
+
+    
