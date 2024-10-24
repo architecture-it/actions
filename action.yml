@@ -38,7 +38,7 @@ runs:
           // JIRA VALIDATIONS
           const isValidTitleOfPRForJira = pr_name.match(/^(feat|fix)\([A-Z0-9-]+\)\:\s.*$/);
 
-          const isValidBranchNameForJira = branchName.match(regexOfIssue);`
+          const isValidBranchNameForJira = branchName.match(regexOfIssue);
           
           const willTriggerNewVersion = pr_name.match(regexConventionCommit);
 
@@ -60,7 +60,7 @@ runs:
             - Branch Name: ${isValidBranchNameForJira ? ':heavy_check_mark:' : ':exclamation:'}
 
           </details>
-          
+
           `;
 
 
