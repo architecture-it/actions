@@ -61,7 +61,7 @@ runs:
           
             - El título del Pull Request tiene un título válido: ${willTriggerNewVersion ? ':heavy_check_mark:' : ':exclamation:'}.
             - Alguno de los commits disparará una nueva versión: ${someCommitWillTriggerNewVersion ? ':heavy_check_mark:' : ':exclamation:'}.
-            Si deseas que dispare una nueva versión debe seguir el siguiente formato: '(feat|fix): message'. Ver más en [Documentación](https://www.conventionalcommits.org/en/v1.0.0/)
+            Si deseas que dispare una nueva versión debe seguir el siguiente formato: '<feat_o_fix>: message'. Ver más en [Documentación](https://www.conventionalcommits.org/en/v1.0.0/)
           </details>
 
           <details>
@@ -75,7 +75,7 @@ runs:
           </details>
 
           <details>
-            <summary> Detalles de validación </summary>
+            <summary> Detalles de la validación </summary>
 
             - Título del Pull Request: '${pr_name}'
             - Nombre del branch: '${branchName}'
