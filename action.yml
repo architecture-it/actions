@@ -29,7 +29,7 @@ runs:
 
 
           const regexOfIssue = /^.*?[A-Z0-9-]+.*$/g;
-          const regexConventionCommit = /^(feat|fix)\:\s.*$/g;
+          const regexConventionCommit = /^(feat|fix).*\:\s.*$/g;
 
           const branchName = branch_name.replace(/refs\/heads\//, '');
 
