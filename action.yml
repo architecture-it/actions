@@ -46,8 +46,7 @@ runs:
           <summary> Convención de commits ${willTriggerNewVersion ? ':white_check_mark:' : ':x:'} </summary>
           
           - Disparará una nueva versión: ${willTriggerNewVersion ? ':heavy_check_mark:' : ':exclamation:'}.
-            Si deseas que dispare una nueva versión debe seguir el siguiente formato: '(feat|fix): message'. Ver más en [Documentación](https://www.conventionalcommits.org/en/v1.0.0/).
-
+            Si deseas que dispare una nueva versión debe seguir el siguiente formato: '(feat|fix): message'. Ver más en [Documentación](https://www.conventionalcommits.org/en/v1.0.0/)
           </details>
 
           <details>
@@ -58,6 +57,12 @@ runs:
 
             Ver más en [Documentación](https://architecture-it.github.io/docs/Onboarding/jira/)
 
+          </details>
+
+          <detais>
+            <summary> Detalles </summary>
+            - Título del Pull Request: ${pr_name}
+            - Nombre del branch: ${branchName}
           </details>
 
           `;
