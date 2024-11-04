@@ -33,7 +33,7 @@ runs:
           });
 
           const commitMessages = commits.map(commit => commit.commit.message);
-          const commitMessagesForInfo = commits.map(commit => `'${commit.commit.message}'`).join(', ');
+          const commitMessagesForInfo = commits.map(commit => `> - \`${commit.commit.message}\``).join('\n');
 
           const regexOfIssue = /^.*?[A-Z0-9-]+.*$/g;
           const regexConventionCommit = /^(feat|fix).*\:\s.*$/g;
@@ -79,7 +79,9 @@ runs:
 
             - Título del Pull Request: '${pr_name}'
             - Nombre del branch: '${branchName}'
-            - Mensajes de los commits: ${commitMessagesForInfo}
+
+            - Mensajes de los commits: 
+            ${commitMessagesForInfo}
 
           </details>
 
