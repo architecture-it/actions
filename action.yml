@@ -13,8 +13,10 @@ runs:
       run: |
         pr_name=$(jq -r .pull_request.title $GITHUB_EVENT_PATH)
         branch_name=$(jq -r .pull_request.head.ref $GITHUB_EVENT_PATH)
+        commits_messages=$(jq -r '.commits[].message' $GITHUB_EVENT_PATH)
         echo "pr_name=$pr_name" >> $GITHUB_ENV
         echo "branch_name=$branch_name" >> $GITHUB_ENV
+        echo "commits_messages=$commits_messages" >> $GITHUB_ENV
       shell: bash
 
     - name: Validate Format
@@ -23,7 +25,7 @@ runs:
       with:
         github-token: ${{ inputs.github_token }}
         script: |
-          const { pr_name, branch_name } = process.env;
+          const { pr_name, branch_name, commits_messages } = process.env;
 
 
           const regexOfIssue = /^.*?[A-Z0-9-]+.*$/g;
@@ -59,10 +61,11 @@ runs:
 
           </details>
 
-          <detais>
+          <details>
             <summary> Detalles </summary>
             - Título del Pull Request: ${pr_name}
             - Nombre del branch: ${branchName}
+            - Mensajes de los commits: ${commits_messages}
           </details>
 
           `;
