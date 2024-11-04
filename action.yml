@@ -33,6 +33,7 @@ runs:
           });
 
           const commitMessages = commits.map(commit => commit.commit.message);
+          const commitMessagesForInfo = commits.map(commit => `'${commit.commit.message}'`).join(', ');
 
           const regexOfIssue = /^.*?[A-Z0-9-]+.*$/g;
           const regexConventionCommit = /^(feat|fix).*\:\s.*$/g;
@@ -69,16 +70,16 @@ runs:
             - Título del Pull Request: ${isValidTitleOfPRForJira ? ':heavy_check_mark:' : ':exclamation:'}
             - Nombre del branch: ${isValidBranchNameForJira ? ':heavy_check_mark:' : ':exclamation:'}
 
-            Ver más en [Documentación](https://architecture-it.github.io/docs/Onboarding/jira/)
+            Si deseas que se ejecute la automatización debe seguir el siguiente formato: '<feat_o_fix>(<CLAVE_DE_INCIDENCIA>): mensaje' Ver más en [Documentación](https://architecture-it.github.io/docs/Onboarding/jira/)
 
           </details>
 
           <details>
             <summary> Detalles </summary>
 
-            - Título del Pull Request: ${pr_name}
-            - Nombre del branch: ${branchName}
-            - Mensajes de los commits: ${commitMessages}
+            - Título del Pull Request: '${pr_name}'
+            - Nombre del branch: '${branchName}'
+            - Mensajes de los commits: ${commitMessagesForInfo}
 
           </details>
 
