@@ -75,9 +75,11 @@ runs:
 
           <details>
             <summary> Detalles </summary>
+
             - Título del Pull Request: ${pr_name}
             - Nombre del branch: ${branchName}
-            - Mensajes de los commits: ${commits_messages}
+            - Mensajes de los commits: ${commitMessages}
+
           </details>
 
           `;
