@@ -9,9 +9,8 @@ runs:
   using: "composite"
   steps:
 
-    - name: Print event.json for debugging
-      run: cat $GITHUB_EVENT_PATH
-      shell: bash
+    - name: Checkout code
+      uses: actions/checkout@v4
 
     - name: 'Get a list of changed files to process'
       run: git diff-tree --no-commit-id --name-only --diff-filter 'AM' -r HEAD^1 HEAD
