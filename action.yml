@@ -8,25 +8,13 @@ inputs:
 runs:
   using: "composite"
   steps:
-
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 2147483647
-
-    - name: 'Get a list of changed files to process'
-      run: git diff-tree --no-commit-id --name-only --diff-filter 'AM' -r HEAD^1 HEAD
-      shell: bash
-
     - name: Get Name of commits title and branch name
       id: get_pr_name
       run: |
         pr_name=$(jq -r .pull_request.title $GITHUB_EVENT_PATH)
         branch_name=$(jq -r .pull_request.head.ref $GITHUB_EVENT_PATH)
-        commits_messages=$(git diff-tree --no-commit-id --name-only --diff-filter 'AM' -r HEAD^1 HEAD)
         echo "pr_name=$pr_name" >> $GITHUB_ENV
         echo "branch_name=$branch_name" >> $GITHUB_ENV
-        echo "commits_messages=$commits_messages" >> $GITHUB_ENV
       shell: bash
 
     - name: Validate Format
@@ -38,10 +26,21 @@ runs:
           const { pr_name, branch_name, commits_messages } = process.env;
 
 
+          const { data: commits } = await github.rest.pulls.listCommits({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            pull_number: context.issue.number,
+          });
+
+          const commitMessages = commits.map(commit => commit.commit.message);
+
           const regexOfIssue = /^.*?[A-Z0-9-]+.*$/g;
           const regexConventionCommit = /^(feat|fix).*\:\s.*$/g;
 
           const branchName = branch_name.replace(/refs\/heads\//, '');
+
+          // check if any commit will be trigger a new version
+          const someCommitWillTriggerNewVersion = commitMessages.some(message => message.match(regexConventionCommit));
 
 
           // JIRA VALIDATIONS
@@ -49,7 +48,9 @@ runs:
 
           const isValidBranchNameForJira = branchName.match(regexOfIssue);
           
-          const willTriggerNewVersion = pr_name.match(regexConventionCommit);
+          const titleWillTriggerNewVersion = pr_name.match(regexConventionCommit);
+
+          const willTriggerNewVersion = titleWillTriggerNewVersion || someCommitWillTriggerNewVersion;
 
           const anyJiraIntegrationValid = isValidTitleOfPRForJira || isValidBranchNameForJira;
 
@@ -57,7 +58,8 @@ runs:
           <details>
           <summary> Convención de commits ${willTriggerNewVersion ? ':white_check_mark:' : ':x:'} </summary>
           
-          - Disparará una nueva versión: ${willTriggerNewVersion ? ':heavy_check_mark:' : ':exclamation:'}.
+            - El título del Pull Request tiene un título válido: ${willTriggerNewVersion ? ':heavy_check_mark:' : ':exclamation:'}.
+            - Alguno de los commits disparará una nueva versión: ${someCommitWillTriggerNewVersion ? ':heavy_check_mark:' : ':exclamation:'}.
             Si deseas que dispare una nueva versión debe seguir el siguiente formato: '(feat|fix): message'. Ver más en [Documentación](https://www.conventionalcommits.org/en/v1.0.0/)
           </details>
 
