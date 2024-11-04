@@ -43,29 +43,30 @@ runs:
 
           const body = `
           <details>
-          <summary> Conventional Commit ${willTriggerNewVersion ? ':white_check_mark:' : ':x:'} </summary>
+          <summary> Convención de commits ${willTriggerNewVersion ? ':white_check_mark:' : ':x:'} </summary>
           
-          - Will trigger new version: ${willTriggerNewVersion ? ':heavy_check_mark:' : ':exclamation:'}.
-            if you want to trigger a new version, you must use the following format: (feat|fix): message. See more in [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
+          - Disparará una nueva versión: ${willTriggerNewVersion ? ':heavy_check_mark:' : ':exclamation:'}.
+            Si deseas que dispare una nueva versión debe seguir el siguiente formato: '(feat|fix): message'. Ver más en [Documentación](https://www.conventionalcommits.org/en/v1.0.0/).
 
           </details>
 
           <details>
-            <summary> Jira Integration ${anyJiraIntegrationValid ? ':white_check_mark:' : ':x:'} </summary>
+            <summary> Integración con JIRA ${anyJiraIntegrationValid ? ':white_check_mark:' : ':x:'} </summary>
 
-            - Title of PR: ${isValidTitleOfPRForJira ? ':heavy_check_mark:' : ':exclamation:'}
-            - Branch Name: ${isValidBranchNameForJira ? ':heavy_check_mark:' : ':exclamation:'}
+            - Título del Pull Request: ${isValidTitleOfPRForJira ? ':heavy_check_mark:' : ':exclamation:'}
+            - Nombre del branch: ${isValidBranchNameForJira ? ':heavy_check_mark:' : ':exclamation:'}
+
+            Ver más en [Documentación](https://architecture-it.github.io/docs/Onboarding/jira/)
 
           </details>
 
           `;
 
-
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body,
-            });
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body,
+          });
 
     
