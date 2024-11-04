@@ -8,12 +8,21 @@ inputs:
 runs:
   using: "composite"
   steps:
+
+    - name: Print event.json for debugging
+      run: cat $GITHUB_EVENT_PATH
+      shell: bash
+
+    - name: 'Get a list of changed files to process'
+      run: git diff-tree --no-commit-id --name-only --diff-filter 'AM' -r HEAD^1 HEAD
+      shell: bash
+
     - name: Get Name of commits title and branch name
       id: get_pr_name
       run: |
         pr_name=$(jq -r .pull_request.title $GITHUB_EVENT_PATH)
         branch_name=$(jq -r .pull_request.head.ref $GITHUB_EVENT_PATH)
-        commits_messages=$(jq -r '.commits[].message' $GITHUB_EVENT_PATH)
+        commits_messages=$(git diff-tree --no-commit-id --name-only --diff-filter 'AM' -r HEAD^1 HEAD)
         echo "pr_name=$pr_name" >> $GITHUB_ENV
         echo "branch_name=$branch_name" >> $GITHUB_ENV
         echo "commits_messages=$commits_messages" >> $GITHUB_ENV
