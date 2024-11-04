@@ -11,6 +11,8 @@ runs:
 
     - name: Checkout code
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 2147483647
 
     - name: 'Get a list of changed files to process'
       run: git diff-tree --no-commit-id --name-only --diff-filter 'AM' -r HEAD^1 HEAD
