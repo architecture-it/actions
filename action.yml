@@ -66,6 +66,7 @@ runs:
           ${willTriggerNewVersion ? '\n🚀 **Este Pull Request lanzará una nueva versión**' : ''}
           ${titleWillTriggerNewVersion ? '> Podes usar [Squash and merge][1].' : ''}
           ${someCommitWillTriggerNewVersion ? '> Podes usar [Merge pull request][2].' : ''}
+          
           ${anyJiraIntegrationValid ? '🔗 **Este Pull Request cumple con la integración de JIRA**\n' : ''}
           ${isValidTitleOfPRForJira ? '> Podes usar [Squash and merge][1].' : ''}
           ${couldUseMergePullRequestJIRA ? '> Podes usar [Merge pull request][2].' : ''}
