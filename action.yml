@@ -59,19 +59,19 @@ runs:
           <details>
           <summary> Convención de commits ${willTriggerNewVersion ? ':white_check_mark:' : ':x:'} </summary>
           
-            - El título del Pull Request tiene un título válido: ${willTriggerNewVersion ? ':heavy_check_mark:' : ':exclamation:'}.
+            - El título del Pull Request tiene un título válido: ${titleWillTriggerNewVersion ? ':heavy_check_mark:' : ':exclamation:'}.
             - Alguno de los commits disparará una nueva versión: ${someCommitWillTriggerNewVersion ? ':heavy_check_mark:' : ':exclamation:'}.
-            Si deseas que dispare una nueva versión debe seguir el siguiente formato: '<feat_o_fix>: message'. Ver más en [Documentación](https://www.conventionalcommits.org/en/v1.0.0/)
+            Si deseas que dispare una nueva versión debe seguir el siguiente formato: '<feat_o_fix>: message'. Ver más en [Documentación][4]
           </details>
 
           <details>
             <summary> Integración con JIRA ${anyJiraIntegrationValid ? ':white_check_mark:' : ':x:'} </summary>
 
-            - Título del Pull Request: ${isValidTitleOfPRForJira ? ':heavy_check_mark:' : ':exclamation:'}. Habilita poder usar [Squash and merge](https://docs.github.com/es/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#squash-and-merge-your-commits). **Recomendado**. 
+            - Título del Pull Request: ${isValidTitleOfPRForJira ? ':heavy_check_mark:' : ':exclamation:'}. Habilita poder usar [Squash and merge][1]. **Recomendado**. 
             > Recordá revisar que el título del PR quede como mensaje del commit. Por ejemplo: \`feat(ABC-123): Nueva funcionalidad\`.
-            - Nombre del branch: ${isValidBranchNameForJira ? ':heavy_check_mark:' : ':exclamation:'}. Habilita poder usar [Merge pull request](https://docs.github.com/es/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#merge-your-commits)
+            - Nombre del branch: ${isValidBranchNameForJira ? ':heavy_check_mark:' : ':exclamation:'}. Habilita poder usar [Merge pull request][2]
 
-            Si deseas que se ejecute la automatización debe seguir el siguiente formato: '<feat_o_fix>(<CLAVE_DE_INCIDENCIA>): mensaje' Ver más en [Documentación](https://architecture-it.github.io/docs/Onboarding/jira/)
+            Si deseas que se ejecute la automatización debe seguir el siguiente formato: '<feat_o_fix>(<CLAVE_DE_INCIDENCIA>): mensaje' Ver más en [Documentación][3]
 
           </details>
 
@@ -85,6 +85,11 @@ runs:
             ${commitMessagesForInfo}
 
           </details>
+
+          [1]: https://docs.github.com/es/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#squash-and-merge-your-commits
+          [2]: https://docs.github.com/es/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#merge-your-commits
+          [3]: https://architecture-it.github.io/docs/Onboarding/jira/
+          [4]: https://www.conventionalcommits.org/en/v1.0.0/
 
           `;
 
