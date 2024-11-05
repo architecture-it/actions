@@ -58,11 +58,17 @@ runs:
           const couldUseMergePullRequestJIRA = isValidBranchNameForJira || someCommitValidForJira;
           const anyJiraIntegrationValid = isValidTitleOfPRForJira || couldUseMergePullRequestJIRA;
 
+          const enabledMethodOfMerge = `${titleWillTriggerNewVersion ? 'Squash and merge' : ''}${someCommitWillTriggerNewVersion ? 'Merge pull request' : ''}`;
+
           const body = `
 
           ## Validación de formato y commits de Pull Request
-          ${willTriggerNewVersion ? '\n🚀 **Este Pull Request lanzará una nueva versión**' : ''}${titleWillTriggerNewVersion ? ' Podes usar [Squash and merge][1].' : ''}${someCommitWillTriggerNewVersion ? ' Podes usar [Merge pull request][2].' : ''}
-          ${anyJiraIntegrationValid ? '🔗 **Este Pull Request cumple con la integración de JIRA**\n' : ''}${isValidTitleOfPRForJira ? ' Podes usar [Squash and merge][1].' : ''}${couldUseMergePullRequestJIRA ? ' Podes usar [Merge pull request][2].' : ''}
+          ${willTriggerNewVersion ? '\n🚀 **Este Pull Request lanzará una nueva versión**' : ''}
+          ${titleWillTriggerNewVersion ? '> Podes usar [Squash and merge][1].' : ''}
+          ${someCommitWillTriggerNewVersion ? '> Podes usar [Merge pull request][2].' : ''}
+          ${anyJiraIntegrationValid ? '🔗 **Este Pull Request cumple con la integración de JIRA**\n' : ''}
+          ${isValidTitleOfPRForJira ? '> Podes usar [Squash and merge][1].' : ''}
+          ${couldUseMergePullRequestJIRA ? '> Podes usar [Merge pull request][2].' : ''}
 
           <details>
           <summary> Convención de commits ${willTriggerNewVersion ? ':white_check_mark:' : ':x:'} </summary>
