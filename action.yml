@@ -67,7 +67,8 @@ runs:
           <details>
             <summary> Integración con JIRA ${anyJiraIntegrationValid ? ':white_check_mark:' : ':x:'} </summary>
 
-            - Título del Pull Request: ${isValidTitleOfPRForJira ? ':heavy_check_mark:' : ':exclamation:'}. Habilita poder usar [Squash and merge](https://docs.github.com/es/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#squash-and-merge-your-commits). **Recomendado**. Recordá revisar que el título del PR quede como mensaje del commit.
+            - Título del Pull Request: ${isValidTitleOfPRForJira ? ':heavy_check_mark:' : ':exclamation:'}. Habilita poder usar [Squash and merge](https://docs.github.com/es/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#squash-and-merge-your-commits). **Recomendado**. 
+            > Recordá revisar que el título del PR quede como mensaje del commit. Por ejemplo: \`feat(ABC-123): Nueva funcionalidad\`.
             - Nombre del branch: ${isValidBranchNameForJira ? ':heavy_check_mark:' : ':exclamation:'}. Habilita poder usar [Merge pull request](https://docs.github.com/es/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#merge-your-commits)
 
             Si deseas que se ejecute la automatización debe seguir el siguiente formato: '<feat_o_fix>(<CLAVE_DE_INCIDENCIA>): mensaje' Ver más en [Documentación](https://architecture-it.github.io/docs/Onboarding/jira/)
