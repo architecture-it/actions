@@ -58,8 +58,8 @@ runs:
           const body = `
 
           ## Validación de formato y commits de Pull Request
-          ${willTriggerNewVersion ? '\n🚀 ### **Este Pull Request lanzará una nueva versión**' : ''}
-          ${anyJiraIntegrationValid ? '🔗 ### **Este Pull Request cumple con la integración de JIRA**\n' : ''}
+          ${willTriggerNewVersion ? '\n🚀 **Este Pull Request lanzará una nueva versión**' : ''}
+          ${anyJiraIntegrationValid ? '🔗 **Este Pull Request cumple con la integración de JIRA**\n' : ''}
           <details>
           <summary> Convención de commits ${willTriggerNewVersion ? ':white_check_mark:' : ':x:'} </summary>
           
