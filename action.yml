@@ -56,11 +56,18 @@ runs:
           const anyJiraIntegrationValid = isValidTitleOfPRForJira || isValidBranchNameForJira;
 
           const body = `
+
+          ## Validación de formato y commits de Pull Request
+
+          ${willTriggerNewVersion ? '🚀 **Este Pull Request disparará una nueva versión** 🚀' : ''}
+          ${anyJiraIntegrationValid ? '🔗 **Este Pull Request cumple con la integración de JIRA** 🔗' : ''}
+
           <details>
           <summary> Convención de commits ${willTriggerNewVersion ? ':white_check_mark:' : ':x:'} </summary>
           
-            - El título del Pull Request tiene un título válido: ${titleWillTriggerNewVersion ? ':heavy_check_mark:' : ':exclamation:'}.
-            - Alguno de los commits disparará una nueva versión: ${someCommitWillTriggerNewVersion ? ':heavy_check_mark:' : ':exclamation:'}.
+            - El título del Pull Request tiene un título válido: ${titleWillTriggerNewVersion ? ':heavy_check_mark:' : ':exclamation:'}. Habilita poder usar [Squash and merge][1]. **Recomendado**. 
+            - Alguno de los commits disparará una nueva versión: ${someCommitWillTriggerNewVersion ? ':heavy_check_mark:' : ':exclamation:'}. Habilita poder usar [Merge pull request][2]
+            
             Si deseas que dispare una nueva versión debe seguir el siguiente formato: '<feat_o_fix>: message'. Ver más en [Documentación][4]
           </details>
 
