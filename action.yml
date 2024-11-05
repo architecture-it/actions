@@ -35,7 +35,7 @@ runs:
           const commitMessages = commits.map(commit => commit.commit.message);
           const commitMessagesForInfo = commits.map(commit => `> - \`${commit.commit.message}\``).join('\n');
 
-          const regexOfIssue = /^.*?[A-Z0-9-]+.*$/g;
+          const regexOfIssue = /[A-Z0-9]+-\d+/g;
           const regexConventionCommit = /^(feat|fix).*\:\s.*$/g;
 
           const branchName = branch_name.replace(/refs\/heads\//, '');
@@ -64,12 +64,10 @@ runs:
 
           ## Validación de formato y commits de Pull Request
           ${willTriggerNewVersion ? '\n🚀 **Este Pull Request lanzará una nueva versión**' : ''}
-
           ${titleWillTriggerNewVersion ? '> Podes usar [Squash and merge][1].' : ''}
           ${someCommitWillTriggerNewVersion ? '> Podes usar [Merge pull request][2].' : ''}
 
           ${anyJiraIntegrationValid ? '🔗 **Este Pull Request cumple con la integración de JIRA**\n' : ''}
-          
           ${isValidTitleOfPRForJira ? '> Podes usar [Squash and merge][1].' : ''}
           ${couldUseMergePullRequestJIRA ? ' Podes usar [Merge pull request][2].' : ''}
 
