@@ -71,7 +71,7 @@ runs:
           ${isValidTitleOfPRForJira ? '> Podes usar [Squash and merge][1].' : ''}
           ${couldUseMergePullRequestJIRA ? ' Podes usar [Merge pull request][2].' : ''}
 
-          <details>
+          <details open>
           <summary> Convención de commits ${willTriggerNewVersion ? ':white_check_mark:' : ':x:'} </summary>
           
             - El título del Pull Request tiene un título válido: ${titleWillTriggerNewVersion ? ':heavy_check_mark:' : ':exclamation:'}.${titleWillTriggerNewVersion ? ' Habilita poder usar [Squash and merge][1]. ' : ''} **Recomendado**.
@@ -80,7 +80,7 @@ runs:
             Si deseas que dispare una nueva versión debe seguir el siguiente formato: '<feat_o_fix>: message'. Ver más en [Documentación][4]
           </details>
 
-          <details>
+          <details open>
             <summary> Integración con JIRA ${anyJiraIntegrationValid ? ':white_check_mark:' : ':x:'} </summary>
 
             - Título del Pull Request: ${isValidTitleOfPRForJira ? ':heavy_check_mark:' : ':exclamation:'}.${isValidTitleOfPRForJira ? ' Habilita poder usar [Squash and merge][1]. ' : ''} **Recomendado**.
@@ -92,7 +92,7 @@ runs:
 
           </details>
 
-          <details>
+          <details open>
             <summary> Detalles de la validación </summary>
 
             - Título del Pull Request: '${pr_name}'
