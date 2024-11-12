@@ -37,6 +37,12 @@ runs:
         script: |
           const owner = context.repo.owner;
           const repo = context.repo.repo;
+          const inputs = {
+            motivo: '${{ inputs.motivo }}',
+            test: '${{ inputs.test }}',
+            qa: '${{ inputs.qa }}',
+            prod: '${{ inputs.prod }}'
+          };
 
           // Person who run the action manually
           const person = context.actor;
@@ -63,7 +69,7 @@ runs:
 
           ## Autor
           ${person}
-          
+
           `;
 
         
