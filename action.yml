@@ -1,21 +1,34 @@
-name: "Validate PR Format"
-description: "Realiza la validacion del formato del PR"
+name: "Create an issue in Repository"
+description: "Registra las ocaciones en las que se reinicia un servicio"
+
 inputs:
-  github_token:
-    description: Github Token
+  motivo:
+    description: 'Motivo del Restart'
+    required: false
+    default: ''
+  test:
+    description: 'Test'
     required: true
+    default: 'false'
+    
+  qa:
+    description: 'QA'
+    required: true
+    default: 'false'
+  prod:
+    description: 'Production'
+    required: true
+    default: 'false'
+
+outputs:
+  issueId:
+    description: 'ID de la issue creada'
+    value: ${{ steps.validate_format.outputs.issueId }}
+
 
 runs:
   using: "composite"
   steps:
-    - name: Get Name of commits title and branch name
-      id: get_pr_name
-      run: |
-        pr_name=$(jq -r .pull_request.title $GITHUB_EVENT_PATH)
-        branch_name=$(jq -r .pull_request.head.ref $GITHUB_EVENT_PATH)
-        echo "pr_name=$pr_name" >> $GITHUB_ENV
-        echo "branch_name=$branch_name" >> $GITHUB_ENV
-      shell: bash
 
     - name: Validate Format
       id: validate_format
@@ -23,98 +36,39 @@ runs:
       with:
         github-token: ${{ inputs.github_token }}
         script: |
-          const { pr_name, branch_name, commits_messages } = process.env;
+          const owner = context.repo.owner;
+          const repo = context.repo.repo;
 
+          // Numero de action ejecutada
+          const actionNumber = context.runNumber;
 
-          const { data: commits } = await github.rest.pulls.listCommits({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            pull_number: context.issue.number,
-          });
-
-          const commitMessages = commits.map(commit => commit.commit.message);
-          const commitMessagesForInfo = commits.map(commit => `> - \`${commit.commit.message}\``).join('\n');
-
-          const regexOfIssue = /[A-Z0-9]+-\d+/g;
-          const regexConventionCommit = /^(feat|fix).*\:\s.*$/g;
-
-          const branchName = branch_name.replace(/refs\/heads\//, '');
-
-          // check if any commit will be trigger a new version
-          const someCommitWillTriggerNewVersion = commitMessages.some(message => message.match(regexConventionCommit));
-
-
-          // JIRA VALIDATIONS
-          const isValidTitleOfPRForJira = pr_name.match(/^(feat|fix)\([A-Z0-9-]+\)\:\s.*$/);
-
-          const isValidBranchNameForJira = branchName.match(regexOfIssue);
-          const someCommitValidForJira = commitMessages.some(message => message.match(regexOfIssue));
-
-          
-          const titleWillTriggerNewVersion = pr_name.match(regexConventionCommit);
-
-          const willTriggerNewVersion = titleWillTriggerNewVersion || someCommitWillTriggerNewVersion;
-
-          const couldUseMergePullRequestJIRA = isValidBranchNameForJira || someCommitValidForJira;
-          const anyJiraIntegrationValid = isValidTitleOfPRForJira || couldUseMergePullRequestJIRA;
-
-          const enabledMethodOfMerge = `${titleWillTriggerNewVersion ? 'Squash and merge' : ''}${someCommitWillTriggerNewVersion ? 'Merge pull request' : ''}`;
+          const title = `Restart Service${inputs.motivo ? ` - ${inputs.motivo}` : ''}`;
+          const labels = ['restart-service', 'cicd'];
 
           const body = `
 
-          ## Validación de formato y commits de Pull Request
-          ${willTriggerNewVersion ? '\n🚀 **Este Pull Request lanzará una nueva versión**' : ''}
-          ${titleWillTriggerNewVersion ? '> Podes usar [Squash and merge][1].' : ''}
-          ${someCommitWillTriggerNewVersion ? '> Podes usar [Merge pull request][2].' : ''}
+          ## Motivo
+          ${inputs.motivo}
 
-          ${anyJiraIntegrationValid ? '🔗 **Este Pull Request cumple con la integración de JIRA**\n' : ''}
-          ${isValidTitleOfPRForJira ? '> Podes usar [Squash and merge][1].' : ''}
-          ${couldUseMergePullRequestJIRA ? ' Podes usar [Merge pull request][2].' : ''}
+          ## Ambientes
+          - Test: ${inputs.test}
+          - QA: ${inputs.qa}
+          - Prod: ${inputs.prod}
 
-          <details open>
-          <summary> Convención de commits ${willTriggerNewVersion ? ':white_check_mark:' : ':x:'} </summary>
-          
-            - El título del Pull Request tiene un título válido: ${titleWillTriggerNewVersion ? ':heavy_check_mark:' : ':exclamation:'}.${titleWillTriggerNewVersion ? ' Habilita poder usar [Squash and merge][1]. ' : ''} **Recomendado**.
-            - Alguno de los commits disparará una nueva versión: ${someCommitWillTriggerNewVersion ? ':heavy_check_mark:' : ':exclamation:'}.${someCommitWillTriggerNewVersion ? ' Habilita poder usar [Merge pull request][2]' : ''}
-            
-            Si deseas que dispare una nueva versión debe seguir el siguiente formato: '<feat_o_fix>: message'. Ver más en [Documentación][4]
-          </details>
 
-          <details open>
-            <summary> Integración con JIRA ${anyJiraIntegrationValid ? ':white_check_mark:' : ':x:'} </summary>
-
-            - Título del Pull Request: ${isValidTitleOfPRForJira ? ':heavy_check_mark:' : ':exclamation:'}.${isValidTitleOfPRForJira ? ' Habilita poder usar [Squash and merge][1]. ' : ''} **Recomendado**.
-            > Recordá revisar que el título del PR quede como mensaje del commit. Por ejemplo: \`feat(ABC-123): Nueva funcionalidad\`.
-            - Nombre del branch: ${isValidBranchNameForJira ? ':heavy_check_mark:' : ':exclamation:'}.${isValidBranchNameForJira ? ' Habilita poder usar [Merge pull request][2]' : ''}
-            - Alguno de los commits tiene una clave de JIRA: ${someCommitValidForJira ? ':heavy_check_mark:' : ':exclamation:'}.${someCommitValidForJira ? ' Habilita poder usar [Merge pull request][2]' : ''}
-
-            Si deseas que se ejecute la automatización debe seguir el siguiente formato: '<feat_o_fix>(<CLAVE_DE_INCIDENCIA>): mensaje' Ver más en [Documentación][3]
-
-          </details>
-
-          <details open>
-            <summary> Detalles de la validación </summary>
-
-            - Título del Pull Request: '${pr_name}'
-            - Nombre del branch: '${branchName}'
-
-            - Mensajes de los commits: 
-            ${commitMessagesForInfo}
-
-          </details>
-
-          [1]: https://docs.github.com/es/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#squash-and-merge-your-commits
-          [2]: https://docs.github.com/es/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#merge-your-commits
-          [3]: https://architecture-it.github.io/docs/Onboarding/jira/
-          [4]: https://www.conventionalcommits.org/en/v1.0.0/
-
+          ## Número de ejecución
+          ${actionNumber}
           `;
 
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
+        
+          const { data: { id: issueId } } = await github.rest.issues.create({
             owner: context.repo.owner,
             repo: context.repo.repo,
+            title,
             body,
+            labels
           });
+
+          core.setOutput('issueId', issueId);
 
     
