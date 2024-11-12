@@ -1,74 +1,44 @@
-name: "Create an issue in Repository"
-description: "Registra las ocaciones en las que se reinicia un servicio"
+name: "Update an issue in Repository"
+description: "Realiza un comentario y cierra el Issue"
 
 inputs:
-  motivo:
-    description: 'Motivo del Restart'
-    required: false
-    default: ''
-  test:
-    description: 'Test'
-    required: true
-    default: 'false'
-    
-  qa:
-    description: 'QA'
-    required: true
-    default: 'false'
-  prod:
-    description: 'Production'
-    required: true
-    default: 'false'
-
-outputs:
   issueId:
-    description: 'ID de la issue creada'
-    value: ${{ steps.validate_format.outputs.issueId }}
+    description: 'ID de la issue a actualizar'
+    required: true
 
 
 runs:
   using: "composite"
   steps:
 
-    - name: Validate Format
-      id: validate_format
+    - name: Comment and CLose
       uses: actions/github-script@v7
       with:
-        github-token: ${{ inputs.github_token }}
         script: |
           const owner = context.repo.owner;
           const repo = context.repo.repo;
 
-          // Numero de action ejecutada
-          const actionNumber = context.runNumber;
+          // Date in format and in argentina
+          const date = new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
 
-          const title = `Restart Service${inputs.motivo ? ` - ${inputs.motivo}` : ''}`;
-          const labels = ['restart-service', 'cicd'];
+          await github.rest.issues.createComment({
+            owner,
+            repo,
+            issue_number: inputs.issueId,
+            body: `
+            Restart Service realizado con éxito 🚀
 
-          const body = `
-
-          ## Motivo
-          ${inputs.motivo}
-
-          ## Ambientes
-          - Test: ${inputs.test}
-          - QA: ${inputs.qa}
-          - Prod: ${inputs.prod}
-
-
-          ## Número de ejecución
-          ${actionNumber}
-          `;
-
-        
-          const { data: { id: issueId } } = await github.rest.issues.create({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            title,
-            body,
-            labels
+            Realizado con éxito el ${date}
+            `
           });
 
-          core.setOutput('issueId', issueId);
+          // Close Issue"
+          await github.rest.issues.update({
+            owner,
+            repo,
+            issue_number: inputs.issueId,
+            state: 'closed'
+          });
 
+          `;
     
