@@ -56,7 +56,7 @@ runs:
           const actionNumber = context.runNumber;
 
           const title = `🦖 Restart Service [Ejecución #${actionNumber}]`;
-          const labels = ['restart-service', 'cicd'];
+          const labels = ['restart-service', 'cicd', ${inputs.test === 'true' ? 'test' : ''}, ${inputs.qa === 'true' ? 'qa' : ''}, ${inputs.prod === 'true' ? 'prod' : ''}].filter(Boolean);
 
           const body = `
 
