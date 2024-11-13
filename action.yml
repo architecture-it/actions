@@ -23,8 +23,6 @@ runs:
           const repo = context.repo.repo;
           const issue_number = '${{ inputs.issue_id }}';
 
-          console.log({ owner, repo, issue_number });
-
           // Date in format and in argentina
           const date = new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
 
