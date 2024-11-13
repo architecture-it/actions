@@ -2,7 +2,7 @@ name: "Update an issue in Repository"
 description: "Realiza un comentario y cierra el Issue"
 
 inputs:
-  issueId:
+  issue_id:
     description: 'ID de la issue a actualizar'
     required: true
 
@@ -17,7 +17,7 @@ runs:
         script: |
           const owner = context.repo.owner;
           const repo = context.repo.repo;
-          const issueId = core.getInput('issueId');
+          const issueId = core.getInput('issue_id');
 
           // Date in format and in argentina
           const date = new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
