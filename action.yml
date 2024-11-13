@@ -82,9 +82,6 @@ runs:
             labels
           });
 
-          // print in github action
-          console.log(res.data);
-
           const issueId = res?.data?.number ?? '';
 
           core.setOutput('issue_number', issueId);
