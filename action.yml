@@ -60,9 +60,9 @@ runs:
           ${inputs.motivo}
 
           ## Ambientes
-          - Test: ${inputs.test ? '[ x ]' : '[]'}
-          - QA: ${inputs.qa ? '[ x ]' : '[]'}
-          - Prod: ${inputs.prod ? '[ x ]' : '[]'}
+          - Test: ${inputs.test ? '[x]' : '[]'}
+          - QA: ${inputs.qa ? '[x]' : '[]'}
+          - Prod: ${inputs.prod ? '[x]' : '[]'}
 
           ## Número de ejecución
           ${actionNumber}
