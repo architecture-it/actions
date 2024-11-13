@@ -32,7 +32,7 @@ runs:
             `
           });
 
-          // Close Issue"
+          // Close Issue
           await github.rest.issues.update({
             owner,
             repo,
@@ -40,5 +40,4 @@ runs:
             state: 'closed'
           });
 
-          `;
     
