@@ -73,13 +73,18 @@ runs:
           `;
 
         
-          const { data: { id: issueId } } = await github.rest.issues.create({
+          const res = await github.rest.issues.create({
             owner: context.repo.owner,
             repo: context.repo.repo,
             title,
             body,
             labels
           });
+
+          // print in github action
+          console.log(res.data);
+
+          const issueId = res?.data?.id ?? '';
 
           core.setOutput('issueId', issueId);
 
