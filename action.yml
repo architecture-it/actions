@@ -60,9 +60,9 @@ runs:
           ${inputs.motivo}
 
           ## Ambientes
-          ${inputs.test ? '- [x]' : '- []'} Test
-          ${inputs.qa ? '- [x]' : '- []'} QA
-          ${inputs.prod ? '- [x]' : '- []'} Production
+          ${inputs.test === 'true' ? '- [x]' : '- []'} Test
+          ${inputs.qa === 'true'? '- [x]' : '- []'} QA
+          ${inputs.prod === 'true'? '- [x]' : '- []'} Production
 
           ## Autor
           ${person}
