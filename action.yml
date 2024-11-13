@@ -17,6 +17,7 @@ runs:
         script: |
           const owner = context.repo.owner;
           const repo = context.repo.repo;
+          const issueId = core.getInput('issueId');
 
           // Date in format and in argentina
           const date = new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
@@ -24,7 +25,7 @@ runs:
           await github.rest.issues.createComment({
             owner,
             repo,
-            issue_number: inputs.issueId,
+            issue_number: issueId,
             body: `
             Restart Service realizado con éxito 🚀
 
@@ -36,7 +37,7 @@ runs:
           await github.rest.issues.update({
             owner,
             repo,
-            issue_number: inputs.issueId,
+            issue_number: issueId,
             state: 'closed'
           });
 
