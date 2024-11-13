@@ -19,6 +19,9 @@ inputs:
     description: 'Production'
     required: true
     default: ''
+  github_token:
+    description: 'Token de Github'
+    required: true
 
 outputs:
   issue_number:
@@ -34,6 +37,7 @@ runs:
       id: validate_format
       uses: actions/github-script@v7
       with:
+        github-token: ${{ inputs.github_token }}
         script: |
           const owner = context.repo.owner;
           const repo = context.repo.repo;
