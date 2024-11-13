@@ -29,9 +29,9 @@ runs:
           const date = new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
 
           const body = `
-          Restart Service realizado con éxito 🚀
+          🦖 Restart Service realizado con éxito 🚀
 
-          Realizado con éxito el ${date}
+          ⏰ Ejecutado el ${date}
           `;
           await github.rest.issues.createComment({
             owner,
