@@ -21,9 +21,9 @@ inputs:
     default: 'false'
 
 outputs:
-  issueId:
+  issue_number:
     description: 'ID de la issue creada'
-    value: ${{ steps.validate_format.outputs.issueId }}
+    value: ${{ steps.validate_format.outputs.issue_number }}
 
 
 runs:
@@ -86,6 +86,6 @@ runs:
 
           const issueId = res?.data?.number ?? '';
 
-          core.setOutput('issueId', issueId);
+          core.setOutput('issue_number', issueId);
 
     
