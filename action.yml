@@ -9,16 +9,16 @@ inputs:
   test:
     description: 'Test'
     required: true
-    default: 'false'
+    default: ''
     
   qa:
     description: 'QA'
     required: true
-    default: 'false'
+    default: ''
   prod:
     description: 'Production'
     required: true
-    default: 'false'
+    default: ''
 
 outputs:
   issue_number:
@@ -51,21 +51,18 @@ runs:
           // Numero de action ejecutada
           const actionNumber = context.runNumber;
 
-          const title = `Restart Service${inputs.motivo ? ` - ${inputs.motivo}` : ''}`;
+          const title = `🦖 Restart Service #${actionNumber}`;
           const labels = ['restart-service', 'cicd'];
 
           const body = `
 
-          ## Motivo
+          ## Motivo 📃
           ${inputs.motivo}
 
           ## Ambientes
-          - Test: ${inputs.test ? '[x]' : '[]'}
-          - QA: ${inputs.qa ? '[x]' : '[]'}
-          - Prod: ${inputs.prod ? '[x]' : '[]'}
-
-          ## Número de ejecución
-          ${actionNumber}
+          ${inputs.test ? '- [x]' : '- []'} Test
+          ${inputs.qa ? '- [x]' : '- []'} QA
+          ${inputs.prod ? '- [x]' : '- []'} Production
 
           ## Autor
           ${person}
