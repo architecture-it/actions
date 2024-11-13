@@ -51,7 +51,7 @@ runs:
           // Numero de action ejecutada
           const actionNumber = context.runNumber;
 
-          const title = `🦖 Restart Service #${actionNumber}`;
+          const title = `🦖 Restart Service [Ejecución #${actionNumber}]`;
           const labels = ['restart-service', 'cicd'];
 
           const body = `
@@ -60,9 +60,9 @@ runs:
           ${inputs.motivo}
 
           ## Ambientes
-          ${inputs.test === 'true' ? '- [x]' : '- []'} Test
-          ${inputs.qa === 'true'? '- [x]' : '- []'} QA
-          ${inputs.prod === 'true'? '- [x]' : '- []'} Production
+          ${inputs.test === 'true' ? '- [x]' : '- [ ]'} Test
+          ${inputs.qa === 'true'? '- [x]' : '- [ ]'} QA
+          ${inputs.prod === 'true'? '- [x]' : '- [ ]'} Production
 
           ## Autor
           ${person}
