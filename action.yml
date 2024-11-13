@@ -67,9 +67,9 @@ runs:
           ${inputs.motivo}
 
           ## Ambientes
-          ${inputs.test === 'true' ? '- [x]' : '- [ ]'} Test
-          ${inputs.qa === 'true'? '- [x]' : '- [ ]'} QA
-          ${inputs.prod === 'true'? '- [x]' : '- [ ]'} Production
+          - Test ${inputs.test === 'true' ? ':heavy_check_mark:' : ''}
+          - QA ${inputs.qa === 'true'? ':heavy_check_mark:' : ''}
+          - Production ${inputs.prod === 'true'? ':heavy_check_mark:' : ''}
 
           ## Autor
           ${person}
