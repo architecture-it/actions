@@ -93,6 +93,7 @@ runs:
           sonar_token: ${{ inputs.sonar_token }}
           sonar_key:  ${{ env.KEY_REPOSITORY }}
           skip_test: ${{inputs.skip_test}}
+          verbose: ${{ env.ACTIONS_RUNNER_DEBUG }}
         if: ${{ inputs.sonar_code == 'Js' }}
 
 
