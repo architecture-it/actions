@@ -14,6 +14,10 @@ inputs:
     description: "permite skipear los procesos de testing"
     required: false
     default: 'false' 
+  verbose:
+    description: "The run of sonnarqube will be in verbose mode"
+    required: false
+    default: 'false'
 runs:
   using: "composite"
   steps:
@@ -34,3 +38,4 @@ runs:
             -Dsonar.projectKey=${{ inputs.sonar_key }}
             -Dsonar.test.inclusions=src/**/*.spec.js,src/**/*.spec.jsx,src/**/*.test.js,src/**/*.test.jsx,src/**/*.spec.ts,src/**/*.spec.tsx,src/**/*.test.ts,src/**/*.test.tsx
             -Dsonar.javascript.lcov.reportPaths=**/coverage/lcov.info
+            -Dsonar.verbose=${{ inputs.verbose }}
