@@ -122,6 +122,9 @@ runs:
           sonar_token: ${{ inputs.sonar_token }}
           sonar_key:  ${{ env.KEY_REPOSITORY }}
           version: ${{ inputs.version }}
+          skip_test: ${{inputs.skip_test}}
+          workdir_src: ${{ inputs.workdir_src }}
+          workdir_test: ${{ inputs.workdir_test }}
         if: ${{ inputs.sonar_code == 'Python' }}
       
       - name: Set Tags
