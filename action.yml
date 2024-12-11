@@ -22,6 +22,7 @@ runs:
       echo '@customer-experience:registry=https://npm.pkg.github.com/' >> .npmrc
       echo '@architecture-it:registry=https://npm.pkg.github.com/' >> .npmrc
       echo '@operations-innovation:registry=https://npm.pkg.github.com/' >> .npmrc
+      echo '@witwot-jms:registry=https://npm.pkg.github.com/' >> .npmrc
       echo '//npm.pkg.github.com/:_authToken=${{ inputs.npm_token }}' >> .npmrc
     shell: bash
     if: ${{ inputs.npm_token != '' }}
