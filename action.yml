@@ -1,5 +1,5 @@
-name: "SonarQube Python Analyzer"
-description: "Se realiza el análisis en SonarQube para proyectos Python"
+name: "SonarQube HTML Analyzer"
+description: "Se realiza el análisis en SonarQube para proyectos HTML"
 inputs:
   sonar_url: 
     description: "URL de SonarQube"
@@ -10,22 +10,7 @@ inputs:
   sonar_key:
     description: "Clave del repositorio en SonarQube"
     required: true
-  version:
-    description: "Versión de Python, ej. 3.7, 3.8..."
-    required: true
-  skip_test:
-    description: "permite skipear los procesos de testing"
-    required: false
-    default: 'false'
-    # Directories
-  workdir_src:
-    description: "directorio donde se encuentra el project a compilar DEFAULT: ./"
-    required: false
-    default: './'
-  workdir_test:
-    description: "directorio donde se encuentra los test DEFAULT: ./"
-    required: false
-    default: './'
+
 runs:
   using: "composite"
   steps:
@@ -39,12 +24,10 @@ runs:
     - name: SonarQube Scan
       uses: sonarsource/sonarqube-scan-action@master
       with:
-        projectBaseDir: ${{ inputs.workdir_src }}
+        projectBaseDir: ./src
         args: >
           -Dsonar.projectKey=${{ inputs.sonar_key }}
-          -Dsonar.verbose=true
-          -Dsonar.python.version=${{ inputs.version }}
-          -Dsonar.python.coverage.reportPaths=coverage.xml
+          -Dsonar.coverage.exclusions=**/*
       env:
         SONAR_TOKEN: ${{ inputs.sonar_token }}
         SONAR_HOST_URL: ${{ inputs.sonar_url }}
