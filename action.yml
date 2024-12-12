@@ -1,5 +1,5 @@
-name: "SonarQube HTML Analyzer"
-description: "Se realiza el análisis en SonarQube para proyectos HTML"
+name: "SonarQube PHP Analyzer"
+description: "Se realiza el análisis en SonarQube para proyectos PHP"
 inputs:
   sonar_url: 
     description: "URL de SonarQube"
