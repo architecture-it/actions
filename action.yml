@@ -134,6 +134,14 @@ runs:
           sonar_token: ${{ inputs.sonar_token }}
           sonar_key:  ${{ env.KEY_REPOSITORY }}
         if: ${{ inputs.sonar_code == 'html' }}
+
+      - name: Setup PHP Analyzer
+        uses: architecture-it/actions@sonar-php
+        with: 
+          sonar_url: ${{ inputs.sonar_url }}
+          sonar_token: ${{ inputs.sonar_token }}
+          sonar_key:  ${{ env.KEY_REPOSITORY }}
+        if: ${{ inputs.sonar_code == 'php' }}
       
       - name: Set Tags
         shell: bash
