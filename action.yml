@@ -128,7 +128,7 @@ runs:
         if: ${{ inputs.sonar_code == 'Python' }}
 
       - name: Setup HTML Analyzer
-        uses: architecture-it/actions@html
+        uses: architecture-it/actions@sonar-html
         with: 
           sonar_url: ${{ inputs.sonar_url }}
           sonar_token: ${{ inputs.sonar_token }}
