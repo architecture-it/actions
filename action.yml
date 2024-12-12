@@ -17,7 +17,7 @@ runs:
     - name: SonarQube Scan
       uses: sonarsource/sonarqube-scan-action@master
       with:
-        projectBaseDir: ./src
+        projectBaseDir: .
         args: >
           -Dsonar.projectKey=${{ inputs.sonar_key }}
           -Dsonar.coverage.exclusions=**/*
