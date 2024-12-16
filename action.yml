@@ -26,11 +26,11 @@ runs:
         with:
           name: avro-schema
           path: ${{ inputs.INPUT }}
-      - name: install libssl-dev
-        shell: bash
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y libssl1.1
+     # - name: install libssl-dev
+      #  shell: bash
+       # run: |
+        #  sudo apt-get update -qq
+         # sudo apt-get install -y libssl1.1
       - uses: bluwy/substitute-string-action@v1
         id: sub
         with:
@@ -41,7 +41,7 @@ runs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 5.x   
+          dotnet-version: 6.x   
 
       - name: Get Avro Gen
         run: dotnet tool install Apache.Avro.Tools --version ${{ inputs.AVRO_VERSION }} --global
