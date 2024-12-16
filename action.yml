@@ -8,7 +8,7 @@ inputs:
     required: true
   AVRO_VERSION:
     requiered: false
-    default: 1.11.0
+    default: 1.12.0
   INPUT:
     requiered: false
     default: schema
