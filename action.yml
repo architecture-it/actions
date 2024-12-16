@@ -26,6 +26,10 @@ runs:
         with:
           name: avro-schema
           path: ${{ inputs.INPUT }}
+      - name: install libssl-dev
+        run: |
+          sudo apt update -qq
+          sudo apt install -y libssl-dev
       - uses: bluwy/substitute-string-action@v1
         id: sub
         with:
