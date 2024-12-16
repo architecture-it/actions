@@ -27,6 +27,7 @@ runs:
           name: avro-schema
           path: ${{ inputs.INPUT }}
       - name: install libssl-dev
+        shell: bash
         run: |
           sudo apt update -qq
           sudo apt install -y libssl-dev
