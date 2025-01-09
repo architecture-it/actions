@@ -28,7 +28,7 @@ runs:
           path: coverage
         if: ${{ inputs.skip_test != 'true' }}
       - name: SonarQube Scan
-        uses: sonarsource/sonarqube-scan-action@v3.1.0
+        uses: sonarsource/sonarqube-scan-action@master
         env:
           SONAR_TOKEN: ${{ inputs.sonar_token }}
           SONAR_HOST_URL: ${{ inputs.sonar_url }}
