@@ -13,6 +13,10 @@ inputs:
     description: Add defaults flags to pnpm works correctly
     default: "true"
     required: false
+  working_directory:
+    description: Working directory
+    default: "./"
+    required: false
 
 runs:
   using: "composite"
@@ -25,12 +29,14 @@ runs:
       echo '@witwot-jms:registry=https://npm.pkg.github.com/' >> .npmrc
       echo '//npm.pkg.github.com/:_authToken=${{ inputs.npm_token }}' >> .npmrc
     shell: bash
+    working-directory: ${{ inputs.working_directory }}
     if: ${{ inputs.npm_token != '' }}
   - name: Add and autenticate fontawesome registry
     run: |
       echo '@fortawesome:registry=https://npm.fontawesome.com/' >> .npmrc
       echo '//npm.fontawesome.com/:_authToken=${{ inputs.font_awesome_key }}' >> .npmrc
     shell: bash
+    working-directory: ${{ inputs.working_directory }}
     if: ${{ inputs.font_awesome_key != '' }}
   - name: Add flags importants to pnpm
     if: ${{ inputs.add_pnpm_flags }}
@@ -38,3 +44,4 @@ runs:
       echo 'auto-install-peers=true' >> .npmrc
       echo 'enable-pre-post-scripts=true' >> .npmrc
     shell: bash
+    working-directory: ${{ inputs.working_directory }}
