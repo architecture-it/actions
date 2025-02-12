@@ -31,12 +31,17 @@ runs:
           plugins: [
             "@semantic-release/commit-analyzer",
             "@semantic-release/release-notes-generator",
-            "@semantic-release/github",
+            [
+              "@semantic-release/github",
+              {
+                "assets": ${{ inputs.release_assets }}
+              }
+            ],
             [
               "@semantic-release/git",
               {
                 message: "Release <%= nextRelease.version %> [skip ci]",
-                assets: ${{ inputs.release_assets }}
+                assets: false
               }
             ]
           ],
