@@ -36,20 +36,13 @@ runs:
               {
                 "assets": ${{ inputs.release_assets }}
               }
-            ],
-            [
-              "@semantic-release/git",
-              {
-                message: "Release <%= nextRelease.version %> [skip ci]",
-                assets: false
-              }
             ]
           ],
           branches: ${{ inputs.branches }}
         }' >> release.config.cjs
     - name: Install dependencies
       # with '--no-save' flag not generates any files (only generated for pipeline)
-      run: npm i --no-save @semantic-release/git @semantic-release/github
+      run: npm i --no-save @semantic-release/github
       shell: bash
     - name: Release
       env:
