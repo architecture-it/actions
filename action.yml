@@ -1,5 +1,5 @@
-name: "Release dotnet"
-description: "Make a Packages based on conventional commits, allow multiple csproj"
+name: "Release basic"
+description: "Make a Release on conventional commits"
 
 inputs:
   github_token:
@@ -9,76 +9,29 @@ inputs:
     description: configuration to latest release and prerelease
     default: '["main", { name: "beta", prerelease: "beta" }]'
     required: false
-  pack_arguments:
-    description: arguments passed to pack
-    default: '["-c", "Release"]'
-    required: false
   github_username: 
     description: github user 
     required: true
-  push_files:
-    description: files to publish. Default all nupkg in Release folder in bin
-    default: '["**/bin/Release/*.nupkg"]'
-    required: false
-  debug:
-    description: allow debug mode
-    default: 'false'
-    required: false
-  release_paths:
-    default: '["**/*.csproj"]'
-    required: false
-    description: Glob patterns to find releases paths. By default point to all *.csproj
   release_assets:
-    default: '["**/*.csproj"]'
+    default: '["dist/**"]'
     required: false
-    description: Glob patterns to find assets paths. By default point to all *.csproj (Because it's a library)
+    description: Glob patterns to find assets paths.
 
 runs:
   using: "composite"
   steps:
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: |
-          7.0.x
-          8.0.x
-    - name: Add NuGet sources
-      run: |
-        dotnet nuget locals -c all       
-        dotnet nuget add source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json --name github -u ${{ inputs.github_username }} -p ${{ inputs.github_token }} --store-password-in-clear-text || echo "Source already exists or cannot be added"
-        if [ "${{ github.repository_owner }}" != "architecture-it" ]; then
-          dotnet nuget add source https://nuget.pkg.github.com/architecture-it/index.json --name github-architecture-it -u ${{ inputs.github_username }} -p ${{ inputs.github_token }} --store-password-in-clear-text || echo "Source already exists or cannot be added"
-        fi
-      shell: bash
     - name: Setup Node.js 20
       uses: actions/setup-node@v3
       with:
         node-version: 20.x
     - name: Write configuration file
       shell: bash
-      # run: |
-        # echo 'module.exports = { plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator", "@semantic-release/github",["semantic-release-dotnet", { paths: ${{ inputs.release_paths }}, debug: ${{ inputs.debug }} }], ["semantic-release-nuget", { debug: ${{ inputs.debug }}, pushFiles: ${{ inputs.push_files }}, packArguments: ${{ inputs.pack_arguments }} }], ["@semantic-release/git",{  message: "Release <%= nextRelease.version %> [skip ci]",  assets: ["**/*.csproj"]},],],branches: ${{ inputs.branches }} }' >> release.config.js
       run: |
         echo 'module.exports = {
           plugins: [
             "@semantic-release/commit-analyzer",
             "@semantic-release/release-notes-generator",
             "@semantic-release/github",
-            [
-              "semantic-release-dotnet",
-              {
-                paths: ${{ inputs.release_paths }},
-                debug: ${{ inputs.debug }}
-              }
-            ],
-            [
-              "semantic-release-nuget",
-              {
-                debug: ${{ inputs.debug }},
-                pushFiles: ${{ inputs.push_files }},
-                packArguments: ${{ inputs.pack_arguments }}
-              }
-            ],
             [
               "@semantic-release/git",
               {
@@ -88,10 +41,10 @@ runs:
             ]
           ],
           branches: ${{ inputs.branches }}
-        }' >> release.config.js
+        }' >> release.config.cjs
     - name: Install dependencies
       # with '--no-save' flag not generates any files (only generated for pipeline)
-      run: npm i --no-save @semantic-release/git @semantic-release/github semantic-release-dotnet semantic-release-nuget
+      run: npm i --no-save @semantic-release/git @semantic-release/github
       shell: bash
     - name: Release
       env:
