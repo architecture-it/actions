@@ -38,7 +38,7 @@ runs:
             [
               "@semantic-release/github",
               {
-                "assets": ${{ inputs.release_assets }}
+                "assets": ${{ inputs.release_assets }},
                 "draftRelease": ${{ inputs.draft }}
               }
             ]
