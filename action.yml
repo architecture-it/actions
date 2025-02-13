@@ -16,6 +16,10 @@ inputs:
     default: '["dist/**"]'
     required: false
     description: Glob patterns to find assets paths.
+  draft:
+    default: 'false'
+    required: false
+    description: Create a draft release
 
 runs:
   using: "composite"
@@ -35,6 +39,7 @@ runs:
               "@semantic-release/github",
               {
                 "assets": ${{ inputs.release_assets }}
+                "draftRelease": ${{ inputs.draft }}
               }
             ]
           ],
