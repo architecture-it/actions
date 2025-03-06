@@ -67,38 +67,33 @@ runs:
             [
               "@semantic-release/commit-analyzer", 
               {
-                  { breaking: true, release: "major" },
-                  { revert: true, release: "patch" },
-                  // Angular
-                  { type: "feat", release: "minor" },
-                  { type: "fix", release: "patch" },
-                  { type: "perf", release: "patch" },
-                  // Atom
-                  { emoji: ":racehorse:", release: "patch" },
-                  { emoji: ":bug:", release: "patch" },
-                  { emoji: ":penguin:", release: "patch" },
-                  { emoji: ":apple:", release: "patch" },
-                  { emoji: ":checkered_flag:", release: "patch" },
-                  // Ember
-                  { tag: "BUGFIX", release: "patch" },
-                  { tag: "FEATURE", release: "minor" },
-                  { tag: "SECURITY", release: "patch" },
-                  // ESLint
-                  { tag: "Breaking", release: "major" },
-                  { tag: "Fix", release: "patch" },
-                  { tag: "Feat", release: "minor" },
-                  { tag: "Update", release: "minor" },
-                  { tag: "New", release: "minor" },
-                  // Express
-                  { component: "perf", release: "patch" },
-                  { component: "deps", release: "patch" },
-                  // JSHint
-                  { type: "FEAT", release: "minor" },
-                  { type: "FIX", release: "patch" },
-                  // Architecture
-                  { type: "docs", release: "patch" },
-                  { type: "ref", release: "patch" },
-                  { type: "styles", release: "patch" },
+                  releaseRules: [
+                    { breaking: true, release: "major" },
+                    { revert: true, release: "patch" },
+                    { type: "feat", release: "minor" },
+                    { type: "fix", release: "patch" },
+                    { type: "perf", release: "patch" },
+                    { emoji: ":racehorse:", release: "patch" },
+                    { emoji: ":bug:", release: "patch" },
+                    { emoji: ":penguin:", release: "patch" },
+                    { emoji: ":apple:", release: "patch" },
+                    { emoji: ":checkered_flag:", release: "patch" },
+                    { tag: "BUGFIX", release: "patch" },
+                    { tag: "FEATURE", release: "minor" },
+                    { tag: "SECURITY", release: "patch" },
+                    { tag: "Breaking", release: "major" },
+                    { tag: "Fix", release: "patch" },
+                    { tag: "Feat", release: "minor" },
+                    { tag: "Update", release: "minor" },
+                    { tag: "New", release: "minor" },
+                    { component: "perf", release: "patch" },
+                    { component: "deps", release: "patch" },
+                    { type: "FEAT", release: "minor" },
+                    { type: "FIX", release: "patch" },
+                    { type: "docs", release: "patch" },
+                    { type: "ref", release: "patch" },
+                    { type: "styles", release: "patch" }
+                  ]
               }
             ],
             [
@@ -131,38 +126,33 @@ runs:
             [
               "@semantic-release/commit-analyzer", 
               {
-                  { breaking: true, release: "major" },
-                  { revert: true, release: "patch" },
-                  // Angular
-                  { type: "feat", release: "minor" },
-                  { type: "fix", release: "patch" },
-                  { type: "perf", release: "patch" },
-                  // Atom
-                  { emoji: ":racehorse:", release: "patch" },
-                  { emoji: ":bug:", release: "patch" },
-                  { emoji: ":penguin:", release: "patch" },
-                  { emoji: ":apple:", release: "patch" },
-                  { emoji: ":checkered_flag:", release: "patch" },
-                  // Ember
-                  { tag: "BUGFIX", release: "patch" },
-                  { tag: "FEATURE", release: "minor" },
-                  { tag: "SECURITY", release: "patch" },
-                  // ESLint
-                  { tag: "Breaking", release: "major" },
-                  { tag: "Fix", release: "patch" },
-                  { tag: "Feat", release: "minor" },
-                  { tag: "Update", release: "minor" },
-                  { tag: "New", release: "minor" },
-                  // Express
-                  { component: "perf", release: "patch" },
-                  { component: "deps", release: "patch" },
-                  // JSHint
-                  { type: "FEAT", release: "minor" },
-                  { type: "FIX", release: "patch" },
-                  // Architecture
-                  { type: "docs", release: "patch" },
-                  { type: "ref", release: "patch" },
-                  { type: "styles", release: "patch" },
+                  releaseRules: [
+                    { breaking: true, release: "major" },
+                    { revert: true, release: "patch" },
+                    { type: "feat", release: "minor" },
+                    { type: "fix", release: "patch" },
+                    { type: "perf", release: "patch" },
+                    { emoji: ":racehorse:", release: "patch" },
+                    { emoji: ":bug:", release: "patch" },
+                    { emoji: ":penguin:", release: "patch" },
+                    { emoji: ":apple:", release: "patch" },
+                    { emoji: ":checkered_flag:", release: "patch" },
+                    { tag: "BUGFIX", release: "patch" },
+                    { tag: "FEATURE", release: "minor" },
+                    { tag: "SECURITY", release: "patch" },
+                    { tag: "Breaking", release: "major" },
+                    { tag: "Fix", release: "patch" },
+                    { tag: "Feat", release: "minor" },
+                    { tag: "Update", release: "minor" },
+                    { tag: "New", release: "minor" },
+                    { component: "perf", release: "patch" },
+                    { component: "deps", release: "patch" },
+                    { type: "FEAT", release: "minor" },
+                    { type: "FIX", release: "patch" },
+                    { type: "docs", release: "patch" },
+                    { type: "ref", release: "patch" },
+                    { type: "styles", release: "patch" }
+                  ]
               }
             ],
             "@semantic-release/release-notes-generator",
@@ -190,7 +180,7 @@ runs:
       if: ${{ inputs.only_version != 'true' }}
 
     - name: Get the version
-      run: npx --no-install -y -p semantic-release -p @semantic-release/exec -p @semantic-release/git -p @semantic-release/github@10.0.0 -p @architecture-it/semantic-release-jira -c semantic-release
+      run: npx --no-install -y -p semantic-release -p @semantic-release/exec -p @semantic-release/git -p @semantic-release/github@10.0.0 -p @architecture-it/semantic-release-jira@beta -c semantic-release
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
         GH_TOKEN: ${{ inputs.github_token }}
