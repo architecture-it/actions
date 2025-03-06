@@ -58,14 +58,113 @@ runs:
         echo 'echo "newVersion=$1" >> $GITHUB_OUTPUT' >> version.sh
         echo 'echo "previousVersion=$2" >> $GITHUB_OUTPUT' >> version.sh
         chmod +x version.sh
+
     - name: Write config file
       shell: bash
-      # run: |
-      #   echo 'module.exports = { plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator", "@semantic-release/github", [ "@semantic-release/exec", { verifyReleaseCmd: "./version.sh ${nextRelease.version} ${lastRelease.version}" } ], ["@architecture-it/semantic-release-jira", { "projectId": "${{ inputs.jira_project_id }}", "releaseName": "${{ inputs.jira_release_name }}", "jiraHost": "${{ inputs.jira_host_url }}", "ticketPrefixes": [ "${{ inputs.jira_project_id }}" ], released: ${{ inputs.only_version != 'true' }}, setReleaseDate: ${{ inputs.only_version != 'true' }} }] ], branches: ${{ inputs.branches }}, dryRun: ${{ inputs.only_version == 'true' }} };' >> release.config.cjs
       run: |
         echo 'module.exports = {
           plugins: [
-            "@semantic-release/commit-analyzer",
+            [
+              "@semantic-release/commit-analyzer", 
+              {
+                  { breaking: true, release: "major" },
+                  { revert: true, release: "patch" },
+                  // Angular
+                  { type: "feat", release: "minor" },
+                  { type: "fix", release: "patch" },
+                  { type: "perf", release: "patch" },
+                  // Atom
+                  { emoji: ":racehorse:", release: "patch" },
+                  { emoji: ":bug:", release: "patch" },
+                  { emoji: ":penguin:", release: "patch" },
+                  { emoji: ":apple:", release: "patch" },
+                  { emoji: ":checkered_flag:", release: "patch" },
+                  // Ember
+                  { tag: "BUGFIX", release: "patch" },
+                  { tag: "FEATURE", release: "minor" },
+                  { tag: "SECURITY", release: "patch" },
+                  // ESLint
+                  { tag: "Breaking", release: "major" },
+                  { tag: "Fix", release: "patch" },
+                  { tag: "Feat", release: "minor" },
+                  { tag: "Update", release: "minor" },
+                  { tag: "New", release: "minor" },
+                  // Express
+                  { component: "perf", release: "patch" },
+                  { component: "deps", release: "patch" },
+                  // JSHint
+                  { type: "FEAT", release: "minor" },
+                  { type: "FIX", release: "patch" },
+                  // Architecture
+                  { type: "docs", release: "patch" },
+                  { type: "ref", release: "patch" },
+                  { type: "styles", release: "patch" },
+              }
+            ],
+            [
+              "@semantic-release/exec",
+              {
+                verifyReleaseCmd: "./version.sh ${nextRelease.version} ${lastRelease.version}"
+              }
+            ],
+            [
+              "@architecture-it/semantic-release-jira",
+              {
+                "projectId": "${{ inputs.jira_project_id }}",
+                "releaseName": "${{ inputs.jira_release_name }}",
+                "jiraHost": "${{ inputs.jira_host_url }}",
+                "ticketPrefixes": ["${{ inputs.jira_project_id }}"],
+                released: false,
+                setReleaseDate: false,
+              }
+            ]
+          ],
+          branches: ${{ inputs.branches }},
+        };' >> release.config.cjs
+      if: ${{ inputs.only_version == 'true' }}
+
+    - name: Write config file
+      shell: bash
+      run: |
+        echo 'module.exports = {
+          plugins: [
+            [
+              "@semantic-release/commit-analyzer", 
+              {
+                  { breaking: true, release: "major" },
+                  { revert: true, release: "patch" },
+                  // Angular
+                  { type: "feat", release: "minor" },
+                  { type: "fix", release: "patch" },
+                  { type: "perf", release: "patch" },
+                  // Atom
+                  { emoji: ":racehorse:", release: "patch" },
+                  { emoji: ":bug:", release: "patch" },
+                  { emoji: ":penguin:", release: "patch" },
+                  { emoji: ":apple:", release: "patch" },
+                  { emoji: ":checkered_flag:", release: "patch" },
+                  // Ember
+                  { tag: "BUGFIX", release: "patch" },
+                  { tag: "FEATURE", release: "minor" },
+                  { tag: "SECURITY", release: "patch" },
+                  // ESLint
+                  { tag: "Breaking", release: "major" },
+                  { tag: "Fix", release: "patch" },
+                  { tag: "Feat", release: "minor" },
+                  { tag: "Update", release: "minor" },
+                  { tag: "New", release: "minor" },
+                  // Express
+                  { component: "perf", release: "patch" },
+                  { component: "deps", release: "patch" },
+                  // JSHint
+                  { type: "FEAT", release: "minor" },
+                  { type: "FIX", release: "patch" },
+                  // Architecture
+                  { type: "docs", release: "patch" },
+                  { type: "ref", release: "patch" },
+                  { type: "styles", release: "patch" },
+              }
+            ],
             "@semantic-release/release-notes-generator",
             "@semantic-release/github",
             [
@@ -81,17 +180,17 @@ runs:
                 "releaseName": "${{ inputs.jira_release_name }}",
                 "jiraHost": "${{ inputs.jira_host_url }}",
                 "ticketPrefixes": ["${{ inputs.jira_project_id }}"],
-                released: ${{ inputs.only_version != 'true' }},
-                setReleaseDate: ${{ inputs.only_version != 'true' }}
+                released: true,
+                setReleaseDate: true
               }
             ]
           ],
           branches: ${{ inputs.branches }},
-          dryRun: ${{ inputs.only_version == 'true' }}
         };' >> release.config.cjs
+      if: ${{ inputs.only_version != 'true' }}
 
     - name: Get the version
-      run: npx --no-install -y -p @semantic-release/exec -p @semantic-release/git -p @semantic-release/github@10.0.0 -p @architecture-it/semantic-release-jira -c semantic-release --debug
+      run: npx --no-install -y -p semantic-release -p @semantic-release/exec -p @semantic-release/git -p @semantic-release/github@10.0.0 -p @architecture-it/semantic-release-jira -c semantic-release
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
         GH_TOKEN: ${{ inputs.github_token }}
