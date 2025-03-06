@@ -59,7 +59,7 @@ runs:
         echo 'echo "previousVersion=$2" >> $GITHUB_OUTPUT' >> version.sh
         chmod +x version.sh
 
-    - name: Write config file
+    - name: Write config file for Only Version
       shell: bash
       run: |
         echo 'module.exports = {
@@ -123,7 +123,7 @@ runs:
         };' >> release.config.cjs
       if: ${{ inputs.only_version == 'true' }}
 
-    - name: Write config file
+    - name: Write config file for Release
       shell: bash
       run: |
         echo 'module.exports = {
