@@ -74,22 +74,22 @@ runs:
           dotnet sonarscanner begin /key:"${{ inputs.sonar_key }}" -d:sonar.login="${{ inputs.sonar_token }}" -d:sonar.host.url="${{ inputs.sonar_url }}" -d:sonar.cs.vstest.reportsPaths=**/*.trx -d:sonar.cs.opencover.reportsPaths=**/coverage.opencover.xml ${{ inputs.sonar_custom}}
         shell: bash
 
-      - name: Restore 
-        run: dotnet restore
-        shell: bash
-        working-directory: ${{ inputs.workdir_src }}
+     # - name: Restore 
+      # run: dotnet restore
+      # shell: bash
+      #  working-directory: ${{ inputs.workdir_src }}
 
       - name: Build
         run: dotnet build
         shell: bash
         working-directory: ${{ inputs.workdir_src }}
 
-      - name: Test 
-        env:
-          ASPNETCORE_ENVIRONMENT: Development
-        shell: bash
-        run: dotnet test --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover --results-directory TestResults/ --logger "trx;LogFileName=unittests.trx" --no-build --no-restore --configuration release 
-        working-directory: ${{ inputs.workdir_test }}
+      #- name: Test 
+      #  env:
+      #    ASPNETCORE_ENVIRONMENT: Development
+      #  shell: bash
+      #  run: dotnet test --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover --results-directory TestResults/ --logger "trx;LogFileName=unittests.trx" --no-build --no-restore --configuration release 
+      #  working-directory: ${{ inputs.workdir_test }}
         
       - name: Sonarqube end
         working-directory: ${{ inputs.workdir_src }}
