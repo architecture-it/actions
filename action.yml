@@ -27,24 +27,20 @@ runs:
     - name: Install dependencies
       run: |
         pip install -r requirements.txt
-        pip install coverage
+        pip install pytest pytest-cov
       shell: bash
-
+    
     # - name: Validate build
     #   run: |
     #     python -m compileall -f .  
     #   shell: bash
-
+    
     - name: Run tests with coverage
-      env:
-        PYTHONPATH: ${{ inputs.workdir_test }}src
       run: |
-        coverage run -m unittest discover -s test/. -p "*.py"
-        coverage report
-        coverage xml
+        pytest --cov=src --cov-report=xml:coverage.xml --cov-report=term
       shell: bash
       working-directory: ${{ inputs.workdir_test }}
-
+    
     - name: Upload coverage report
       uses: actions/upload-artifact@v4
       with:
