@@ -36,6 +36,8 @@ runs:
     #   shell: bash
 
     - name: Run tests with coverage
+      env:
+        PYTHONPATH: ${{ inputs.workdir_test }}/src
       run: |
         coverage run -m unittest discover -s test/. -p "*.py"
         coverage report
