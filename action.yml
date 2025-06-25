@@ -36,7 +36,7 @@ runs:
           echo "Using npm and npx"
         elif [ -f pnpm-lock.yaml ]; then 
           echo "name=pnpm" >> $GITHUB_OUTPUT
-          echo "exec=pnpm --package=replace-json-property@1.8.0 --package=@semantic-release/exec --package=semantic-release-monorepo --package=@semantic-release/git --package=@semantic-release/github --package=@semantic-release/changelog --package=semantic-release dlx" >> $GITHUB_OUTPUT
+          echo "exec=pnpm -r --workspace-concurrency=1 --package=replace-json-property@1.8.0 --package=@semantic-release/exec --package=semantic-release-monorepo --package=@semantic-release/git --package=@semantic-release/github --package=@semantic-release/changelog --package=semantic-release dlx" >> $GITHUB_OUTPUT
           echo "Using pnpx dlx and pnpm"
         else 
           echo "name=notfound" >> $GITHUB_OUTPUT
