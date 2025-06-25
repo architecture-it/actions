@@ -22,46 +22,13 @@ inputs:
     required: false
 
 runs:
-  using: "composite"
-  steps:
-    - name: Get package manager executable
-      run: |
-        if [ -f "yarn.lock" ]; then 
-          echo "name=yarn" >> $GITHUB_OUTPUT
-          echo "exec=npx --package=replace-json-property@1.8.0 --package=@semantic-release/exec --package=semantic-release-monorepo --package=@semantic-release/git --package=@semantic-release/github --package=@semantic-release/changelog --package=semantic-release" >> $GITHUB_OUTPUT 
-          echo "Using yarn and npx"
-        elif [ -f "package-lock.json" ]; then 
-          echo "name=npm" >> $GITHUB_OUTPUT 
-          echo "exec=npx" >> $GITHUB_OUTPUT
-          echo "Using npm and npx"
-        elif [ -f pnpm-lock.yaml ]; then 
-          echo "name=pnpm" >> $GITHUB_OUTPUT
-          echo "exec=pnpm -r --workspace-concurrency=1 --package=replace-json-property@1.8.0 --package=@semantic-release/exec --package=semantic-release-monorepo --package=@semantic-release/git --package=@semantic-release/github --package=@semantic-release/changelog --package=semantic-release dlx" >> $GITHUB_OUTPUT
-          echo "Using pnpx dlx and pnpm"
-        else 
-          echo "name=notfound" >> $GITHUB_OUTPUT
-          echo "El código debe contener algún archivo de lockfile ('package-lock.json', 'yarn.lock' o 'pnpm-lock.yaml')."
-          echo "Asegurate de subirlo."
-          echo "ERROR: Falta archivo lockfile. Ver más en https://architecture-it.github.io/docs/Platform/Front/#manejo-de-dependencias"
-          exit 1
-        fi
-      id: package_manager
-      shell: bash
-    - name: Setup Node.js ${{ inputs.node_version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ inputs.node_version }}
     - name: Write configuration file
       shell: bash
       run: |
         echo 'module.exports = { "extends": "semantic-release-monorepo", pkgRoot: "${{ inputs.pkg_root }}", plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator", ["@semantic-release/changelog", { changelogFile: "CHANGELOG.md" }], ["@semantic-release/npm",{  "npmPublish": ${{ inputs.publish }},}],"@semantic-release/github",["@semantic-release/exec",{  prepareCmd: "npx replace-json-property package.json version ${nextRelease.version}",},],["@semantic-release/git",{  message: "Release <%= nextRelease.version %> [skip ci]",  assets: ["package.json", "CHANGELOG.md"],},],],branches: ${{ inputs.branches }} }' >> release.config.cjs
-    - name: Install dependencies temporary for npm
-      run: npm i --no-save replace-json-property@1.8.0 @semantic-release/exec @semantic-release/git @semantic-release/github @semantic-release/changelog semantic-release-monorepo
-      shell: bash
-      if: ${{ steps.package_manager.outputs.name == 'npm' }}
     - name: Release
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
         GH_TOKEN: ${{ inputs.github_token }}
-      run: ${{ steps.package_manager.outputs.exec }} semantic-release
+      run: pnpm exec semantic-release
       shell: bash
