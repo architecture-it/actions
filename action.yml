@@ -32,10 +32,10 @@ runs:
         env:
           SONAR_TOKEN: ${{ inputs.sonar_token }}
           SONAR_HOST_URL: ${{ inputs.sonar_url }}
-          LC_ALL: "ru_RU.UTF-8"
         with:
           args: >
             -Dsonar.projectKey=${{ inputs.sonar_key }}
             -Dsonar.test.inclusions=src/**/*.spec.js,src/**/*.spec.jsx,src/**/*.test.js,src/**/*.test.jsx,src/**/*.spec.ts,src/**/*.spec.tsx,src/**/*.test.ts,src/**/*.test.tsx
             -Dsonar.javascript.lcov.reportPaths=**/coverage/lcov.info
             -Dsonar.verbose=${{ inputs.verbose }}
+            -Dsonar.sourceEncoding=UTF-8
