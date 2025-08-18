@@ -12,20 +12,6 @@ inputs:
     description: Only version
     required: false
     default: 'true'
-  # todos no son requeridos para habilitar una integración progresiva
-  jira_project_id:
-    description: Jira Project Id (e.g. "PE20"). This will be used as prefix in tickets
-    required: false
-  jira_api_token:
-    description: Jira API Token
-    required: false
-  jira_email:
-    description: Jira Email
-    required: false
-  jira_host_url:
-    description: Jira Host URL
-    required: false
-    default: "https://andreani.atlassian.net"
   # generado con la información de los inputs
   jira_release_name:
     description: "Title of the release name template. This will be used in name of publication in JIRA and followed by version. e.g. 'Test v${version}'"
@@ -59,66 +45,6 @@ runs:
         echo 'echo "previousVersion=$2" >> $GITHUB_OUTPUT' >> version.sh
         chmod +x version.sh
 
-    - name: Write config file for Only Version
-      shell: bash
-      run: |
-        echo 'module.exports = {
-          plugins: [
-            [
-              "@semantic-release/commit-analyzer", 
-              {
-                  releaseRules: [
-                    { breaking: true, release: "major" },
-                    { revert: true, release: "patch" },
-                    { type: "feat", release: "minor" },
-                    { type: "fix", release: "patch" },
-                    { type: "perf", release: "patch" },
-                    { emoji: ":racehorse:", release: "patch" },
-                    { emoji: ":bug:", release: "patch" },
-                    { emoji: ":penguin:", release: "patch" },
-                    { emoji: ":apple:", release: "patch" },
-                    { emoji: ":checkered_flag:", release: "patch" },
-                    { tag: "BUGFIX", release: "patch" },
-                    { tag: "FEATURE", release: "minor" },
-                    { tag: "SECURITY", release: "patch" },
-                    { tag: "Breaking", release: "major" },
-                    { tag: "Fix", release: "patch" },
-                    { tag: "Feat", release: "minor" },
-                    { tag: "Update", release: "minor" },
-                    { tag: "New", release: "minor" },
-                    { component: "perf", release: "patch" },
-                    { component: "deps", release: "patch" },
-                    { type: "FEAT", release: "minor" },
-                    { type: "FIX", release: "patch" },
-                    { type: "docs", release: "patch" },
-                    { type: "ref", release: "patch" },
-                    { type: "styles", release: "patch" }
-                  ]
-              }
-            ],
-            [
-              "@semantic-release/exec",
-              {
-                verifyReleaseCmd: "./version.sh ${nextRelease.version} ${lastRelease.version}"
-              }
-            ],
-            [
-              "@architecture-it/semantic-release-jira",
-              {
-                "projectId": "${{ inputs.jira_project_id }}",
-                "releaseName": "${{ inputs.jira_release_name }}",
-                "jiraHost": "${{ inputs.jira_host_url }}",
-                "ticketPrefixes": ["${{ inputs.jira_project_id }}"],
-                released: false,
-                setReleaseDate: false,
-              }
-            ]
-          ],
-          branches: ${{ inputs.branches }},
-          dryRun: true
-        };' >> release.config.cjs
-      if: ${{ inputs.only_version == 'true' }}
-
     - name: Write config file for Release
       shell: bash
       run: |
@@ -150,7 +76,6 @@ runs:
                     { component: "deps", release: "patch" },
                     { type: "FEAT", release: "minor" },
                     { type: "FIX", release: "patch" },
-                    { type: "docs", release: "patch" },
                     { type: "ref", release: "patch" },
                     { type: "styles", release: "patch" }
                   ]
@@ -167,18 +92,15 @@ runs:
             [
               "@architecture-it/semantic-release-jira",
               {
-                "projectId": "${{ inputs.jira_project_id }}",
                 "releaseName": "${{ inputs.jira_release_name }}",
-                "jiraHost": "${{ inputs.jira_host_url }}",
-                "ticketPrefixes": ["${{ inputs.jira_project_id }}"],
-                released: true,
-                setReleaseDate: true
+                released: ${{ inputs.only_version != 'true' }},
+                setReleaseDate: ${{ inputs.only_version != 'true' }}
               }
             ]
           ],
           branches: ${{ inputs.branches }},
+          dryRun: ${{ inputs.only_version == 'true' }}
         };' >> release.config.cjs
-      if: ${{ inputs.only_version != 'true' }}
 
     - name: Get the version
       run: npx --no-install -y -p semantic-release -p @semantic-release/exec -p @semantic-release/git -p @semantic-release/github@10.0.0 -p @architecture-it/semantic-release-jira@beta -c semantic-release
