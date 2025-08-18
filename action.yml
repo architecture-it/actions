@@ -107,7 +107,5 @@ runs:
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
         GH_TOKEN: ${{ inputs.github_token }}
-        JIRA_EMAIL: ${{ inputs.jira_email }}
-        JIRA_API_TOKEN: ${{ inputs.jira_api_token }}
       id: next-version
       shell: bash
