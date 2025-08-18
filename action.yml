@@ -2,17 +2,17 @@ name: "Python CI"
 description: "Realiza build, test y coverage para proyectos Python"
 inputs:
   version:
-    description: "Versión de Python, ej. 3.7, 3.8..."
+    description: "Versión de Python, ej. 3.10, 3.11..."
     required: true
   skip_test:
-    description: "permite skipear los procesos de testing"
+    description: "Permite skipear los procesos de testing"
     required: false
     default: 'false'
-  # Directories
   workdir_test:
-    description: "directorio donde se encuentra los test DEFAULT: ./"
+    description: "Directorio donde se encuentran los tests. DEFAULT: ./"
     required: false
     default: './'
+
 runs:
   using: "composite"
   steps:
@@ -20,30 +20,60 @@ runs:
       uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ inputs.version }}
 
-    - name: Install dependencies
-      run: |
-        pip install -r requirements.txt
-        pip install pytest pytest-cov
+    # (Opcional pero recomendado) Instala 'uv' de forma confiable
+    - name: Set up uv (si se usa uv.lock)
+      if: ${{ hashFiles('uv.lock') != '' }}
+      uses: astral-sh/setup-uv@v3
+
+    - name: Resolver e instalar dependencias (uv o pip)
+      id: deps
       shell: bash
-    
-    # - name: Validate build
-    #   run: |
-    #     python -m compileall -f .  
-    #   shell: bash
-    
-    - name: Run tests with coverage
       run: |
-        pytest --cov=src --cov-report=xml:coverage.xml --cov-report=term
+        set -euo pipefail
+        PKG_TOOL="none"
+
+        if [[ -f "uv.lock" ]]; then
+          echo "Detectado uv.lock → usando uv"
+          PKG_TOOL="uv"
+          # Crea/actualiza el entorno según pyproject/uv.lock
+          uv sync
+          # Asegura pytest y pytest-cov en el entorno
+          uv pip install pytest pytest-cov
+        elif [[ -f "requirements.txt" ]]; then
+          echo "Detectado requirements.txt → usando pip"
+          PKG_TOOL="pip"
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov
+        else
+          echo "No se detectaron archivos de dependencias (uv.lock o requirements.txt)."
+        fi
+
+        echo "pkg_tool=$PKG_TOOL" >> "$GITHUB_OUTPUT"
+
+    # - name: Validate build
+    #   run: python -m compileall -f .
+    #   shell: bash
+
+    - name: Run tests with coverage
+      if: ${{ inputs.skip_test != 'true' }}
       shell: bash
       working-directory: ${{ inputs.workdir_test }}
-    
+      run: |
+        set -euo pipefail
+        if [[ "${{ steps.deps.outputs.pkg_tool }}" == "uv" ]]; then
+          uv run pytest --cov=src --cov-report=xml:coverage.xml --cov-report=term
+        else
+          pytest --cov=src --cov-report=xml:coverage.xml --cov-report=term
+        fi
+
     - name: Upload coverage report
+      if: ${{ inputs.skip_test != 'true' }}
       uses: actions/upload-artifact@v4
       with:
         name: coverage-report
         path: ${{ inputs.workdir_test }}/coverage.xml
-      if: ${{ inputs.skip_test != 'true' }}
