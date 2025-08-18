@@ -17,6 +17,10 @@ inputs:
     description: "Title of the release name template. This will be used in name of publication in JIRA and followed by version. e.g. 'Test v${version}'"
     required: false
     default: ""
+  jira_host_url:
+    description: Jira Host URL
+    required: false
+    default: "https://andreani.atlassian.net"
 
 outputs:
   new-version:
@@ -93,6 +97,7 @@ runs:
               "@architecture-it/semantic-release-jira",
               {
                 "releaseName": "${{ inputs.jira_release_name }}",
+                "jiraHost": "${{ inputs.jira_host_url }}",
                 released: ${{ inputs.only_version != 'true' }},
                 setReleaseDate: ${{ inputs.only_version != 'true' }}
               }
