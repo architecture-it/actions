@@ -22,21 +22,30 @@ runs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: |
-            3.1.x
             6.x
+            8.x
       - name: Add Github Package
         shell: bash
         run: |
           dotnet nuget locals -c all
-          dotnet nuget add source https://nuget.pkg.github.com/architecture-it/index.json --name github -u ${{ inputs.github_username}} -p ${{ inputs.github_token }} --store-password-in-clear-text
+          dotnet nuget add source https://nuget.pkg.github.com/architecture-it/index.json --name architecture-it -u ${{ inputs.github_username }} -p ${{ inputs.github_token }} --store-password-in-clear-text
+          dotnet nuget add source https://nuget.pkg.github.com/operations-innovation/index.json --name operations-innovation -u ${{ inputs.github_username }} -p ${{ inputs.github_token }} --store-password-in-clear-text
+          dotnet nuget add source https://nuget.pkg.github.com/customer-experience/index.json --name customer-experience -u ${{ inputs.github_username }} -p ${{ inputs.github_token }} --store-password-in-clear-text
+          dotnet nuget add source https://nuget.pkg.github.com/warehouse-andreani/index.json --name warehouse-andreani -u ${{ inputs.github_username }} -p ${{ inputs.github_token }} --store-password-in-clear-text
       # Run dotnet build and package
-      - name: dotnet build
+      - name: Restore 
+        run: dotnet restore
         shell: bash
-        run: |
-          dotnet restore
-          dotnet build
         working-directory: ${{ inputs.workdir_src }}
-      - name: dotnet test
+
+      - name: Build
+        run: dotnet build --no-incremental
         shell: bash
-        run: dotnet test
+        working-directory: ${{ inputs.workdir_src }}
+
+      - name: Test 
+        env:
+          ASPNETCORE_ENVIRONMENT: Development
+        shell: bash
+        run: dotnet test --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover --results-directory TestResults/ --logger "trx;LogFileName=unittests.trx" --no-build --no-restore --configuration release 
         working-directory: ${{ inputs.workdir_test }}
