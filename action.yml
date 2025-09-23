@@ -27,7 +27,6 @@ runs:
       - name: Add Github Package
         shell: bash
         run: |
-          dotnet nuget locals -c all
           dotnet nuget add source https://nuget.pkg.github.com/architecture-it/index.json --name architecture-it -u ${{ inputs.github_username }} -p ${{ inputs.github_token }} --store-password-in-clear-text
           dotnet nuget add source https://nuget.pkg.github.com/operations-innovation/index.json --name operations-innovation -u ${{ inputs.github_username }} -p ${{ inputs.github_token }} --store-password-in-clear-text
           dotnet nuget add source https://nuget.pkg.github.com/customer-experience/index.json --name customer-experience -u ${{ inputs.github_username }} -p ${{ inputs.github_token }} --store-password-in-clear-text
