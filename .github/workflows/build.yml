@@ -1,0 +1,35 @@
+name: "Build"
+
+on:
+  push:
+    paths-ignore: [ '*.md' ]
+    branches:
+      - pulrequest-or-commits-validator
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: architecture-it/actions@react-base-library
+      with:
+        matrix_version: 22
+        # secrets enabled in all organizations
+        packages_token: ${{ secrets.ARQUITECTURA_DEPLOY }}
+        fontawesome_token: ${{ secrets.NPM_FONTAWESOME_KEY }}
+    - run: pnpm all
+      shell: bash
+      name: build and prepare
+
+    - name: Commit the changes
+      uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        commit_message: "chore: build [skip ci]"
+        commit_user_name: github-actions
+        commit_user_email: github-actions@users.noreply.github.com
+  self-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: ./
+      id: filter

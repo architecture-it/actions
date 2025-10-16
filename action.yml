@@ -1,0 +1,21 @@
+name: 'Jira Automation Convention Checker'
+description: 'Check if follows the convention for automation in JIRA.'
+author: 'Antony Fagundez <afagundez@andreani.com>'
+inputs:
+  token:
+    description: 'GitHub Access Token'
+    required: false
+    default: ${{ github.token }}
+  jira_email:
+    description: 'JIRA Email'
+    required: true
+  jira_api_token:
+    description: 'JIRA API Token'
+    required: true
+
+runs:
+  using: 'node24'
+  main: 'dist/index.js'
+branding:
+  color: red
+  icon: search
