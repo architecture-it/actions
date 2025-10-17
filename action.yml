@@ -61,15 +61,14 @@ runs:
         else
           RELEASED=true
         fi
+
         if [ -n "${{ inputs.webhook_url_teams }}" ]; then
-          cat > /tmp/plugins.json << EOF
-          ["semantic-release-ms-teams", { "webhookUrl": "${{ inputs.webhook_url_teams }}", "title": "Una nueva versión está disponible", "showContributors": true, "notifyInDryRun": ${RELEASED} }]
-          EOF
+          printf '%s\n' '["semantic-release-ms-teams", { "webhookUrl": "'"${{ inputs.webhook_url_teams }}"'", "title": "Una nueva versión está disponible", "showContributors": true, "notifyInDryRun": '"${RELEASED}"' }]' > /tmp/plugins.json
           echo "PLUGINS<<EOF" >> "$GITHUB_OUTPUT"
           cat /tmp/plugins.json >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
         else
-          echo "PLUGINS=''" >> "$GITHUB_OUTPUT"
+          echo "PLUGINS=" >> "$GITHUB_OUTPUT"
         fi
 
     - name: Write config file for Release
