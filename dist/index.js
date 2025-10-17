@@ -331,8 +331,9 @@ async function run() {
         const headSha = 'HEAD';
         core.info(`PR #${prNumber}: ${prTitle}`);
         if (!baseSha || !headSha) {
+            const errorMessage = 'No se pudo obtener la información del Pull Request.';
             core.warning('Base or Head SHA is missing in the pull request payload.');
-            await setStatus(octokit, repo, sha, 'failure', 'Base or Head SHA is missing.');
+            await setStatus(octokit, repo, sha, 'failure', errorMessage);
             return;
         }
         const { data: commits } = await octokit.rest.pulls.listCommits({
@@ -348,14 +349,15 @@ async function run() {
         const issues = (0, utils_1.extractIssueKeys)(commitMessages);
         core.info(`Found issues: ${Array.from(issues).join(', ')}`);
         if (issues.size === 0) {
-            core.info('No Jira issue keys found in commit messages or PR title.');
-            await setStatus(octokit, repo, sha, 'failure', 'No Jira issue keys found in commits or PR title.');
-            return;
+            const errorMessage = 'No se encontraron claves de incidencia de JIRA en los commits o el título del PR.';
+            await setStatus(octokit, repo, sha, 'failure', errorMessage);
+            core.setFailed(errorMessage);
         }
         const { client2: jiraClient, client3: jiraClient3 } = (0, jira_1.makeClient)(jiraHost, jiraEmail, jiraApiToken, core.debug);
         if (!jiraClient) {
-            core.error('Jira client could not be created. Please check your configuration.');
-            await setStatus(octokit, repo, sha, 'failure', 'Jira client could not be created.');
+            const errorMessage = 'No se pudo crear el cliente de Jira. Por favor, verifica tu configuración.';
+            core.error(errorMessage);
+            await setStatus(octokit, repo, sha, 'failure', errorMessage);
             return;
         }
         let count = 0;
@@ -366,7 +368,8 @@ async function run() {
             count = (data === null || data === void 0 ? void 0 : data.count) || 0;
         }
         catch (error) {
-            await setStatus(octokit, repo, sha, 'failure', 'Error calling Jira API.');
+            const errorMessage = 'Error al llamar a la API de Jira.';
+            await setStatus(octokit, repo, sha, 'failure', errorMessage);
             console.error('Error fetching issues from Jira:', getErrorMessage(error));
             return;
         }
