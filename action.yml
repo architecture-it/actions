@@ -21,6 +21,10 @@ inputs:
     description: Jira Host URL
     required: false
     default: "https://andreani.atlassian.net"
+  webhook_url_teams:
+    description: "Webhook URL de Teams para notificaciones"
+    required: false
+    default: ""
 
 outputs:
   new-version:
@@ -101,14 +105,21 @@ runs:
                 released: ${{ inputs.only_version != 'true' }},
                 setReleaseDate: ${{ inputs.only_version != 'true' }}
               }
-            ]
+            ],
+            ${{ inputs.webhook_url_teams != '' && '["semantic-release-ms-teams", {
+                "webhookUrl": ${{ inputs.webhook_url_teams }},
+                "title": "Una nueva versión está disponible",
+                "showContributors": true,
+                "notifyInDryRun": ${{ inputs.only_version != 'true' }},
+              }]' || '' }}
           ],
           branches: ${{ inputs.branches }},
           dryRun: ${{ inputs.only_version == 'true' }}
         };' >> release.config.cjs
 
+
     - name: Get the version
-      run: npx --no-install -y -p semantic-release -p @semantic-release/exec -p @semantic-release/git -p @semantic-release/github@10.0.0 -p @architecture-it/semantic-release-jira@beta -c semantic-release
+      run: npx --no-install -y -p semantic-release -p semantic-release-ms-teams -p @semantic-release/exec -p @semantic-release/git -p @semantic-release/github@10.0.0 -p @architecture-it/semantic-release-jira@beta -c semantic-release
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
         GH_TOKEN: ${{ inputs.github_token }}
