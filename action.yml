@@ -52,6 +52,15 @@ runs:
         echo 'echo "newVersion=$1" >> $GITHUB_OUTPUT' >> version.sh
         echo 'echo "previousVersion=$2" >> $GITHUB_OUTPUT' >> version.sh
         chmod +x version.sh
+    - name: Get Optional plugins
+      shell: bash
+      id: get-optional-plugins
+      run: |
+        if [ "${{ inputs.webhook_url_teams }}" != "" ]; then
+          echo "PLUGINS=',\n    [\"semantic-release-ms-teams\", { \"webhookUrl\": \"${{ inputs.webhook_url_teams }}\", \"title\": \"Una nueva versión está disponible\", \"showContributors\": true, \"notifyInDryRun\": ${RELEASED} }]'" >> $GITHUB_OUTPUT
+        else
+          echo "PLUGINS=''" >> $GITHUB_OUTPUT
+        fi
 
     - name: Write config file for Release
       shell: bash
@@ -106,7 +115,7 @@ runs:
                 setReleaseDate: ${{ inputs.only_version != 'true' }}
               }
             ],
-            ${{ inputs.webhook_url_teams != '' && '["semantic-release-ms-teams", { "webhookUrl": ${{ inputs.webhook_url_teams }}, "title": "Una nueva versión está disponible", "showContributors": true, "notifyInDryRun": ${{ inputs.only_version != 'true' }}, }]' || '' }}
+            ${{ steps.get-optional-plugins.outputs.PLUGINS }}
           ],
           branches: ${{ inputs.branches }},
           dryRun: ${{ inputs.only_version == 'true' }}
