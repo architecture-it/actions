@@ -106,17 +106,15 @@ runs:
                 setReleaseDate: ${{ inputs.only_version != 'true' }}
               }
             ],
-            ${{ inputs.webhook_url_teams != '' && '["semantic-release-ms-teams", {
-                "webhookUrl": ${{ inputs.webhook_url_teams }},
-                "title": "Una nueva versión está disponible",
-                "showContributors": true,
-                "notifyInDryRun": ${{ inputs.only_version != 'true' }},
-              }]' || '' }}
+            ${{ inputs.webhook_url_teams != '' && '["semantic-release-ms-teams", { "webhookUrl": ${{ inputs.webhook_url_teams }}, "title": "Una nueva versión está disponible", "showContributors": true, "notifyInDryRun": ${{ inputs.only_version != 'true' }}, }]' || '' }}
           ],
           branches: ${{ inputs.branches }},
           dryRun: ${{ inputs.only_version == 'true' }}
         };' >> release.config.cjs
 
+    - name: Write config file for Release to debug
+      shell: bash
+      run: cat release.config.cjs
 
     - name: Get the version
       run: npx --no-install -y -p semantic-release -p semantic-release-ms-teams -p @semantic-release/exec -p @semantic-release/git -p @semantic-release/github@10.0.0 -p @architecture-it/semantic-release-jira@beta -c semantic-release
