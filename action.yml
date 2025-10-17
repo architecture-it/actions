@@ -108,7 +108,7 @@ runs:
         };' >> release.config.cjs
 
     - name: Release
-      run: npx --no-install -y -p replace-json-property@1.8.0 -p @semantic-release/changelog -p @semantic-release/exec -p @architecture-it/semantic-release-jira -p semantic-release -p @architecture-it/semantic-release-ms-teams -p @semantic-release/exec -p @semantic-release/git -p @semantic-release/github@10.0.0 -p @architecture-it/semantic-release-jira@beta -c semantic-release
+      run: npx --no-install -y -p semantic-release -p @architecture-it/semantic-release-ms-teams -p @semantic-release/changelog -p replace-json-property@1.8.0 -p @semantic-release/exec -p @semantic-release/git -p @semantic-release/github@10.0.0 -p @architecture-it/semantic-release-jira -c semantic-release --legacy-peer-deps
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
