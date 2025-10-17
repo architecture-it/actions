@@ -24,11 +24,42 @@ inputs:
     description: "Webhook URL de Teams para notificaciones. Si no está definido, no se envían notificaciones."
     required: false
     default: ""
-
+  jira_host_url:
+    description: "URL del host de Jira (por ejemplo, https://tudominio.atlassian.net)."
+    required: false
+    default: "https://andreani.atlassian.net"
+  jira_release_name:
+    description: "Nombre del release en Jira. Si no se proporciona, se utilizará el número de versión generado."
+    required: false
+    default: ""
 
 runs:
   using: "composite"
   steps:
+    - name: Get package manager executable
+      run: |
+        if [ -f "yarn.lock" ]; then 
+          echo "name=yarn" >> $GITHUB_OUTPUT
+          echo "exec=npx --package=@semantic-release/changelog --package=@architecture-it/semantic-release-ms-teams --package=@architecture-it/semantic-release-jira --package=replace-json-property@1.8.0 --package=@semantic-release/exec --package=@semantic-release/git --package=@semantic-release/github --package=@semantic-release/changelog --package=semantic-release" >> $GITHUB_OUTPUT 
+          echo "Using yarn and npx"
+        elif [ -f "package-lock.json" ]; then 
+          echo "name=npm" >> $GITHUB_OUTPUT 
+          echo "exec=npx --package=@semantic-release/changelog --package=@architecture-it/semantic-release-ms-teams --package=@architecture-it/semantic-release-jira --package=replace-json-property@1.8.0 --package=@semantic-release/exec --package=@semantic-release/git --package=@semantic-release/github --package=@semantic-release/changelog --package=semantic-release" >> $GITHUB_OUTPUT
+          echo "Using npm and npx"
+        elif [ -f pnpm-lock.yaml ]; then 
+          echo "name=pnpm" >> $GITHUB_OUTPUT
+          echo "exec=pnpm --package=@semantic-release/changelog --package=@architecture-it/semantic-release-ms-teams --package=@architecture-it/semantic-release-jira --package=replace-json-property@1.8.0 --package=@semantic-release/exec --package=@semantic-release/git --package=@semantic-release/github --package=@semantic-release/changelog --package=semantic-release dlx" >> $GITHUB_OUTPUT
+          echo "Using pnpx dlx and pnpm"
+        else 
+          echo "name=notfound" >> $GITHUB_OUTPUT
+          echo "El código debe contener algún archivo de lockfile ('package-lock.json', 'yarn.lock' o 'pnpm-lock.yaml')."
+          echo "Asegurate de subirlo."
+          echo "ERROR: Falta archivo lockfile. Ver más en https://architecture-it.github.io/docs/Platform/Front/#manejo-de-dependencias"
+          exit 1
+        fi
+      id: package_manager
+      shell: bash
+
     - name: Generate .npmrc file
       uses: architecture-it/actions@generate-npmrc
       with:
@@ -43,7 +74,7 @@ runs:
       id: get-optional-plugins
       run: |
         if [ -n "${{ inputs.webhook_url_teams }}" ]; then
-          printf '%s\n' ',["@architecture-it/semantic-release-ms-teams", { "webhookUrl": "'"${{ inputs.webhook_url_teams }}"'", "title": "Una nueva versión está disponible", "showContributors": true, "notifyInDryRun": 'true' }]' > /tmp/plugins.json
+          printf '%s\n' '["@architecture-it/semantic-release-ms-teams", { "webhookUrl": "'"${{ inputs.webhook_url_teams }}"'", "title": "Una nueva versión está disponible", "showContributors": true, "notifyInDryRun": 'true' }]' > /tmp/plugins.json
           echo "PLUGINS<<EOF" >> "$GITHUB_OUTPUT"
           cat /tmp/plugins.json >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
@@ -108,7 +139,7 @@ runs:
         };' >> release.config.cjs
 
     - name: Release
-      run: npx --no-install -y -p semantic-release -p @architecture-it/semantic-release-ms-teams -p @semantic-release/changelog -p replace-json-property@1.8.0 -p @semantic-release/exec -p @semantic-release/git -p @semantic-release/github@10.0.0 -p @architecture-it/semantic-release-jira -c semantic-release --legacy-peer-deps
+      run: ${{ steps.package_manager.outputs.exec }} semantic-release
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
