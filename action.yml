@@ -114,8 +114,7 @@ runs:
                 released: ${{ inputs.only_version != 'true' }},
                 setReleaseDate: ${{ inputs.only_version != 'true' }}
               }
-            ],
-            ${{ steps.get-optional-plugins.outputs.PLUGINS }}
+            ]${{ steps.get-optional-plugins.outputs.PLUGINS }}
           ],
           branches: ${{ inputs.branches }},
           dryRun: ${{ inputs.only_version == 'true' }}
