@@ -20,48 +20,96 @@ inputs:
     description: Node version
     default: '20.x'
     required: false
+  webhook_url_teams:
+    description: "Webhook URL de Teams para notificaciones. Si no está definido, no se envían notificaciones."
+    required: false
+    default: ""
+
 
 runs:
   using: "composite"
   steps:
-    - name: Get package manager executable
-      run: |
-        if [ -f "yarn.lock" ]; then 
-          echo "name=yarn" >> $GITHUB_OUTPUT
-          echo "exec=npx --package=replace-json-property@1.8.0 --package=@semantic-release/exec --package=@semantic-release/git --package=@semantic-release/github --package=@semantic-release/changelog --package=semantic-release" >> $GITHUB_OUTPUT 
-          echo "Using yarn and npx"
-        elif [ -f "package-lock.json" ]; then 
-          echo "name=npm" >> $GITHUB_OUTPUT 
-          echo "exec=npx" >> $GITHUB_OUTPUT
-          echo "Using npm and npx"
-        elif [ -f pnpm-lock.yaml ]; then 
-          echo "name=pnpm" >> $GITHUB_OUTPUT
-          echo "exec=pnpm --package=replace-json-property@1.8.0 --package=@semantic-release/exec --package=@semantic-release/git --package=@semantic-release/github --package=@semantic-release/changelog --package=semantic-release dlx" >> $GITHUB_OUTPUT
-          echo "Using pnpx dlx and pnpm"
-        else 
-          echo "name=notfound" >> $GITHUB_OUTPUT
-          echo "El código debe contener algún archivo de lockfile ('package-lock.json', 'yarn.lock' o 'pnpm-lock.yaml')."
-          echo "Asegurate de subirlo."
-          echo "ERROR: Falta archivo lockfile. Ver más en https://architecture-it.github.io/docs/Platform/Front/#manejo-de-dependencias"
-          exit 1
-        fi
-      id: package_manager
-      shell: bash
+    - name: Generate .npmrc file
+      uses: architecture-it/actions@generate-npmrc
+      with:
+        npm_token: ${{ inputs.github_token }}
     - name: Setup Node.js ${{ inputs.node_version }}
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: ${{ inputs.node_version }}
-    - name: Write configuration file
+
+    - name: Get Optional plugins
+      shell: bash
+      id: get-optional-plugins
+      run: |
+        if [ -n "${{ inputs.webhook_url_teams }}" ]; then
+          printf '%s\n' ',["@architecture-it/semantic-release-ms-teams", { "webhookUrl": "'"${{ inputs.webhook_url_teams }}"'", "title": "Una nueva versión está disponible", "showContributors": true, "notifyInDryRun": 'true' }]' > /tmp/plugins.json
+          echo "PLUGINS<<EOF" >> "$GITHUB_OUTPUT"
+          cat /tmp/plugins.json >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+        else
+          echo "PLUGINS=" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Write config file for Release
       shell: bash
       run: |
-        echo 'module.exports = { pkgRoot: "${{ inputs.pkg_root }}", plugins: ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator", ["@semantic-release/changelog", { changelogFile: "CHANGELOG.md" }], ["@semantic-release/npm",{  "npmPublish": ${{ inputs.publish }},}],"@semantic-release/github",["@semantic-release/exec",{  prepareCmd: "npx replace-json-property package.json version ${nextRelease.version}",},],["@semantic-release/git",{  message: "Release <%= nextRelease.version %> [skip ci]",  assets: ["package.json", "CHANGELOG.md"],},],],branches: ${{ inputs.branches }} }' >> release.config.cjs
-    - name: Install dependencies temporary for npm
-      run: npm i --no-save replace-json-property@1.8.0 @semantic-release/exec @semantic-release/git @semantic-release/github @semantic-release/changelog
-      shell: bash
-      if: ${{ steps.package_manager.outputs.name == 'npm' }}
+        echo 'module.exports = {
+          plugins: [
+            [
+              "@semantic-release/commit-analyzer", 
+              {
+                  releaseRules: [
+                    { breaking: true, release: "major" },
+                    { revert: true, release: "patch" },
+                    { type: "feat", release: "minor" },
+                    { type: "fix", release: "patch" },
+                    { type: "perf", release: "patch" },
+                    { emoji: ":racehorse:", release: "patch" },
+                    { emoji: ":bug:", release: "patch" },
+                    { emoji: ":penguin:", release: "patch" },
+                    { emoji: ":apple:", release: "patch" },
+                    { emoji: ":checkered_flag:", release: "patch" },
+                    { tag: "BUGFIX", release: "patch" },
+                    { tag: "FEATURE", release: "minor" },
+                    { tag: "SECURITY", release: "patch" },
+                    { tag: "Breaking", release: "major" },
+                    { tag: "Fix", release: "patch" },
+                    { tag: "Feat", release: "minor" },
+                    { tag: "Update", release: "minor" },
+                    { tag: "New", release: "minor" },
+                    { component: "perf", release: "patch" },
+                    { component: "deps", release: "patch" },
+                    { type: "FEAT", release: "minor" },
+                    { type: "FIX", release: "patch" },
+                    { type: "ref", release: "patch" },
+                    { type: "styles", release: "patch" }
+                  ]
+              }
+            ],
+            "@semantic-release/release-notes-generator",
+            ["@semantic-release/changelog", { changelogFile: "CHANGELOG.md" }],
+            ["@semantic-release/npm", { "npmPublish": ${{ inputs.publish }} }],
+            "@semantic-release/github",
+            ["@semantic-release/exec", { prepareCmd: "npx replace-json-property package.json version ${nextRelease.version}" }],
+            ["@semantic-release/git", { message: "Release <%= nextRelease.version %> [skip ci]", assets: ["package.json", "CHANGELOG.md"] }],
+            [
+              "@architecture-it/semantic-release-jira",
+              {
+                "releaseName": "${{ inputs.jira_release_name }}",
+                "jiraHost": "${{ inputs.jira_host_url }}",
+                released: true,
+                setReleaseDate: true
+              }
+            ],
+            ${{ steps.get-optional-plugins.outputs.PLUGINS }}
+          ],
+          branches: ${{ inputs.branches }},
+        };' >> release.config.cjs
+
     - name: Release
+      run: npx --no-install -y -p replace-json-property@1.8.0 -p @semantic-release/changelog -p @semantic-release/exec -p semantic-release -p @architecture-it/semantic-release-ms-teams -p @semantic-release/exec -p @semantic-release/git -p @semantic-release/github@10.0.0 -p @architecture-it/semantic-release-jira@beta -c semantic-release
+      shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
         GH_TOKEN: ${{ inputs.github_token }}
-      run: ${{ steps.package_manager.outputs.exec }} semantic-release
-      shell: bash
