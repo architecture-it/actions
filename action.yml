@@ -56,10 +56,20 @@ runs:
       shell: bash
       id: get-optional-plugins
       run: |
-        if [ "${{ inputs.webhook_url_teams }}" != "" ]; then
-          echo "PLUGINS=',\n    [\"semantic-release-ms-teams\", { \"webhookUrl\": \"${{ inputs.webhook_url_teams }}\", \"title\": \"Una nueva versión está disponible\", \"showContributors\": true, \"notifyInDryRun\": ${RELEASED} }]'" >> $GITHUB_OUTPUT
+        if [ "${{ inputs.only_version }}" = "true" ]; then
+          RELEASED=false
         else
-          echo "PLUGINS=''" >> $GITHUB_OUTPUT
+          RELEASED=true
+        fi
+        if [ -n "${{ inputs.webhook_url_teams }}" ]; then
+          cat > /tmp/plugins.json << EOF
+          ["semantic-release-ms-teams", { "webhookUrl": "${{ inputs.webhook_url_teams }}", "title": "Una nueva versión está disponible", "showContributors": true, "notifyInDryRun": ${RELEASED} }]
+          EOF
+          echo "PLUGINS<<EOF" >> "$GITHUB_OUTPUT"
+          cat /tmp/plugins.json >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+        else
+          echo "PLUGINS=''" >> "$GITHUB_OUTPUT"
         fi
 
     - name: Write config file for Release
