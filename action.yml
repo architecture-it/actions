@@ -18,7 +18,7 @@ inputs:
     required: false
   node_version:
     description: Node version
-    default: '20.x'
+    default: '22.x'
     required: false
   webhook_url_teams:
     description: "Webhook URL de Teams para notificaciones. Si no está definido, no se envían notificaciones."
