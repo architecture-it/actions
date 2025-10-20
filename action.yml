@@ -21,6 +21,10 @@ inputs:
     description: Jira Host URL
     required: false
     default: "https://andreani.atlassian.net"
+  webhook_url_teams:
+    description: "Webhook URL de Teams para notificaciones"
+    required: false
+    default: ""
 
 outputs:
   new-version:
@@ -48,6 +52,24 @@ runs:
         echo 'echo "newVersion=$1" >> $GITHUB_OUTPUT' >> version.sh
         echo 'echo "previousVersion=$2" >> $GITHUB_OUTPUT' >> version.sh
         chmod +x version.sh
+    - name: Get Optional plugins
+      shell: bash
+      id: get-optional-plugins
+      run: |
+        if [ "${{ inputs.only_version }}" = "true" ]; then
+          RELEASED=false
+        else
+          RELEASED=true
+        fi
+
+        if [ -n "${{ inputs.webhook_url_teams }}" ]; then
+          printf '%s\n' ',["@architecture-it/semantic-release-ms-teams", { "webhookUrl": "'"${{ inputs.webhook_url_teams }}"'", "title": "Una nueva versión está disponible", "showContributors": true, "notifyInDryRun": '"${RELEASED}"' }]' > /tmp/plugins.json
+          echo "PLUGINS<<EOF" >> "$GITHUB_OUTPUT"
+          cat /tmp/plugins.json >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+        else
+          echo "PLUGINS=" >> "$GITHUB_OUTPUT"
+        fi
 
     - name: Write config file for Release
       shell: bash
@@ -101,14 +123,19 @@ runs:
                 released: ${{ inputs.only_version != 'true' }},
                 setReleaseDate: ${{ inputs.only_version != 'true' }}
               }
-            ]
+            ],
+            ${{ steps.get-optional-plugins.outputs.PLUGINS }}
           ],
           branches: ${{ inputs.branches }},
           dryRun: ${{ inputs.only_version == 'true' }}
         };' >> release.config.cjs
 
+    - name: Write config file for Release to debug
+      shell: bash
+      run: cat release.config.cjs
+
     - name: Get the version
-      run: npx --no-install -y -p semantic-release -p @semantic-release/exec -p @semantic-release/git -p @semantic-release/github@10.0.0 -p @architecture-it/semantic-release-jira@beta -c semantic-release
+      run: npx --no-install -y -p semantic-release -p @architecture-it/semantic-release-ms-teams -p @semantic-release/exec -p @semantic-release/git -p @semantic-release/github@10.0.0 -p @architecture-it/semantic-release-jira@beta -c semantic-release --legacy-peer-deps
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
         GH_TOKEN: ${{ inputs.github_token }}
