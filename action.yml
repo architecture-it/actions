@@ -62,7 +62,7 @@ runs:
           RELEASED=true
         fi
 
-        if [  -n "${{ inputs.webhook_url_teams }}" ] }}" ]; then
+        if [ -n "${{ inputs.webhook_url_teams }}" ]; then
           printf '%s\n' ',["@architecture-it/semantic-release-ms-teams", { "webhookUrl": "'"${{ inputs.webhook_url_teams }}"'", "title": "Una nueva versión está disponible", "showContributors": true, "notifyInDryRun": '"${RELEASED}"' }]' > /tmp/plugins.json
           echo "PLUGINS<<EOF" >> "$GITHUB_OUTPUT"
           cat /tmp/plugins.json >> "$GITHUB_OUTPUT"
