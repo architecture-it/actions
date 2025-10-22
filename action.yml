@@ -86,6 +86,7 @@ runs:
       shell: bash
       run: |
         echo 'module.exports = {
+          pkgRoot: "${{ inputs.pkg_root }}", 
           plugins: [
             [
               "@semantic-release/commit-analyzer", 
