@@ -1,6 +1,16 @@
 name: "Python CI"
 description: "Realiza build, test y coverage para proyectos Python"
 inputs:
+  # Github
+  github_username:
+    description: "usuario de github para autenticarse en los packages"
+    required: false
+    default: 'github-actions[bot]'
+  github_token:
+    description: "token del usuario con permisos de lectura en packages"
+    required: false
+    default: ''
+
   version:
     description: "Versión de Python, ej. 3.10, 3.11..."
     required: true
@@ -23,6 +33,12 @@ runs:
       uses: actions/setup-python@v5
       with:
         python-version: ${{ inputs.version }}
+
+    - name: Configure Git auth for private repos
+      run: |
+        git config --global url."https://${{ inputs.github_token }}:x-oauth-basic@github.com/".insteadOf "https://github.com/"
+      shell: bash
+      if: ${{ inputs.github_token != '' }}
 
     # (Opcional pero recomendado) Instala 'uv' de forma confiable
     - name: Set up uv (si se usa uv.lock)
