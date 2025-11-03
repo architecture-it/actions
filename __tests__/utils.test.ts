@@ -1,4 +1,4 @@
-import {extractIssueKeys} from '../src/utils'
+import {extractIssueKeys, getTitleValid, getMajorTypeOfCommit} from '../src/utils'
 
 const data = [
   {
@@ -778,7 +778,7 @@ const data = [
 
 let possibleKeys = data.map(item => item.key)
 
-describe('extractIssueKeys', () => {
+describe('extractIssueKeys()', () => {
   test('extracts unique issue keys from commit messages', () => {
     const messages = [
       'Fixes ABC-123 and resolves XYZ-456',
@@ -799,5 +799,76 @@ describe('extractIssueKeys', () => {
     const result = extractIssueKeys(messages)
 
     expect(result.has(issueKey)).toBeTruthy()
+  })
+})
+
+describe('getTitleValid()', () => {
+  test('returns empty set when no issue keys are present', () => {
+    const messages = ['No issues mentioned here', 'Just some random commit message', 'update README']
+    const result = getTitleValid(messages, 'Handle some changes', null)
+    expect(result).toBe('chore: Handle some changes')
+  })
+  test('returns a valid title when issue keys are present and have patch', () => {
+    const messages = ['No issues mentioned here', 'Just some random commit message', 'fix: update README']
+    const result = getTitleValid(messages, '[RQTCTR-123] Handle some changes', 'patch')
+    expect(result).toBe('fix(RQTCTR-123): Handle some changes')
+  })
+  test('returns a valid title when issue keys are present and have minor', () => {
+    const messages = ['No issues mentioned here', 'Just some random commit message', 'fix: update README']
+    const result = getTitleValid(messages, '[RQTCTR-123] Handle some changes', 'minor')
+    expect(result).toBe('feat(RQTCTR-123): Handle some changes')
+  })
+  test('returns a valid title when many issue keys are present', () => {
+    const messages = [
+      'No issues mentioned here',
+      'fix(RQTCTR-124): Just some random commit message',
+      'fix: update README',
+      'RQTCTR-125-test-coso'
+    ]
+    const result = getTitleValid(messages, '[RQTCTR-123] Handle some changes', 'minor')
+    expect(result).toBe('feat(RQTCTR-124,RQTCTR-125,RQTCTR-123): Handle some changes')
+  })
+  test('returns a valid title when many issue keys are present even in the same commit', () => {
+    const messages = [
+      'No issues mentioned here',
+      'fix(RQTCTR-122,RQTCTR-124): Just some random commit message',
+      'fix: update README',
+      'RQTCTR-125-test-coso'
+    ]
+    const result = getTitleValid(messages, '[RQTCTR-123] Handle some changes', 'minor')
+    expect(result).toBe('feat(RQTCTR-122,RQTCTR-124,RQTCTR-125,RQTCTR-123): Handle some changes')
+  })
+
+  test('returns a valid title when only one message (branch name) have the key', () => {
+    const messages = [
+      'No issues mentioned here',
+      'Just some random commit message',
+      'fix: update README',
+      'RQTCTR-125-test-coso'
+    ]
+    const result = getTitleValid(messages, 'Handle some changes', 'minor')
+    expect(result).toBe('feat(RQTCTR-125): Handle some changes')
+  })
+})
+
+describe('getMajorTypeOfCommit()', () => {
+  test('returns "fix" for patch release', () => {
+    const result = getMajorTypeOfCommit('patch')
+    expect(result).toBe('fix')
+  })
+
+  test('returns "feat" for minor release', () => {
+    const result = getMajorTypeOfCommit('minor')
+    expect(result).toBe('feat')
+  })
+
+  test('returns "feat" for major release', () => {
+    const result = getMajorTypeOfCommit('major')
+    expect(result).toBe('feat')
+  })
+
+  test('returns "chore" for invalid messages', () => {
+    const result = getMajorTypeOfCommit(null)
+    expect(result).toBe('chore')
   })
 })

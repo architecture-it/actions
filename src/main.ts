@@ -3,13 +3,14 @@ import * as github from '@actions/github'
 
 import {makeClient} from './jira'
 import {extractIssueKeys} from './utils'
-import {commentWithValidation, OctokitWithPlugins} from './comment'
+import {commentWithValidation, type CommitData, OctokitWithPlugins} from './comment'
 
 async function run(): Promise<void> {
   const token = core.getInput('token', {required: true})
   const jiraHost = core.getInput('jira_host', {required: false}) || 'https://andreani.atlassian.net'
   const jiraEmail = core.getInput('jira_email', {required: false})
   const jiraApiToken = core.getInput('jira_api_token', {required: false})
+  const fixTitleIfNotValid = core.getInput('fix_title_if_not_valid', {required: false, trimWhitespace: true}) === 'true'
   const octokit = github.getOctokit(token)
 
   if (github.context.eventName !== 'pull_request') {
@@ -51,6 +52,9 @@ async function run(): Promise<void> {
     if (prTitle) {
       commitMessages.push(prTitle)
     }
+    if (branchName) {
+      commitMessages.push(branchName)
+    }
     const issues = extractIssueKeys(commitMessages)
 
     core.info(`Found issues: ${Array.from(issues).join(', ')}`)
@@ -86,13 +90,22 @@ async function run(): Promise<void> {
     }
 
     if (count === 0) {
-      await setStatus(octokit, repo, sha, 'failure', 'No matching Jira issues found.')
+      const errorMessage = 'No se encontraron incidencias de JIRA que coincidan con las claves proporcionadas.'
+      await setStatus(octokit, repo, sha, 'failure', errorMessage)
+      core.setFailed(errorMessage)
     } else {
-      core.info(`Found ${count} matching Jira issues.`)
-      await setStatus(octokit, repo, sha, 'success', `Found ${count} matching Jira issues.`)
+      const successMessage = `Se encontraron ${count} incidencias de JIRA que coinciden con las claves proporcionadas.`
+      core.info(successMessage)
+      await setStatus(octokit, repo, sha, 'success', successMessage)
     }
 
-    await commentWithValidation(prTitle || '', branchName || '', octokit as unknown as OctokitWithPlugins)
+    await commentWithValidation(
+      prTitle || '',
+      branchName || '',
+      octokit as unknown as OctokitWithPlugins,
+      commits as CommitData,
+      fixTitleIfNotValid
+    )
   } catch (error) {
     core.setFailed(getErrorMessage(error))
     await setStatus(octokit, repo, sha, 'failure', 'An error occurred while validating Jira issues.')

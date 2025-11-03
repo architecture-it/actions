@@ -43,14 +43,9 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.commentWithValidation = commentWithValidation;
 exports.determineReleaseType = determineReleaseType;
 const github = __importStar(__nccwpck_require__(9512));
-async function commentWithValidation(pr_name, branch_name, octokit) {
+const utils_1 = __nccwpck_require__(4802);
+async function commentWithValidation(pr_name, branch_name, octokit, commits, fixTitleIfNotValid = false) {
     const context = github.context;
-    // Fetch commits from the pull request
-    const { data: commits } = await octokit.rest.pulls.listCommits({
-        owner: context.repo.owner,
-        repo: context.repo.repo,
-        pull_number: context.issue.number
-    });
     const commitMessages = commits.map(commit => commit.commit.message);
     const commitMessagesForInfo = commits.map(commit => `> - \`${commit.commit.message}\``).join('\n');
     // Regex patterns
@@ -62,7 +57,7 @@ async function commentWithValidation(pr_name, branch_name, octokit) {
     // Determine if any commit will trigger a new version
     const someCommitWillTriggerNewVersion = commitMessages.some(message => message.match(regexConventionCommit));
     // Jira validations
-    const isValidTitleOfPRForJira = pr_name.match(/^(feat|fix)\([A-Z0-9-]+\)\:\s.*$/);
+    let isValidTitleOfPRForJira = pr_name.match(/^(feat|fix)\([A-Z0-9-]+\)\:\s.*$/);
     const isValidBranchNameForJira = branchName.match(regexOfIssue);
     const someCommitValidForJira = commitMessages.some(message => message.match(regexOfIssue));
     const titleWillTriggerNewVersion = pr_name.match(regexConventionCommit);
@@ -78,6 +73,24 @@ async function commentWithValidation(pr_name, branch_name, octokit) {
             : releaseTypes.includes('patch')
                 ? 'patch'
                 : null;
+    let titleUpdated = false;
+    // (Update the title if is  not valid title)
+    if (!isValidTitleOfPRForJira && fixTitleIfNotValid) {
+        const newTitle = (0, utils_1.getTitleValid)(commitMessages, pr_name, highestReleaseType);
+        try {
+            await octokit.rest.pulls.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number,
+                title: newTitle
+            });
+            isValidTitleOfPRForJira = ['true']; // Now it's not null since we just updated it
+            titleUpdated = true;
+        }
+        catch (error) {
+            console.error('Error updating PR title:', error);
+        }
+    }
     const unifiedMessageForCICD = highestReleaseType === 'major'
         ? '> 🚀 **Este Pull Request lanzará una nueva versión **`major`** debido a cambios importantes.**'
         : highestReleaseType === 'minor'
@@ -145,6 +158,8 @@ ${anyJiraIntegrationValid
 - **Nombre del Branch**: '${branchName}'
 - **Mensajes de los Commits**:
 ${commitMessagesForInfo}
+
+- **¿Se actualizó el título del PR?**: ${titleUpdated ? ':heavy_check_mark: Sí' : ':x: No'}
 
 ⏰ **Horario de Ejecución**: ${dateTime}
 
@@ -314,6 +329,7 @@ async function run() {
     const jiraHost = core.getInput('jira_host', { required: false }) || 'https://andreani.atlassian.net';
     const jiraEmail = core.getInput('jira_email', { required: false });
     const jiraApiToken = core.getInput('jira_api_token', { required: false });
+    const fixTitleIfNotValid = core.getInput('fix_title_if_not_valid', { required: false, trimWhitespace: true }) === 'true';
     const octokit = github.getOctokit(token);
     if (github.context.eventName !== 'pull_request') {
         // ends gracefully if not a PR event
@@ -346,6 +362,9 @@ async function run() {
         if (prTitle) {
             commitMessages.push(prTitle);
         }
+        if (branchName) {
+            commitMessages.push(branchName);
+        }
         const issues = (0, utils_1.extractIssueKeys)(commitMessages);
         core.info(`Found issues: ${Array.from(issues).join(', ')}`);
         if (issues.size === 0) {
@@ -374,13 +393,16 @@ async function run() {
             return;
         }
         if (count === 0) {
-            await setStatus(octokit, repo, sha, 'failure', 'No matching Jira issues found.');
+            const errorMessage = 'No se encontraron incidencias de JIRA que coincidan con las claves proporcionadas.';
+            await setStatus(octokit, repo, sha, 'failure', errorMessage);
+            core.setFailed(errorMessage);
         }
         else {
-            core.info(`Found ${count} matching Jira issues.`);
-            await setStatus(octokit, repo, sha, 'success', `Found ${count} matching Jira issues.`);
+            const successMessage = `Se encontraron ${count} incidencias de JIRA que coinciden con las claves proporcionadas.`;
+            core.info(successMessage);
+            await setStatus(octokit, repo, sha, 'success', successMessage);
         }
-        await (0, comment_1.commentWithValidation)(prTitle || '', branchName || '', octokit);
+        await (0, comment_1.commentWithValidation)(prTitle || '', branchName || '', octokit, commits, fixTitleIfNotValid);
     }
     catch (error) {
         core.setFailed(getErrorMessage(error));
@@ -414,6 +436,8 @@ run();
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.extractIssueKeys = extractIssueKeys;
+exports.getTitleValid = getTitleValid;
+exports.getMajorTypeOfCommit = getMajorTypeOfCommit;
 function extractIssueKeys(messages) {
     const issueKeyRegex = /\b[A-Z][A-Z0-9]*-\d+\b/g;
     const issues = new Set();
@@ -424,6 +448,29 @@ function extractIssueKeys(messages) {
         }
     }
     return issues;
+}
+function getTitleValid(commitMessages, pr_name, highestReleaseType) {
+    const commitMessagesCustom = [...commitMessages, pr_name];
+    const issues = extractIssueKeys(commitMessagesCustom);
+    let issuesForTitle = [...issues].join(',');
+    const type = getMajorTypeOfCommit(highestReleaseType);
+    const prNameCleaned = pr_name
+        .replace(/\b[A-Z][A-Z0-9]*-\d+\b/g, '')
+        .replace(/\[\]/g, '')
+        .trim();
+    issuesForTitle = issuesForTitle.length > 0 ? `(${issuesForTitle})` : '';
+    return `${type}${issuesForTitle}: ${prNameCleaned}`;
+}
+const typesFromHighestReleaseType = {
+    major: 'feat',
+    minor: 'feat',
+    patch: 'fix'
+};
+function getMajorTypeOfCommit(highestReleaseType) {
+    if (highestReleaseType && typesFromHighestReleaseType[highestReleaseType]) {
+        return typesFromHighestReleaseType[highestReleaseType];
+    }
+    return 'chore';
 }
 
 

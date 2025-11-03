@@ -2,24 +2,23 @@ import * as github from '@actions/github'
 import {Octokit} from '@octokit/core'
 import {PaginateInterface} from '@octokit/plugin-paginate-rest'
 import {Api} from '@octokit/plugin-rest-endpoint-methods/dist-types/types'
+import {getTitleValid} from './utils'
+import {type RestEndpointMethodTypes} from '@octokit/plugin-rest-endpoint-methods'
 
 export interface OctokitWithPlugins extends Octokit, Api {
   paginate: PaginateInterface
 }
 
+export type CommitData = RestEndpointMethodTypes['pulls']['listCommits']['response']['data']
+
 export async function commentWithValidation(
   pr_name: string,
   branch_name: string,
-  octokit: OctokitWithPlugins
+  octokit: OctokitWithPlugins,
+  commits: CommitData,
+  fixTitleIfNotValid = false
 ): Promise<void> {
   const context = github.context
-
-  // Fetch commits from the pull request
-  const {data: commits} = await octokit.rest.pulls.listCommits({
-    owner: context.repo.owner,
-    repo: context.repo.repo,
-    pull_number: context.issue.number
-  })
 
   const commitMessages = commits.map(commit => commit.commit.message)
   const commitMessagesForInfo = commits.map(commit => `> - \`${commit.commit.message}\``).join('\n')
@@ -37,7 +36,7 @@ export async function commentWithValidation(
   const someCommitWillTriggerNewVersion = commitMessages.some(message => message.match(regexConventionCommit))
 
   // Jira validations
-  const isValidTitleOfPRForJira = pr_name.match(/^(feat|fix)\([A-Z0-9-]+\)\:\s.*$/)
+  let isValidTitleOfPRForJira = pr_name.match(/^(feat|fix)\([A-Z0-9-]+\)\:\s.*$/)
   const isValidBranchNameForJira = branchName.match(regexOfIssue)
   const someCommitValidForJira = commitMessages.some(message => message.match(regexOfIssue))
 
@@ -57,6 +56,25 @@ export async function commentWithValidation(
     : releaseTypes.includes('patch')
     ? 'patch'
     : null
+
+  let titleUpdated = false
+
+  // (Update the title if is  not valid title)
+  if (!isValidTitleOfPRForJira && fixTitleIfNotValid) {
+    const newTitle = getTitleValid(commitMessages, pr_name, highestReleaseType)
+    try {
+      await octokit.rest.pulls.update({
+        owner: context.repo.owner,
+        repo: context.repo.repo,
+        pull_number: context.issue.number,
+        title: newTitle
+      })
+      isValidTitleOfPRForJira = ['true'] // Now it's not null since we just updated it
+      titleUpdated = true
+    } catch (error) {
+      console.error('Error updating PR title:', error)
+    }
+  }
 
   const unifiedMessageForCICD =
     highestReleaseType === 'major'
@@ -136,6 +154,8 @@ ${
 - **Nombre del Branch**: '${branchName}'
 - **Mensajes de los Commits**:
 ${commitMessagesForInfo}
+
+- **¿Se actualizó el título del PR?**: ${titleUpdated ? ':heavy_check_mark: Sí' : ':x: No'}
 
 ⏰ **Horario de Ejecución**: ${dateTime}
 

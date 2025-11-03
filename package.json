@@ -14,6 +14,7 @@
     "lint": "eslint src/**/*.ts",
     "pack": "dotenv -e .env ncc build",
     "test": "jest",
+    "test:watch": "jest --watch",
     "all": "npm run build && npm run format && npm run lint && npm run pack && npm test"
   },
   "keywords": [

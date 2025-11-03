@@ -12,6 +12,10 @@ inputs:
   jira_api_token:
     description: 'JIRA API Token'
     required: true
+  fix_title_if_not_valid:
+    description: 'Automatically fix the PR title if it does not follow the JIRA convention.'
+    required: false
+    default: 'false'
 
 runs:
   using: 'node24'
