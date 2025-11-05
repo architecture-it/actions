@@ -31,6 +31,8 @@ runs:
           dotnet nuget add source https://nuget.pkg.github.com/operations-innovation/index.json --name operations-innovation -u ${{ inputs.github_username }} -p ${{ inputs.github_token }} --store-password-in-clear-text
           dotnet nuget add source https://nuget.pkg.github.com/customer-experience/index.json --name customer-experience -u ${{ inputs.github_username }} -p ${{ inputs.github_token }} --store-password-in-clear-text
           dotnet nuget add source https://nuget.pkg.github.com/warehouse-andreani/index.json --name warehouse-andreani -u ${{ inputs.github_username }} -p ${{ inputs.github_token }} --store-password-in-clear-text
+          dotnet nuget add source https://nuget.pkg.github.com/corporate-solutions-gla/index.json --name corporate-solutions-gla -u ${{ inputs.github_username }} -p ${{ inputs.github_token }} --store-password-in-clear-text
+          dotnet nuget add source https://nuget.pkg.github.com/GlobAllPack/index.json --name GlobAllPack -u ${{ inputs.github_username }} -p ${{ inputs.github_token }} --store-password-in-clear-text
       # Run dotnet build and package
       - name: Restore 
         run: dotnet restore
