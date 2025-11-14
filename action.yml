@@ -28,10 +28,11 @@ inputs:
     default: '["**/*.csproj"]'
     required: false
     description: Glob patterns to find releases paths. By default point to all *.csproj
-  release_assets:
-    default: '["**/*.csproj"]'
+  additional_publish_args:
+    default: '[]'
     required: false
-    description: Glob patterns to find assets paths. By default point to all *.csproj (Because it's a library)
+    description: Additional Publish Args
+  
 
 runs:
   using: "composite"
@@ -68,7 +69,8 @@ runs:
               "semantic-release-dotnet",
               {
                 paths: ${{ inputs.release_paths }},
-                debug: ${{ inputs.debug }}
+                debug: ${{ inputs.debug }},
+                additionalPublishArgs: ${{ inputs.additional_publish_args }};
               }
             ],
             [
