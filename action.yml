@@ -29,7 +29,7 @@ inputs:
     required: false
     description: Glob patterns to find releases paths. By default point to all *.csproj
   additional_publish_args:
-    default: '[]'
+    default: '[""]'
     required: false
     description: Additional Publish Args
   
