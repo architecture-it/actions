@@ -70,7 +70,7 @@ runs:
               {
                 paths: ${{ inputs.release_paths }},
                 debug: ${{ inputs.debug }},
-                additionalPublishArgs: ${{ inputs.additional_publish_args }};
+                additionalPublishArgs: ${{ inputs.additional_publish_args }}
               }
             ],
             [
