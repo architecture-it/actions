@@ -27,6 +27,9 @@ runs:
       echo '@architecture-it:registry=https://npm.pkg.github.com/' >> .npmrc
       echo '@operations-innovation:registry=https://npm.pkg.github.com/' >> .npmrc
       echo '@witwot-jms:registry=https://npm.pkg.github.com/' >> .npmrc
+      echo '@warehouse-andreani:registry=https://npm.pkg.github.com/' >> .npmrc
+      echo '@globallpack:registry=https://npm.pkg.github.com/' >> .npmrc
+      echo '@corporate-solutions-gla:registry=https://npm.pkg.github.com/' >> .npmrc
       echo '//npm.pkg.github.com/:_authToken=${{ inputs.npm_token }}' >> .npmrc
     shell: bash
     working-directory: ${{ inputs.working_directory }}
