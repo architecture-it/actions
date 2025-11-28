@@ -21,7 +21,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-  - name: Add organization that have packages
+  - name: Add organization with possible pacakges
     run: |
       echo '@customer-experience:registry=https://npm.pkg.github.com/' >> .npmrc
       echo '@architecture-it:registry=https://npm.pkg.github.com/' >> .npmrc
