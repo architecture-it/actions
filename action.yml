@@ -7,106 +7,100 @@ inputs:
   github_token:
     required: true
   AVRO_VERSION:
-    required: false
-    default: "1.11.3"
+    requiered: false
+    default: 1.12.0
   INPUT:
-    required: false
+    requiered: false
     default: schema
   PackageVersion:
-    required: false
-    default: "1.0.0"
-
+    requiered: false
+    default: 1.0.0
 runs:
   using: "composite"
   steps:
-    - uses: actions/checkout@v4 
-      with:
-        fetch-depth: 0
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - name: Download avro results
+        uses: actions/download-artifact@v4
+        with:
+          name: avro-schema
+          path: ${{ inputs.INPUT }}
+     # - name: install libssl-dev
+      #  shell: bash
+       # run: |
+        #  sudo apt-get update -qq
+         # sudo apt-get install -y libssl1.1
+      - uses: bluwy/substitute-string-action@v1
+        id: sub
+        with:
+          _input-text: ${{ inputs.app_name }}
+          .: "/"
+      - run: echo ${{ steps.sub.outputs.result }} 
+        shell: bash
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 8.x   
 
-    - name: Download avro results
-      uses: actions/download-artifact@v4
-      with:
-        name: avro-schema
-        path: ${{ inputs.INPUT }}
+      - name: Get Avro Gen
+        run: dotnet tool install Apache.Avro.Tools --version ${{ inputs.AVRO_VERSION }} --global
+        shell: bash
 
-    - uses: bluwy/substitute-string-action@v1
-      id: sub
-      with:
-        _input-text: ${{ inputs.app_name }}
-        .: "/"
-    
-    - run: echo ${{ steps.sub.outputs.result }} 
-      shell: bash
+      - name: Create cproj
+        run: dotnet new classlib --name Andreani.${{ inputs.app_name }}.Events -o Andreani/${{ steps.sub.outputs.result }}/Events
+        shell: bash
 
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v4 # Actualizado a v4 (recomendado)
-      with:
-        dotnet-version: 8.x   
+      - name: Run AvroGen
+        run: avrogen -p ${{ inputs.INPUT }}/schemas.avpr .
+        shell: bash
 
-    - name: Get Avro Gen
-      run: dotnet tool install Apache.Avro.Tools --version ${{ inputs.AVRO_VERSION }} --global
-      shell: bash
+      - name: Add Dependency Avro
+        run: dotnet add Andreani.${{ inputs.app_name }}.Events.csproj package Apache.Avro --version ${{ inputs.AVRO_VERSION }}
+        shell: bash
+        working-directory: Andreani/${{ steps.sub.outputs.result }}/Events
 
-    # Definimos una variable de entorno para la ruta del proyecto para no repetirla tanto y evitar errores
-    - name: Set Project Path
-      run: echo "PROJECT_PATH=Andreani/${{ steps.sub.outputs.result }}/Events" >> $GITHUB_ENV
-      shell: bash
-
-    - name: Create cproj
-      run: dotnet new classlib --name Andreani.${{ inputs.app_name }}.Events -o ${{ env.PROJECT_PATH }}
-      shell: bash
-
-    # CORRECCIÓN IMPORTANTE: Generar los archivos DENTRO de la carpeta del proyecto
-    - name: Run AvroGen
-      run: avrogen -s ${{ inputs.INPUT }}/schemas.avpr ${{ env.PROJECT_PATH }}
-      shell: bash
-
-    - name: Add Dependency Avro
-      run: dotnet add Andreani.${{ inputs.app_name }}.Events.csproj package Apache.Avro --version ${{ inputs.AVRO_VERSION }}
-      shell: bash
-      working-directory: ${{ env.PROJECT_PATH }}
-
-    - name: Key Repository
-      id: variables
-      uses: actions/github-script@v7 # Actualizado a v7
-      with:
-        script: |
-          const name = context.repo.repo
-          const organization = context.repo.owner
-          core.exportVariable('REPOSITORY', `${name}`)
-          core.exportVariable('ORGANIZATION', `${organization}`)
+      - name: Key Repository
+        id: variables
+        uses: actions/github-script@v5
+        with:
+          script: |
+            const name = context.repo.repo
+            const organization = context.repo.owner
+            core.exportVariable('REPOSITORY', `${name}`)
+            core.exportVariable('ORGANIZATION', `${organization}`)
           
-    - name: Repository URL
-      run: sed -i 's/<\/TargetFramework>/<\/TargetFramework><RepositoryUrl>https:\/\/github.com\/${{ env.ORGANIZATION }}\/${{ env.REPOSITORY }}<\/RepositoryUrl>/g' Andreani.${{ inputs.app_name }}.Events.csproj
-      shell: bash
-      working-directory: ${{ env.PROJECT_PATH }}
+      - name: Repository URL
+        run: sed -i 's/<\/TargetFramework>/<\/TargetFramework><RepositoryUrl>https:\/\/github.com\/${{ env.ORGANIZATION }}\/${{ env.REPOSITORY }}<\/RepositoryUrl>/g' Andreani.${{ inputs.app_name }}.Events.csproj
+        shell: bash
+        working-directory: Andreani/${{ steps.sub.outputs.result }}/Events
 
-    - name: Restore dependencies
-      run: dotnet restore
-      shell: bash
-      working-directory: ${{ env.PROJECT_PATH }}
+      - name: Restore dependencies
+        run: dotnet restore
+        shell: bash
+        working-directory: Andreani/${{ steps.sub.outputs.result }}/Events
 
-    - name: Build
-      run: dotnet build --configuration Release --no-restore
-      shell: bash
-      working-directory: ${{ env.PROJECT_PATH }}
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+        shell: bash
+        working-directory: Andreani/${{ steps.sub.outputs.result }}/Events
 
-    - name: Pack
-      run: dotnet pack -p:PackageVersion=${{ inputs.PackageVersion }} --no-build -c Release -o bin/Release/
-      shell: bash
-      working-directory: ${{ env.PROJECT_PATH }}
+      - name: Pack
+        run: dotnet pack -p:PackageVersion=${{ inputs.PackageVersion }} --no-build -c Release -o bin/Release/
+        shell: bash
+        working-directory: Andreani/${{ steps.sub.outputs.result }}/Events
 
-    - name: Add NuGet sources
-      run: dotnet nuget add source https://nuget.pkg.github.com/architecture-it/index.json --name github
-      shell: bash
+      - name: Add NuGet sources
+        run: dotnet nuget add source https://nuget.pkg.github.com/architecture-it/index.json --name github
+        shell: bash
 
-    - name: Nuget Push on Github
-      run: dotnet nuget push --source github --api-key ${{ inputs.github_token }} --skip-duplicate bin/Release/*.nupkg
-      shell: bash
-      working-directory: ${{ env.PROJECT_PATH }}
+      - name: Nuget Push on Github
+        run: dotnet nuget push --source github --api-key ${{ inputs.github_token }} --skip-duplicate bin/Release/*.nupkg
+        shell: bash
+        working-directory: Andreani/${{ steps.sub.outputs.result }}/Events
       
-    - name: Archive schema avro result
-      uses: actions/upload-artifact@v4
-      with:
-        name: nuget-packages
-        path: ${{ env.PROJECT_PATH }}/bin/Release/*.nupkg # Ajustado para subir solo el paquete, no toda la carpeta
+      - name: Archive schema avro result
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages
+          path: Andreani/${{ steps.sub.outputs.result }}/Events
