@@ -1,5 +1,5 @@
-name: "Dotnet build and test"
-description: "Realiza el Restore, build y test"
+name: "Dotnet setup"
+description: "Realiza el Restore y setup básico"
 inputs:
   github_username:
     description: "usuario de github para autenticarse en los packages"
@@ -11,20 +11,18 @@ inputs:
     description: "directorio donde se encuentra el cproj a compilar DEFAULT: ./"
     required: false
     default: './'
-  workdir_test:
-    description: "directorio donde se encuentra los test DEFAULT: ./"
+  dotnet_version:
+    description: "Dotnet version"
     required: false
-    default: './'
+    default: "8.0.x"
+
 runs:
   using: "composite"
   steps:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: |
-            6.x
-            8.x
-            10.0.x
+          dotnet-version: ${{ inputs.dotnet_version }}
       - name: Add Github Package
         shell: bash
         run: |
@@ -41,15 +39,3 @@ runs:
         run: dotnet restore
         shell: bash
         working-directory: ${{ inputs.workdir_src }}
-
-      - name: Build
-        run: dotnet build --no-incremental
-        shell: bash
-        working-directory: ${{ inputs.workdir_src }}
-
-      - name: Test 
-        env:
-          ASPNETCORE_ENVIRONMENT: Development
-        shell: bash
-        run: dotnet test --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover --results-directory TestResults/ --logger "trx;LogFileName=unittests.trx" --no-build --no-restore --configuration release 
-        working-directory: ${{ inputs.workdir_test }}
