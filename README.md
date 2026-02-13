@@ -1,47 +1,29 @@
-# Release basico
+# Configuración inicial de Copilot en la nube
 
-Es un release basico que solo se encarga de generar el tag y subir los archivos definidos ejemplo:
-
+Es un ejemplo de uso de la acción de configuración de Copilot en la nube. Para usarlo, simplemente crea un nuevo workflow en tu repositorio con el siguiente contenido:
 
 ```yaml
-name: Release
+name: "Copilot Setup Steps"
 
 on:
-  push:
-    branches:
-      - main
-      - beta
+  workflow_dispatch:
 
 jobs:
-  release:
+  # The job MUST be called `copilot-setup-steps` or it will not be picked up by Copilot.
+  copilot-setup-steps:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v5
 
-        # basic example of prepare of files
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22.x'
-      
-      - name: Install dependencies
-        run: npm install]
-        shell: bash
-
-      - name: Build
-        run: npm run build # this will ouput in dist folder
-        shell: bash
-
-
-      - name: Use Release Basic Action
-        uses: architecture-it/actions@release-basic
+      - name: Setup Copilot
+        uses: architecture-it/actions@copilot-setup
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          branches: '["main", { "name": "beta", "prerelease": "beta" }]'
+          workflow: ${{ vars.WORKFLOW_CI }}
           github_username: ${{ secrets.GITHUB_USERNAME }}
-          release_assets: '["dist/**"]' # this will upload all files in dist folder in the release
 
 ```
