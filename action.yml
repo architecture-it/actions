@@ -13,7 +13,8 @@ inputs:
 
   version:
     description: "Versión de Python, ej. 3.10, 3.11..."
-    required: true
+    required: false
+    default: 3.10
 
 runs:
   using: "composite"
