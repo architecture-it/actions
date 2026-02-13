@@ -14,21 +14,10 @@ inputs:
   version:
     description: "Versión de Python, ej. 3.10, 3.11..."
     required: true
-  skip_test:
-    description: "Permite skipear los procesos de testing"
-    required: false
-    default: 'false'
-  workdir_test:
-    description: "Directorio donde se encuentran los tests. DEFAULT: ./"
-    required: false
-    default: './'
 
 runs:
   using: "composite"
   steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
@@ -71,25 +60,3 @@ runs:
 
         echo "pkg_tool=$PKG_TOOL" >> "$GITHUB_OUTPUT"
 
-    # - name: Validate build
-    #   run: python -m compileall -f .
-    #   shell: bash
-
-    - name: Run tests with coverage
-      if: ${{ inputs.skip_test != 'true' }}
-      shell: bash
-      working-directory: ${{ inputs.workdir_test }}
-      run: |
-        set -euo pipefail
-        if [[ "${{ steps.deps.outputs.pkg_tool }}" == "uv" ]]; then
-          uv run pytest --cov=src --cov-report=xml:coverage.xml --cov-report=term
-        else
-          pytest --cov=src --cov-report=xml:coverage.xml --cov-report=term
-        fi
-
-    - name: Upload coverage report
-      if: ${{ inputs.skip_test != 'true' }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: coverage-report
-        path: ${{ inputs.workdir_test }}/coverage.xml
