@@ -21,6 +21,10 @@ inputs:
     description: Jira Host URL
     required: false
     default: "https://andreani.atlassian.net"
+  allow_done_transition:
+    description: "Allow transition to 'Done' in Jira. This will be used to transition the issues to 'Done' status when the release is created. Default is true."
+    required: false
+    default: 'true'
 
 outputs:
   new-version:
@@ -99,7 +103,9 @@ runs:
                 "releaseName": "${{ inputs.jira_release_name }}",
                 "jiraHost": "${{ inputs.jira_host_url }}",
                 released: ${{ inputs.only_version != 'true' }},
-                setReleaseDate: ${{ inputs.only_version != 'true' }}
+                setReleaseDate: ${{ inputs.only_version != 'true' }},
+                "allowImplementedTransition": ${{ inputs.only_version != 'true' }},
+                "allowDoneTransition": ${{ inputs.allow_done_transition == 'true' }}
               }
             ]
           ],
