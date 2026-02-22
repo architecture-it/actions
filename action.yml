@@ -138,6 +138,7 @@ runs:
             ${{ steps.get-optional-plugins.outputs.PLUGINS }}
           ],
           branches: ${{ inputs.branches }},
+          "noCi": true
         };' >> release.config.cjs
 
     - name: Release
