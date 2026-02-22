@@ -141,7 +141,7 @@ runs:
         };' >> release.config.cjs
 
     - name: Release
-      run: ${{ steps.package_manager.outputs.exec }} multi-semantic-release
+      run: pnpm multi-semantic-release
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
