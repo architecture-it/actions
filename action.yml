@@ -1,5 +1,5 @@
-name: "Release npm"
-description: "Realiza el release basado en los commits y conventional commit"
+name: "Release pnpm workspace monorepo library"
+description: "Realiza el release basado en los commits y conventional commit y la subcarpeta en la que se encuentra"
 inputs:
   publish:
     description: "Publish to internal modules"
@@ -10,15 +10,11 @@ inputs:
     required: true
   branches:
     description: configuration to latest release and prerelease
-    default: '["main", { name: "development", prerelease: "development" }]'
-    required: false
-  pkg_root:
-    description: Root of package by default is dist following the template of libraries
-    default: 'dist'
+    default: '["main", { name: "beta", prerelease: "beta" }]'
     required: false
   node_version:
     description: Node version
-    default: '22.x'
+    default: '24.x'
     required: false
   webhook_url_teams:
     description: "Webhook URL de Teams para notificaciones. Si no está definido, no se envían notificaciones."
@@ -31,35 +27,11 @@ inputs:
   jira_release_name:
     description: "Nombre del release en Jira. Si no se proporciona, se utilizará el número de versión generado."
     required: false
-    default: ""
+    default: "platform-web"
 
 runs:
   using: "composite"
   steps:
-    - name: Get package manager executable
-      run: |
-        if [ -f "yarn.lock" ]; then 
-          echo "name=yarn" >> $GITHUB_OUTPUT
-          echo "exec=npx --package=@semantic-release/changelog --package=@architecture-it/semantic-release-ms-teams --package=@architecture-it/semantic-release-jira --package=replace-json-property@1.8.0 --package=@semantic-release/exec --package=@semantic-release/git --package=@semantic-release/github --package=@semantic-release/changelog --package=semantic-release" >> $GITHUB_OUTPUT 
-          echo "Using yarn and npx"
-        elif [ -f "package-lock.json" ]; then 
-          echo "name=npm" >> $GITHUB_OUTPUT 
-          echo "exec=npx --package=@semantic-release/changelog --package=@architecture-it/semantic-release-ms-teams --package=@architecture-it/semantic-release-jira --package=replace-json-property@1.8.0 --package=@semantic-release/exec --package=@semantic-release/git --package=@semantic-release/github --package=@semantic-release/changelog --package=semantic-release" >> $GITHUB_OUTPUT
-          echo "Using npm and npx"
-        elif [ -f pnpm-lock.yaml ]; then 
-          echo "name=pnpm" >> $GITHUB_OUTPUT
-          echo "exec=pnpm --package=@semantic-release/changelog --package=@architecture-it/semantic-release-ms-teams --package=@architecture-it/semantic-release-jira --package=replace-json-property@1.8.0 --package=@semantic-release/exec --package=@semantic-release/git --package=@semantic-release/github --package=@semantic-release/changelog --package=semantic-release dlx" >> $GITHUB_OUTPUT
-          echo "Using pnpx dlx and pnpm"
-        else 
-          echo "name=notfound" >> $GITHUB_OUTPUT
-          echo "El código debe contener algún archivo de lockfile ('package-lock.json', 'yarn.lock' o 'pnpm-lock.yaml')."
-          echo "Asegurate de subirlo."
-          echo "ERROR: Falta archivo lockfile. Ver más en https://architecture-it.github.io/docs/Platform/Front/#manejo-de-dependencias"
-          exit 1
-        fi
-      id: package_manager
-      shell: bash
-
     - name: Generate .npmrc file
       uses: architecture-it/actions@generate-npmrc
       with:
@@ -119,7 +91,19 @@ runs:
               }
             ],
             "@semantic-release/release-notes-generator",
-            ["@semantic-release/npm", { "npmPublish": true }],
+            ["@semantic-release/changelog", { changelogFile: "CHANGELOG.md" }],
+            "@semantic-release/github",
+            ["@semantic-release/exec", { prepareCmd: "npx replace-json-property package.json version ${nextRelease.version}" }],
+            ["@semantic-release/git", { message: "Release <%= nextRelease.version %> [skip ci]", assets: ["package.json", "CHANGELOG.md"] }],
+            [
+              "@architecture-it/semantic-release-jira",
+              {
+                "releaseName": "${{ inputs.jira_release_name }}",
+                "jiraHost": "${{ inputs.jira_host_url }}",
+                released: true,
+                setReleaseDate: true
+              }
+            ],
             ${{ steps.get-optional-plugins.outputs.PLUGINS }}
           ],
           branches: ${{ inputs.branches }},
