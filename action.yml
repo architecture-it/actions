@@ -36,6 +36,30 @@ runs:
       uses: architecture-it/actions@generate-npmrc
       with:
         npm_token: ${{ inputs.github_token }}
+    - name: Get package manager executable
+      run: |
+        if [ -f "yarn.lock" ]; then 
+          echo "name=yarn" >> $GITHUB_OUTPUT
+          echo "exec=npx --package=multi-semantic-release --package=@semantic-release/changelog --package=@architecture-it/semantic-release-ms-teams --package=@architecture-it/semantic-release-jira --package=replace-json-property@1.8.0 --package=@semantic-release/exec --package=@semantic-release/git --package=@semantic-release/github --package=@semantic-release/changelog --package=semantic-release" >> $GITHUB_OUTPUT 
+          echo "Using yarn and npx"
+        elif [ -f "package-lock.json" ]; then 
+          echo "name=npm" >> $GITHUB_OUTPUT 
+          echo "exec=npx --package=multi-semantic-release --package=@semantic-release/changelog --package=@architecture-it/semantic-release-ms-teams --package=@architecture-it/semantic-release-jira --package=replace-json-property@1.8.0 --package=@semantic-release/exec --package=@semantic-release/git --package=@semantic-release/github --package=@semantic-release/changelog --package=semantic-release" >> $GITHUB_OUTPUT
+          echo "Using npm and npx"
+        elif [ -f pnpm-lock.yaml ]; then 
+          echo "name=pnpm" >> $GITHUB_OUTPUT
+          echo "exec=pnpm --package=multi-semantic-release --package=@semantic-release/changelog --package=@architecture-it/semantic-release-ms-teams --package=@architecture-it/semantic-release-jira --package=replace-json-property@1.8.0 --package=@semantic-release/exec --package=@semantic-release/git --package=@semantic-release/github --package=@semantic-release/changelog --package=semantic-release dlx" >> $GITHUB_OUTPUT
+          echo "Using pnpx dlx and pnpm"
+        else 
+          echo "name=notfound" >> $GITHUB_OUTPUT
+          echo "El código debe contener algún archivo de lockfile ('package-lock.json', 'yarn.lock' o 'pnpm-lock.yaml')."
+          echo "Asegurate de subirlo."
+          echo "ERROR: Falta archivo lockfile. Ver más en https://architecture-it.github.io/docs/Platform/Front/#manejo-de-dependencias"
+          exit 1
+        fi
+      id: package_manager
+      shell: bash
+
     - name: Setup Node.js ${{ inputs.node_version }}
       uses: actions/setup-node@v4
       with:
@@ -111,7 +135,7 @@ runs:
         };' >> release.config.cjs
 
     - name: Release
-      run: pnpm multi-semantic-release
+      run: ${{ steps.package_manager.outputs.exec }} multi-semantic-release
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
