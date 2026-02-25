@@ -18,6 +18,10 @@ inputs:
     description: "The run of sonnarqube will be in verbose mode"
     required: false
     default: 'false'
+  project_base_dir:
+    description: "Directory of the project"
+    default: "."
+    required: false
 runs:
   using: "composite"
   steps:
@@ -32,7 +36,9 @@ runs:
         env:
           SONAR_TOKEN: ${{ inputs.sonar_token }}
           SONAR_HOST_URL: ${{ inputs.sonar_url }}
+          SONAR_WORKING_DIRECTORY: ${{ inputs.project_base_dir }}
         with:
+          projectBaseDir: ${{ inputs.project_base_dir }}
           args: >
             -Dsonar.projectKey=${{ inputs.sonar_key }}
             -Dsonar.test.inclusions=src/**/*.spec.js,src/**/*.spec.jsx,src/**/*.test.js,src/**/*.test.jsx,src/**/*.spec.ts,src/**/*.spec.tsx,src/**/*.test.ts,src/**/*.test.tsx
