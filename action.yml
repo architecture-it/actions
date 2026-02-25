@@ -94,6 +94,7 @@ runs:
           sonar_key:  ${{ env.KEY_REPOSITORY }}
           skip_test: ${{inputs.skip_test}}
           verbose: ${{ env.ACTIONS_RUNNER_DEBUG }}
+          workdir_src: ${{ inputs.workdir_src }}
         if: ${{ inputs.sonar_code == 'Js' }}
 
 
