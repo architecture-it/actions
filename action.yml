@@ -46,6 +46,10 @@ inputs:
     description: "Directory of the project"
     default: "."
     required: false
+  custom_sonar_key:
+    description: "Custom sonar key, if not provided it will be generated with the format organization_repository"
+    default: ""
+    required: false
 
 runs:
   using: "composite"
@@ -57,7 +61,9 @@ runs:
           script: |
             const name = context.repo.repo
             const organization = context.repo.owner
-            core.exportVariable('KEY_REPOSITORY', `${organization}_${name}`)
+            const custom_key = '${{ inputs.custom_sonar_key }}'
+            const key_repository = custom_key !== '' ? custom_key : `${organization}_${name}`
+            core.exportVariable('KEY_REPOSITORY', key_repository)
 
       - name: Setup Pre requisitos
         uses: architecture-it/actions@sonar-prerequisitos
