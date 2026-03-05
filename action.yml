@@ -43,38 +43,38 @@ runs:
       with:
         script: |
           const workflow = '${{ inputs.workflow }}';
-          let subfolder = '';
+          let folders = [];
           
           switch (workflow) {
             case '.NET':
             case '.NET 8':
             case '.NET 10':
-              subfolder = 'platform-net';
+              folders = ['platform-net'];
               break;
             case 'CRA':
             case 'Vite':
             case 'Rsbuild':
             case 'Next.js':
-              subfolder = 'platform-web';
+              folders = ['platform-web', 'stylesystem', 'cartesian'];
               break;
           }
           
-          core.setOutput('subfolder', subfolder);
+          core.setOutput('folders', folders.join(' '));
     - name: Load organization skills
       shell: bash
       run: |
         SKILLS_REPO="https://x-access-token:${{ inputs.github_token }}@github.com/architecture-it/skills.git"
-        SUBFOLDER="${{ steps.define_subfolder.outputs.subfolder }}"
+        FOLDERS="${{ steps.define_subfolder.outputs.folders }}"
         TARGET="$GITHUB_WORKSPACE/.github/skills"
         mkdir -p "$TARGET"
-        if [ -z "$SUBFOLDER" ]; then
+        if [ -z "$FOLDERS" ]; then
           git clone --depth 1 --branch main "$SKILLS_REPO" "$TARGET"
         else
           cd "$TARGET"
           git init
           git remote add origin "$SKILLS_REPO"
           git sparse-checkout init --cone
-          git sparse-checkout set "$SUBFOLDER"
+          git sparse-checkout set $FOLDERS
           git pull --depth 1 origin main
         fi
     - name: Setup dotnet 6
