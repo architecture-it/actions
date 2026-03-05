@@ -121,6 +121,7 @@ runs:
         
 
     - name: Set up Python environment with Internal libraries
+      if: ${{ inputs.workflow == 'Python' }}
       uses: architecture-it/actions@python-prebase
       with:
         version: ${{ inputs.python_version }}
