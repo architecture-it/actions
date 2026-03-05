@@ -36,12 +36,47 @@ inputs:
 runs:
   using: "composite"
   steps:
-    # load to the workflow the organization skills from 'git@github.com:architecture-it/skills.git' repository, to be used in the rest of the workflow
+
+    - name: Define subfolder by workflow
+      id: define_subfolder
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const workflow = '${{ inputs.workflow }}';
+          let subfolder = '';
+          
+          switch (workflow) {
+            case '.NET':
+            case '.NET 8':
+            case '.NET 10':
+              subfolder = 'platform-net';
+              break;
+            case 'CRA':
+            case 'Vite':
+            case 'Rsbuild':
+            case 'Next.js':
+              subfolder = 'platform-web';
+              break;
+          }
+          
+          core.setOutput('subfolder', subfolder);
     - name: Load organization skills
       shell: bash
       run: |
-       git clone --depth 1 --branch main https://x-access-token:${{ inputs.github_token }}@github.com/architecture-it/skills.git $GITHUB_WORKSPACE/.github/skills
-
+        SKILLS_REPO="https://x-access-token:${{ inputs.github_token }}@github.com/architecture-it/skills.git"
+        SUBFOLDER="${{ steps.define_subfolder.outputs.subfolder }}"
+        TARGET="$GITHUB_WORKSPACE/.github/skills"
+        mkdir -p "$TARGET"
+        if [ -z "$SUBFOLDER" ]; then
+          git clone --depth 1 --branch main "$SKILLS_REPO" "$TARGET"
+        else
+          cd "$TARGET"
+          git init
+          git remote add origin "$SKILLS_REPO"
+          git sparse-checkout init --cone
+          git sparse-checkout set "$SUBFOLDER"
+          git pull --depth 1 origin main
+        fi
     - name: Setup dotnet 6
       if: ${{ inputs.workflow == '.NET' }}
       uses: architecture-it/actions@dotnet-setup
