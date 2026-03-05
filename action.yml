@@ -36,6 +36,12 @@ inputs:
 runs:
   using: "composite"
   steps:
+    # load to the workflow the organization skills from 'git@github.com:architecture-it/skills.git' repository, to be used in the rest of the workflow
+    - name: Load organization skills
+      shell: bash
+      run: |
+       git clone --depth 1 --branch main https://x-access-token:${{ inputs.github_token }}@github.com/architecture-it/skills.git $GITHUB_WORKSPACE/.github/skills
+
     - name: Setup dotnet 6
       if: ${{ inputs.workflow == '.NET' }}
       uses: architecture-it/actions@dotnet-setup
