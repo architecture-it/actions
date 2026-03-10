@@ -17,6 +17,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-      - name: CI ok
-        shell: bash
-        run: 'echo OK'
+    - name: CI ok
+      shell: bash
+      run: |
+        echo "OK"
