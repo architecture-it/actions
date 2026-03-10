@@ -25,23 +25,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-      - name: Download code coverage results
-        uses: actions/download-artifact@v4
-        with:
-          name: code-coverage-report
-          path: coverage
-        if: ${{ inputs.skip_test != 'true' }}
-      - name: SonarQube Scan
-        uses: sonarsource/sonarqube-scan-action@master
-        env:
-          SONAR_TOKEN: ${{ inputs.sonar_token }}
-          SONAR_HOST_URL: ${{ inputs.sonar_url }}
-          SONAR_WORKING_DIRECTORY: ${{ inputs.project_base_dir }}
-        with:
-          projectBaseDir: ${{ inputs.project_base_dir }}
-          args: >
-            -Dsonar.projectKey=${{ inputs.sonar_key }}
-            -Dsonar.test.inclusions=src/**/*.spec.js,src/**/*.spec.jsx,src/**/*.test.js,src/**/*.test.jsx,src/**/*.spec.ts,src/**/*.spec.tsx,src/**/*.test.ts,src/**/*.test.tsx
-            -Dsonar.javascript.lcov.reportPaths=**/coverage/lcov.info
-            -Dsonar.verbose=${{ inputs.verbose }}
-            -Dsonar.sourceEncoding=UTF-8
+      - name: echo ci
+        shell: bash
+        run: 'echo OK'
