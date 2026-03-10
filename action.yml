@@ -36,10 +36,6 @@ runs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - name: Set up JDK 11
-        uses: actions/setup-java@v1
-        with:
-          java-version: 1.11
       
       - name: Setup dotnet
         uses: actions/setup-dotnet@v1
@@ -50,25 +46,11 @@ runs:
             5.0.x
             6.0.x
             7.0.x
-      - name: Cache SonarQube packages
-        uses: actions/cache@v1
-        with:
-          path: ~\sonar\cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-      - name: Cache SonarQube scanner
-        id: cache-sonar-scanner
-        uses: actions/cache@v1
-        with:
-          path: ${{ inputs.workdir_src }}/.sonar/scanner
-          key: ${{ runner.os }}-sonar-scanner
-          restore-keys: ${{ runner.os }}-sonar-scanner
+            
       - name: Sonarqube Begin
         run: |
           dotnet nuget locals -c all
           dotnet nuget add source https://nuget.pkg.github.com/architecture-it/index.json --name github -u ${{ inputs.github_username }} -p ${{ inputs.github_token }} --store-password-in-clear-text
-          dotnet tool install --global dotnet-sonarscanner
-          dotnet sonarscanner begin /key:"${{ inputs.sonar_key }}" -d:sonar.login="${{ inputs.sonar_token }}" -d:sonar.host.url="${{ inputs.sonar_url }}" -d:sonar.cs.vstest.reportsPaths=**/*.trx -d:sonar.cs.opencover.reportsPaths=**/coverage.opencover.xml ${{ inputs.sonar_custom}} /d:sonar.exclusions="${{inputs.sonar_dir_exclude}}"
         shell: bash
 
       - name: Restore 
@@ -87,10 +69,3 @@ runs:
         shell: bash
         run: dotnet test --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover --results-directory TestResults/ --logger "trx;LogFileName=unittests.trx" --no-build --no-restore --configuration release 
         working-directory: ${{ inputs.workdir_test }}
-        
-      - name: Sonarqube end
-        working-directory: ${{ inputs.workdir_src }}
-        run: dotnet sonarscanner end -d:sonar.login="${{ inputs.sonar_token }}"
-        shell: bash
-        env:
-          GITHUB_TOKEN: ${{ inputs.github_token }}
