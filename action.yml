@@ -56,7 +56,8 @@ runs:
   steps:
       - name: Key Repository
         shell: bash
-        run: 'CI OK'
+        run: |
+          echo "CI OK"
         
       #- name: Setup Pre requisitos
       #  uses: architecture-it/actions@sonar-prerequisitos
