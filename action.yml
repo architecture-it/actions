@@ -23,9 +23,9 @@ inputs:
     default: "."
     required: false
 runs:
-  using: "composite"
+  using: composite
   steps:
-    - name: CI ok
-      shell: bash
+    - shell: bash
       run: |
-        echo "OK"
+        echo "ACTION SONAR JS LOADED"
+        exit 0
