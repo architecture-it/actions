@@ -37,15 +37,10 @@ outputs:
 runs:
   using: "composite"
   steps:
-    #- name: Setup Node.js 20
-     # uses: actions/setup-node@v4
-      #with:
-       # node-version: 20.x
-       #Agrego esto en un intento de arreglar el problema de build
-    - uses: actions/setup-node@v4
+    - name: Setup Node.js 20
+      uses: actions/setup-node@v4
       with:
         node-version: 20.x
-
     - name: Generate .npmrc file
       uses: architecture-it/actions@generate-npmrc
       with:
@@ -117,9 +112,7 @@ runs:
           branches: ${{ inputs.branches }},
           dryRun: ${{ inputs.only_version == 'true' }}
         };' >> release.config.cjs
-    #Step agregado por problem de build
-    - run: npm ci
-      shell: bash
+
     - name: Get the version
       run: npx --no-install -y -p semantic-release -p @semantic-release/exec -p @semantic-release/git -p @semantic-release/github@10.0.0 -p @architecture-it/semantic-release-jira@latest -c semantic-release
       env:
