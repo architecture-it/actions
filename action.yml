@@ -42,9 +42,9 @@ runs:
       #with:
        # node-version: 20.x
        #Agrego esto en un intento de arreglar el problema de build
-    - uses: actions/setup-node@v6
+    - uses: actions/setup-node@v4
       with:
-        node-version: 24
+        node-version: 20.x
 
     - name: Generate .npmrc file
       uses: architecture-it/actions@generate-npmrc
