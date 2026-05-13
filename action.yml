@@ -32,6 +32,14 @@ inputs:
     description: "version default pnpm"
     required: false
     default: '9'
+  sentinel_url:
+    description: "URL base de la API de Sentinel (sin trailing slash)"
+    required: false
+    default: "https://sentinel-api-gitops-test.apps.ocptest.andreani.com.ar"
+  sentinel_sensor_id:
+    description: "ID del sensor en Sentinel al que se reportan los análisis"
+    required: false
+    default: "1"
 
 runs:
   using: "composite"
@@ -147,4 +155,173 @@ runs:
         name: code-coverage-report
         path: coverage
         overwrite: true
+      if: ${{ inputs.skip_test != 'true' }}
+
+    # ── Sentinel: Crear Scan ──────────────────────────────────────────────────
+    - name: Create Sentinel Scan
+      id: sentinel-scan
+      shell: bash
+      run: |
+        REPO_ID="${{ github.repository_id }}"
+        BRANCH="${{ github.head_ref || github.ref_name }}"
+        COMMIT_SHA="${{ github.sha }}"
+        TRIGGERED_BY="${{ github.actor }}"
+        PR_NUMBER="${{ github.event.pull_request.number }}"
+        PR_TITLE="${{ github.event.pull_request.title }}"
+
+        BODY=$(jq -n \
+          --arg branch        "$BRANCH" \
+          --arg commitSha     "$COMMIT_SHA" \
+          --arg triggeredBy   "$TRIGGERED_BY" \
+          --arg prNumber      "$PR_NUMBER" \
+          --arg prTitle       "$PR_TITLE" \
+          '{
+            branch:            $branch,
+            commitSha:         $commitSha,
+            pullRequestNumber: (if $prNumber == "" then null else ($prNumber | tonumber) end),
+            pullRequestTitle:  (if $prTitle  == "" then null else $prTitle end),
+            triggeredBy:       $triggeredBy
+          }')
+
+        echo "Request body: $BODY"
+
+        RESPONSE=$(curl -s -X POST \
+          "${{ inputs.sentinel_url }}/api/v1/repository/${REPO_ID}/scans" \
+          -H "Content-Type: application/json" \
+          -d "$BODY")
+
+        echo "Sentinel response: $RESPONSE"
+
+        SCAN_ID=$(echo "$RESPONSE" | jq -r '.scanId')
+
+        if [ -z "$SCAN_ID" ] || [ "$SCAN_ID" = "null" ]; then
+          echo "ERROR: No se pudo obtener el scanId de Sentinel"
+          exit 1
+        fi
+
+        echo "SCAN_ID=${SCAN_ID}" >> $GITHUB_ENV
+        echo "scanId=${SCAN_ID}" >> $GITHUB_OUTPUT
+        echo "Sentinel Scan creado con ID: ${SCAN_ID}"
+
+    # ── Calidad: ESLint ───────────────────────────────────────────────────────
+    - name: Run ESLint – Quality Analysis
+      continue-on-error: true
+      shell: bash
+      run: |
+        npx eslint . --format json -o "${{ github.workspace }}/eslint-output.json" || true
+
+    - name: Convert ESLint Report to XML
+      shell: bash
+      env:
+        JSON_INPUT: ${{ github.workspace }}/eslint-output.json
+        XML_OUTPUT: ${{ github.workspace }}/eslint-analysis.xml
+      run: python3 "${{ github.action_path }}/scripts/eslint_to_xml.py"
+
+    - name: Upload ESLint Analysis Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: eslint-analysis-report
+        path: ${{ github.workspace }}/eslint-analysis.xml
+
+    - name: Send ESLint report to Sentinel
+      shell: bash
+      env:
+        SENTINEL_URL: ${{ inputs.sentinel_url }}
+        SCAN_ID: ${{ env.SCAN_ID }}
+        SENSOR_ID: "eslint"
+        REPORT_PATH: ${{ github.workspace }}/eslint-analysis.xml
+        IS_LAST_REPORT: "false"
+      run: bash "${{ github.action_path }}/scripts/send_to_sentinel.sh"
+
+    # ── Volumen: cloc (Count Lines of Code) ──────────────────────────────────
+    - name: Install cloc
+      shell: bash
+      run: npm install -g cloc
+
+    - name: Run cloc – Code Metrics
+      shell: bash
+      run: |
+        cloc . \
+          --xml \
+          --out="${{ github.workspace }}/cloc-report.xml" \
+          --exclude-dir=node_modules,dist,build,coverage,.git,.github \
+          --exclude-ext=json,lock \
+          --fullpath \
+          --verbose=0
+
+    - name: Upload cloc Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: cloc-code-metrics-report
+        path: ${{ github.workspace }}/cloc-report.xml
+
+    - name: Send cloc report to Sentinel
+      shell: bash
+      env:
+        SENTINEL_URL: ${{ inputs.sentinel_url }}
+        SCAN_ID: ${{ env.SCAN_ID }}
+        SENSOR_ID: "cloc"
+        REPORT_PATH: ${{ github.workspace }}/cloc-report.xml
+        IS_LAST_REPORT: "false"
+      run: bash "${{ github.action_path }}/scripts/send_to_sentinel.sh"
+
+    # ── Detección de código duplicado: jscpd ─────────────────────────────────
+    - name: Install jscpd
+      shell: bash
+      run: npm install -g jscpd
+
+    - name: Run jscpd – Duplicate Code Detection
+      continue-on-error: true
+      shell: bash
+      run: |
+        jscpd . \
+          --reporters "xml" \
+          --output "${{ github.workspace }}/jscpd-report" \
+          --min-lines 5 \
+          --min-tokens 50 \
+          --threshold 0 \
+          --ignore "**/node_modules/**,**/dist/**,**/build/**,**/.git/**,**/.github/**,**/coverage/**" \
+          --format "javascript,typescript,jsx,tsx,css,scss,html"
+
+    - name: Upload jscpd Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: jscpd-duplicate-code-report
+        path: ${{ github.workspace }}/jscpd-report/jscpd-report.xml
+
+    - name: Send jscpd report to Sentinel
+      shell: bash
+      env:
+        SENTINEL_URL: ${{ inputs.sentinel_url }}
+        SCAN_ID: ${{ env.SCAN_ID }}
+        SENSOR_ID: "jscpd"
+        REPORT_PATH: ${{ github.workspace }}/jscpd-report/jscpd-report.xml
+        IS_LAST_REPORT: "false"
+      run: bash "${{ github.action_path }}/scripts/send_to_sentinel.sh"
+
+    # ── Coverage: Cobertura XML (equivalente a Coverlet de .NET) ─────────────
+    - name: Convert Coverage to Cobertura XML
+      shell: bash
+      env:
+        COVERAGE_DIR: ${{ github.workspace }}/coverage
+        XML_OUTPUT: ${{ github.workspace }}/coverage-cobertura.xml
+      run: python3 "${{ github.action_path }}/scripts/coverage_to_xml.py"
+      if: ${{ inputs.skip_test != 'true' }}
+
+    - name: Upload Coverage Cobertura Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-cobertura-report
+        path: ${{ github.workspace }}/coverage-cobertura.xml
+      if: ${{ inputs.skip_test != 'true' }}
+
+    - name: Send Coverage report to Sentinel
+      shell: bash
+      env:
+        SENTINEL_URL: ${{ inputs.sentinel_url }}
+        SCAN_ID: ${{ env.SCAN_ID }}
+        SENSOR_ID: "coverage"
+        REPORT_PATH: ${{ github.workspace }}/coverage-cobertura.xml
+        IS_LAST_REPORT: "true"
+      run: bash "${{ github.action_path }}/scripts/send_to_sentinel.sh"
       if: ${{ inputs.skip_test != 'true' }}
