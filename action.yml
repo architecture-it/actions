@@ -210,20 +210,13 @@ runs:
       continue-on-error: true
       shell: bash
       run: |
-        npx eslint . --format json -o "${{ github.workspace }}/eslint-output.json" || true
-
-    - name: Convert ESLint Report to XML
-      shell: bash
-      env:
-        JSON_INPUT: ${{ github.workspace }}/eslint-output.json
-        XML_OUTPUT: ${{ github.workspace }}/eslint-analysis.xml
-      run: python3 "${{ github.action_path }}/scripts/eslint_to_xml.py"
+        npx eslint . --format json -o "${{ github.workspace }}/eslint-report.json" || true
 
     - name: Upload ESLint Analysis Report
       uses: actions/upload-artifact@v4
       with:
         name: eslint-analysis-report
-        path: ${{ github.workspace }}/eslint-analysis.xml
+        path: ${{ github.workspace }}/eslint-report.json
 
     - name: Send ESLint report to Sentinel
       continue-on-error: true
@@ -232,7 +225,8 @@ runs:
         SENTINEL_URL: ${{ inputs.sentinel_url }}
         SCAN_ID: ${{ env.SCAN_ID }}
         SENSOR_ID: "eslint"
-        REPORT_PATH: ${{ github.workspace }}/eslint-analysis.xml
+        REPORT_PATH: ${{ github.workspace }}/eslint-report.json
+        CONTENT_TYPE: "application/json"
         IS_LAST_REPORT: "false"
       run: bash "${{ github.action_path }}/scripts/send_to_sentinel.sh"
 
@@ -245,8 +239,8 @@ runs:
       shell: bash
       run: |
         cloc . \
-          --xml \
-          --out="${{ github.workspace }}/cloc-report.xml" \
+          --json \
+          --out="${{ github.workspace }}/cloc-report.json" \
           --exclude-dir=node_modules,dist,build,coverage,.git,.github \
           --exclude-ext=json,lock \
           --fullpath \
@@ -256,7 +250,7 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: cloc-code-metrics-report
-        path: ${{ github.workspace }}/cloc-report.xml
+        path: ${{ github.workspace }}/cloc-report.json
 
     - name: Send cloc report to Sentinel
       continue-on-error: true
@@ -265,7 +259,8 @@ runs:
         SENTINEL_URL: ${{ inputs.sentinel_url }}
         SCAN_ID: ${{ env.SCAN_ID }}
         SENSOR_ID: "cloc"
-        REPORT_PATH: ${{ github.workspace }}/cloc-report.xml
+        REPORT_PATH: ${{ github.workspace }}/cloc-report.json
+        CONTENT_TYPE: "application/json"
         IS_LAST_REPORT: "false"
       run: bash "${{ github.action_path }}/scripts/send_to_sentinel.sh"
 
@@ -279,7 +274,7 @@ runs:
       shell: bash
       run: |
         jscpd . \
-          --reporters "xml" \
+          --reporters "json" \
           --output "${{ github.workspace }}/jscpd-report" \
           --min-lines 5 \
           --min-tokens 50 \
@@ -291,7 +286,7 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: jscpd-duplicate-code-report
-        path: ${{ github.workspace }}/jscpd-report/jscpd-report.xml
+        path: ${{ github.workspace }}/jscpd-report/jscpd-report.json
 
     - name: Send jscpd report to Sentinel
       continue-on-error: true
@@ -300,7 +295,8 @@ runs:
         SENTINEL_URL: ${{ inputs.sentinel_url }}
         SCAN_ID: ${{ env.SCAN_ID }}
         SENSOR_ID: "jscpd"
-        REPORT_PATH: ${{ github.workspace }}/jscpd-report/jscpd-report.xml
+        REPORT_PATH: ${{ github.workspace }}/jscpd-report/jscpd-report.json
+        CONTENT_TYPE: "application/json"
         IS_LAST_REPORT: "false"
       run: bash "${{ github.action_path }}/scripts/send_to_sentinel.sh"
 
@@ -328,6 +324,7 @@ runs:
         SCAN_ID: ${{ env.SCAN_ID }}
         SENSOR_ID: "coverage"
         REPORT_PATH: ${{ github.workspace }}/coverage-cobertura.xml
+        CONTENT_TYPE: "application/xml"
         IS_LAST_REPORT: "true"
       run: bash "${{ github.action_path }}/scripts/send_to_sentinel.sh"
       if: ${{ inputs.skip_test != 'true' }}
