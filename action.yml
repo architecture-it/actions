@@ -71,18 +71,19 @@ runs:
         echo "ERROR: Falta archivo lockfile. Ver más en https://architecture-it.github.io/docs/Platform/Front/#manejo-de-dependencias"
         exit 1
       shell: bash    
-      # Use default with cache
+      # Node primero, para que pnpm pueda ejecutar su setup.js
+    - name: Use Node.js ${{ inputs.matrix_version }} - Cache ${{ steps.package_manager.outputs.name }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.matrix_version }}
+        cache: ${{ steps.package_manager.outputs.name }}
+      # pnpm después, ya con node disponible
     - name: Use pnpm Setup
       uses: pnpm/action-setup@v4
       with:
         version: ${{ inputs.pnpm_version }}
         standalone: true
       if: ${{ steps.package_manager.outputs.name == 'pnpm' }}
-    - name: Use Node.js ${{ inputs.matrix_version }} - Cache ${{ steps.package_manager.outputs.name }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ inputs.matrix_version }}
-        cache: ${{ steps.package_manager.outputs.name }}     
     - name: Generate .npmrc file
       uses: architecture-it/actions@generate-npmrc
       with:
