@@ -82,7 +82,6 @@ runs:
       uses: pnpm/action-setup@v4
       with:
         version: ${{ inputs.pnpm_version }}
-        standalone: true
       if: ${{ steps.package_manager.outputs.name == 'pnpm' }}
     - name: Generate .npmrc file
       uses: architecture-it/actions@generate-npmrc
