@@ -7,7 +7,7 @@
 #   SENSOR_ID        - ID del sensor al que pertenece el reporte
 #   REPORT_PATH      - Ruta absoluta al archivo XML a enviar
 #   IS_LAST_REPORT   - "true" si es el último reporte del scan, "false" si no
-set -euo pipefail
+set -uo pipefail
 
 echo "Enviando reporte a Sentinel: ${REPORT_PATH}"
 
@@ -21,13 +21,14 @@ HTTP_STATUS=$(curl -s -X POST \
   -w "%{http_code}" \
   -o sentinel_response.txt)
 
+RESPONSE_BODY=$(cat sentinel_response.txt)
+
 echo "HTTP Status: ${HTTP_STATUS}"
 echo "Response body:"
-cat sentinel_response.txt
+echo "${RESPONSE_BODY}"
 
 if [ "${HTTP_STATUS}" -ge 200 ] && [ "${HTTP_STATUS}" -lt 300 ]; then
   echo "Upload OK"
 else
-  echo "Upload FAILED"
-  exit 1
+  echo "::warning::Sentinel upload FAILED for sensor '${SENSOR_ID}'. HTTP Status: ${HTTP_STATUS}. Response: ${RESPONSE_BODY}"
 fi

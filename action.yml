@@ -224,6 +224,7 @@ runs:
         path: ${{ github.workspace }}/eslint-analysis.xml
 
     - name: Send ESLint report to Sentinel
+      continue-on-error: true
       shell: bash
       env:
         SENTINEL_URL: ${{ inputs.sentinel_url }}
@@ -256,6 +257,7 @@ runs:
         path: ${{ github.workspace }}/cloc-report.xml
 
     - name: Send cloc report to Sentinel
+      continue-on-error: true
       shell: bash
       env:
         SENTINEL_URL: ${{ inputs.sentinel_url }}
@@ -290,6 +292,7 @@ runs:
         path: ${{ github.workspace }}/jscpd-report/jscpd-report.xml
 
     - name: Send jscpd report to Sentinel
+      continue-on-error: true
       shell: bash
       env:
         SENTINEL_URL: ${{ inputs.sentinel_url }}
@@ -316,6 +319,7 @@ runs:
       if: ${{ inputs.skip_test != 'true' }}
 
     - name: Send Coverage report to Sentinel
+      continue-on-error: true
       shell: bash
       env:
         SENTINEL_URL: ${{ inputs.sentinel_url }}
