@@ -70,14 +70,15 @@ runs:
         echo "Asegurate de subirlo."
         echo "ERROR: Falta archivo lockfile. Ver más en https://architecture-it.github.io/docs/Platform/Front/#manejo-de-dependencias"
         exit 1
-      shell: bash    
-      # Node primero, para que pnpm pueda ejecutar su setup.js
-    - name: Use Node.js ${{ inputs.matrix_version }} - Cache ${{ steps.package_manager.outputs.name }}
+      shell: bash
+      # 1. Node primero, SIN cache cuando el package manager es pnpm
+      # (pnpm aún no está instalado, setup-node no puede llamarlo para obtener el store path)
+    - name: Use Node.js ${{ inputs.matrix_version }}
       uses: actions/setup-node@v4
       with:
         node-version: ${{ inputs.matrix_version }}
-        cache: ${{ steps.package_manager.outputs.name }}
-      # pnpm después, ya con node disponible
+        cache: ${{ steps.package_manager.outputs.name != 'pnpm' && steps.package_manager.outputs.name || '' }}
+      # 2. pnpm después, ya con node disponible
     - name: Use pnpm Setup
       uses: pnpm/action-setup@v4
       with:
