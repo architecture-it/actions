@@ -256,7 +256,7 @@ runs:
       env:
         SENTINEL_URL: ${{ inputs.sentinel_url }}
         SCAN_ID: ${{ env.SCAN_ID }}
-        SENSOR_ID: "EsLint"
+        SENSOR_ID: "eslint"
         REPORT_PATH: ${{ github.workspace }}/eslint-report.json
         CONTENT_TYPE: "application/json"
         IS_LAST_REPORT: "false"
@@ -346,7 +346,7 @@ runs:
       env:
         SENTINEL_URL: ${{ inputs.sentinel_url }}
         SCAN_ID: ${{ env.SCAN_ID }}
-        SENSOR_ID: "Jest"
+        SENSOR_ID: "jest"
         REPORT_PATH: ${{ github.workspace }}/coverage/cobertura-coverage.xml
         CONTENT_TYPE: "application/xml"
         IS_LAST_REPORT: "true"
