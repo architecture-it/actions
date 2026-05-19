@@ -346,7 +346,7 @@ runs:
       env:
         SENTINEL_URL: ${{ inputs.sentinel_url }}
         SCAN_ID: ${{ env.SCAN_ID }}
-        SENSOR_ID: "coverage"
+        SENSOR_ID: "Jest"
         REPORT_PATH: ${{ github.workspace }}/coverage/cobertura-coverage.xml
         CONTENT_TYPE: "application/xml"
         IS_LAST_REPORT: "true"
