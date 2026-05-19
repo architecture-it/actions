@@ -137,14 +137,16 @@ runs:
         if [ -f package.json ]; then
           if grep -q vitest package.json; then
             echo "tests_flags=" >> $GITHUB_OUTPUT
+            echo "coverage_reporter=--coverage.reporter=cobertura" >> $GITHUB_OUTPUT
           else
             echo "tests_flags=--runInBand --silent" >> $GITHUB_OUTPUT
+            echo "coverage_reporter=--coverageReporters=cobertura" >> $GITHUB_OUTPUT
           fi
         fi
       id: flags
       shell: bash
     - name: Unit tests
-      run: ${{ steps.package_manager.outputs.name }} run test ${{ fromJson(steps.package.outputs.result).extraSlash }} --coverage ${{ steps.flags.outputs.tests_flags }}
+      run: ${{ steps.package_manager.outputs.name }} run test ${{ fromJson(steps.package.outputs.result).extraSlash }} --coverage ${{ steps.flags.outputs.coverage_reporter }} ${{ steps.flags.outputs.tests_flags }}
       shell: bash
       env:
         CI: ${{ inputs.ci == 'true' }}
@@ -301,20 +303,12 @@ runs:
         IS_LAST_REPORT: "false"
       run: bash "${{ github.action_path }}/scripts/send_to_sentinel.sh"
 
-    # ── Coverage: Cobertura XML (equivalente a Coverlet de .NET) ─────────────
-    - name: Convert Coverage to Cobertura XML
-      shell: bash
-      env:
-        COVERAGE_DIR: ${{ github.workspace }}/coverage
-        XML_OUTPUT: ${{ github.workspace }}/coverage-cobertura.xml
-      run: python3 "${{ github.action_path }}/scripts/coverage_to_xml.py"
-      if: ${{ inputs.skip_test != 'true' }}
-
+    # ── Coverage: Cobertura XML ──────────────────────────────────────────────
     - name: Upload Coverage Cobertura Report
       uses: actions/upload-artifact@v4
       with:
         name: coverage-cobertura-report
-        path: ${{ github.workspace }}/coverage-cobertura.xml
+        path: ${{ github.workspace }}/coverage/cobertura-coverage.xml
       if: ${{ inputs.skip_test != 'true' }}
 
     - name: Send Coverage report to Sentinel
@@ -324,7 +318,7 @@ runs:
         SENTINEL_URL: ${{ inputs.sentinel_url }}
         SCAN_ID: ${{ env.SCAN_ID }}
         SENSOR_ID: "coverage"
-        REPORT_PATH: ${{ github.workspace }}/coverage-cobertura.xml
+        REPORT_PATH: ${{ github.workspace }}/coverage/cobertura-coverage.xml
         CONTENT_TYPE: "application/xml"
         IS_LAST_REPORT: "true"
       run: bash "${{ github.action_path }}/scripts/send_to_sentinel.sh"
