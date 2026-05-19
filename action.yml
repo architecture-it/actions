@@ -40,6 +40,10 @@ inputs:
     description: "ID del sensor en Sentinel al que se reportan los análisis"
     required: false
     default: "1"
+  gitops_url:
+    description: "URL base de la UI de GitOps (sin trailing slash)"
+    required: false
+    default: "https://ui-gitops-test.apps.ocptest.andreani.com.ar"
 
 runs:
   using: "composite"
@@ -195,15 +199,40 @@ runs:
         echo "Sentinel response: $RESPONSE"
 
         SCAN_ID=$(echo "$RESPONSE" | jq -r '.scanId')
+        PROJECT_ID=$(echo "$RESPONSE" | jq -r '.projectId')
+        APPLICATION_ID=$(echo "$RESPONSE" | jq -r '.applicationId')
+        ORGANIZATION_ID=$(echo "$RESPONSE" | jq -r '.organizationId')
 
         if [ -z "$SCAN_ID" ] || [ "$SCAN_ID" = "null" ]; then
           echo "ERROR: No se pudo obtener el scanId de Sentinel"
           exit 1
         fi
 
+        if [ -z "$PROJECT_ID" ] || [ "$PROJECT_ID" = "null" ]; then
+          echo "⚠️ No se pudo obtener projectId de Sentinel, usando valor por defecto: 0"
+          PROJECT_ID="0"
+        fi
+        if [ -z "$APPLICATION_ID" ] || [ "$APPLICATION_ID" = "null" ]; then
+          echo "⚠️ No se pudo obtener applicationId de Sentinel, usando valor por defecto: 0"
+          APPLICATION_ID="0"
+        fi
+        if [ -z "$ORGANIZATION_ID" ] || [ "$ORGANIZATION_ID" = "null" ]; then
+          echo "⚠️ No se pudo obtener organizationId de Sentinel, usando valor por defecto: 0"
+          ORGANIZATION_ID="0"
+        fi
+
         echo "SCAN_ID=${SCAN_ID}" >> $GITHUB_ENV
+        echo "PROJECT_ID=${PROJECT_ID}" >> $GITHUB_ENV
+        echo "APPLICATION_ID=${APPLICATION_ID}" >> $GITHUB_ENV
+        echo "ORGANIZATION_ID=${ORGANIZATION_ID}" >> $GITHUB_ENV
+
         echo "scanId=${SCAN_ID}" >> $GITHUB_OUTPUT
+        echo "projectId=${PROJECT_ID}" >> $GITHUB_OUTPUT
+        echo "applicationId=${APPLICATION_ID}" >> $GITHUB_OUTPUT
+        echo "organizationId=${ORGANIZATION_ID}" >> $GITHUB_OUTPUT
+
         echo "Sentinel Scan creado con ID: ${SCAN_ID}"
+        echo "Project ID: ${PROJECT_ID} | Application ID: ${APPLICATION_ID} | Organization ID: ${ORGANIZATION_ID}"
 
     # ── Calidad:  ───────────────────────────────────────────────────────
     - name: Run ESLint – Quality Analysis
@@ -323,3 +352,100 @@ runs:
         IS_LAST_REPORT: "true"
       run: bash "${{ github.action_path }}/scripts/send_to_sentinel.sh"
       if: ${{ inputs.skip_test != 'true' }}
+
+    - name: Collect Metrics
+      id: metrics
+      continue-on-error: true
+      shell: bash
+      run: |
+        COVERAGE_FILE="${{ github.workspace }}/coverage/cobertura-coverage.xml"
+        if [ -f "$COVERAGE_FILE" ]; then
+          LINE_RATE=$(grep -oP '(?<=line-rate=")[^"]+' "$COVERAGE_FILE" | head -1)
+          if [ -n "$LINE_RATE" ]; then
+            COVERAGE_PCT=$(awk "BEGIN {printf \"%.2f\", $LINE_RATE * 100}")
+          else
+            COVERAGE_PCT="N/A"
+          fi
+        else
+          COVERAGE_PCT="N/A"
+        fi
+        echo "COVERAGE_PCT=${COVERAGE_PCT}" >> $GITHUB_ENV
+
+        ESLINT_FILE="${{ github.workspace }}/eslint-report.json"
+        if [ -f "$ESLINT_FILE" ]; then
+          ESLINT_ISSUES=$(jq 'length' "$ESLINT_FILE" 2>/dev/null || echo "0")
+        else
+          ESLINT_ISSUES="N/A"
+        fi
+        echo "ESLINT_ISSUES=${ESLINT_ISSUES}" >> $GITHUB_ENV
+
+        JSCPD_FILE="${{ github.workspace }}/jscpd-report/jscpd-report.json"
+        if [ -f "$JSCPD_FILE" ]; then
+          DUPLICATED_LINES=$(jq '.statistics.total.duplicatedLines // 0' "$JSCPD_FILE" 2>/dev/null || echo "0")
+          DUPLICATE_PCT=$(jq '.statistics.total.percentage // 0' "$JSCPD_FILE" 2>/dev/null || echo "0")
+        else
+          DUPLICATED_LINES="N/A"
+          DUPLICATE_PCT="N/A"
+        fi
+        echo "DUPLICATED_LINES=${DUPLICATED_LINES}" >> $GITHUB_ENV
+        echo "DUPLICATE_PCT=${DUPLICATE_PCT}" >> $GITHUB_ENV
+
+    - name: PullRequestFeedback
+      continue-on-error: true
+      shell: bash
+      env:
+        GITOPS_URL: ${{ inputs.gitops_url }}
+        ORGANIZATION_ID: ${{ env.ORGANIZATION_ID }}
+        PROJECT_ID: ${{ env.PROJECT_ID }}
+        APPLICATION_ID: ${{ env.APPLICATION_ID }}
+        BRANCH: ${{ github.head_ref || github.ref_name }}
+      run: |
+        ENCODED_BRANCH=$(python3 -c "import urllib.parse; print(urllib.parse.quote('$BRANCH'))")
+        URL="${GITOPS_URL}/sentinel/org/${ORGANIZATION_ID}/project/${PROJECT_ID}/application/${APPLICATION_ID}?branch=${ENCODED_BRANCH}"
+
+        echo "## Análisis de Calidad Finalizado ✅" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "| Métrica | Valor |" >> $GITHUB_STEP_SUMMARY
+        echo "|---------|-------|" >> $GITHUB_STEP_SUMMARY
+        echo "| 🧪 Cobertura de código | ${COVERAGE_PCT}% |" >> $GITHUB_STEP_SUMMARY
+        echo "| ⚠️ Issues (ESLint) | ${ESLINT_ISSUES} |" >> $GITHUB_STEP_SUMMARY
+        echo "| 📋 Líneas duplicadas | ${DUPLICATED_LINES} (${DUPLICATE_PCT}%) |" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "Puede ver los detalles completos en [GitOps](${URL})" >> $GITHUB_STEP_SUMMARY
+
+    - name: Comment on PR
+      if: github.event_name == 'pull_request'
+      continue-on-error: true
+      uses: actions/github-script@v7
+      env:
+        GITOPS_URL: ${{ inputs.gitops_url }}
+        ORGANIZATION_ID: ${{ env.ORGANIZATION_ID }}
+        PROJECT_ID: ${{ env.PROJECT_ID }}
+        APPLICATION_ID: ${{ env.APPLICATION_ID }}
+        COVERAGE_PCT: ${{ env.COVERAGE_PCT }}
+        ESLINT_ISSUES: ${{ env.ESLINT_ISSUES }}
+        DUPLICATED_LINES: ${{ env.DUPLICATED_LINES }}
+        DUPLICATE_PCT: ${{ env.DUPLICATE_PCT }}
+      with:
+        github-token: ${{ github.token }}
+        script: |
+          const branch = context.payload.pull_request.head.ref
+          const encodedBranch = encodeURIComponent(branch)
+          const url = `${process.env.GITOPS_URL}/sentinel/org/${process.env.ORGANIZATION_ID}/project/${process.env.PROJECT_ID}/application/${process.env.APPLICATION_ID}?branch=${encodedBranch}`
+
+          const body = `## Análisis de Calidad Finalizado ✅
+
+          | Métrica | Valor |
+          |---------|-------|
+          | 🧪 Cobertura de código | ${process.env.COVERAGE_PCT}% |
+          | ⚠️ Issues (ESLint) | ${process.env.ESLINT_ISSUES} |
+          | 📋 Líneas duplicadas | ${process.env.DUPLICATED_LINES} (${process.env.DUPLICATE_PCT}%) |
+
+          Puede ver los detalles completos en [GitOps](${url})`
+
+          await github.rest.issues.createComment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+            body
+          })
