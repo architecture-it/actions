@@ -205,7 +205,7 @@ runs:
         echo "scanId=${SCAN_ID}" >> $GITHUB_OUTPUT
         echo "Sentinel Scan creado con ID: ${SCAN_ID}"
 
-    # ── Calidad: ESLint ───────────────────────────────────────────────────────
+    # ── Calidad:  ───────────────────────────────────────────────────────
     - name: Run ESLint – Quality Analysis
       continue-on-error: true
       shell: bash
@@ -227,7 +227,7 @@ runs:
       env:
         SENTINEL_URL: ${{ inputs.sentinel_url }}
         SCAN_ID: ${{ env.SCAN_ID }}
-        SENSOR_ID: "eslint"
+        SENSOR_ID: "EsLint"
         REPORT_PATH: ${{ github.workspace }}/eslint-report.json
         CONTENT_TYPE: "application/json"
         IS_LAST_REPORT: "false"
