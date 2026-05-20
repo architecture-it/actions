@@ -235,6 +235,10 @@ runs:
         echo "Project ID: ${PROJECT_ID} | Application ID: ${APPLICATION_ID} | Organization ID: ${ORGANIZATION_ID}"
 
     # ── Calidad:  ───────────────────────────────────────────────────────
+    - name: Install ESLint Sentinel dependencies
+      shell: bash
+      run: npm install --prefix "${{ github.action_path }}/configs" --no-audit --no-fund
+
     - name: Run ESLint – Quality Analysis
       continue-on-error: true
       shell: bash
