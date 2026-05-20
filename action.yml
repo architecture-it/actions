@@ -237,7 +237,7 @@ runs:
     # ── Calidad:  ───────────────────────────────────────────────────────
     - name: Install ESLint Sentinel dependencies
       shell: bash
-      run: pnpm install --dir "${{ github.action_path }}/configs" --no-frozen-lockfile
+      run: pnpm install --dir "${{ github.action_path }}/configs" --lockfile=false
 
     - name: Run ESLint – Quality Analysis
       continue-on-error: true
