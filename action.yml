@@ -36,10 +36,6 @@ inputs:
     description: "URL base de la API de Sentinel (sin trailing slash)"
     required: false
     default: "https://sentinel-api-gitops-test.apps.ocptest.andreani.com.ar"
-  sentinel_sensor_id:
-    description: "ID del sensor en Sentinel al que se reportan los análisis"
-    required: false
-    default: "1"
   gitops_url:
     description: "URL base de la UI de GitOps (sin trailing slash)"
     required: false
