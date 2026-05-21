@@ -16,8 +16,8 @@ HTTP_STATUS=$(curl -s -X POST \
   -H "Content-Type: multipart/form-data" \
   -F "report=@${REPORT_PATH}" \
   -F "isLastReport=${IS_LAST_REPORT}" \
-  --connect-timeout 30 \
-  --max-time 300 \
+  --connect-timeout 400 \
+  --max-time 2000 \
   -w "%{http_code}" \
   -o sentinel_response.txt)
 
