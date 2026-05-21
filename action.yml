@@ -330,7 +330,7 @@ runs:
         SCAN_ID: ${{ env.SCAN_ID }}
         SENSOR_ID: "jscpd"
         REPORT_PATH: ${{ github.workspace }}/jscpd-report/jscpd-report.json
-        IS_LAST_REPORT: "false"
+        IS_LAST_REPORT: "true"
       run: bash "${{ github.action_path }}/scripts/send_to_sentinel.sh"
 
     # ── Coverage: Cobertura XML ──────────────────────────────────────────────
