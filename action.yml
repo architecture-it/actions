@@ -454,9 +454,24 @@ runs:
     - name: Validate
       shell: bash
       run: |
-        SENTINEL_URL="${{ inputs.sentinel_url }}/api/v1/scans/${{ inputs.scan_id }}/validation"
-        MAX_RETRIES=3
-        RETRY_WAIT=3
+        REPO_ID="${{ github.repository_id }}"
+        BRANCH="${{ github.head_ref || github.ref_name }}"
+        COMMIT_SHA="${{ github.sha }}"
+        PR_NUMBER="${{ github.event.pull_request.number }}"
+
+        ENCODED_BRANCH=$(python3 -c "import urllib.parse; print(urllib.parse.quote('${BRANCH}'))")
+
+        QUERY_PARAMS="branch=${ENCODED_BRANCH}&commitSha=${COMMIT_SHA}"
+        if [ -n "$PR_NUMBER" ]; then
+          QUERY_PARAMS="${QUERY_PARAMS}&pullRequestNumber=${PR_NUMBER}"
+        fi
+
+        SENTINEL_URL="${{ inputs.sentinel_url }}/api/v1/scans/repository/${REPO_ID}/validation?${QUERY_PARAMS}"
+
+        echo "🔗 URL de validación: ${SENTINEL_URL}"
+        
+        MAX_RETRIES=5
+        RETRY_WAIT=5
         ATTEMPT=0
 
         while [ $ATTEMPT -lt $MAX_RETRIES ]; do
