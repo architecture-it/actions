@@ -483,11 +483,11 @@ runs:
           echo "📡 HTTP Status recibido: $HTTP_STATUS"
 
           if [ "$HTTP_STATUS" -eq 200 ]; then
-            echo "✅ Quality Gate passed para el proyecto '${{ env.KEY_REPOSITORY }}' en la rama '${{ inputs.branch }}'."
+            echo "✅ Quality Gate passed."
             exit 0
 
           elif [ "$HTTP_STATUS" -eq 409 ]; then
-            echo "❌ Quality Gate failed para el proyecto '${{ env.KEY_REPOSITORY }}' en la rama '${{ inputs.branch }}'."
+            echo "❌ Quality Gate failed."
             echo "⛔ La API Sentinel respondió con 409: el análisis no superó el Quality Gate."
             exit 1
 
