@@ -469,14 +469,11 @@ runs:
         SENTINEL_URL="${{ inputs.sentinel_url }}/api/v1/scans/repository/${REPO_ID}/validation?${QUERY_PARAMS}"
 
         echo "🔗 URL de validación: ${SENTINEL_URL}"
-        
-        MAX_RETRIES=5
-        RETRY_WAIT=5
-        ATTEMPT=0
 
-        while [ $ATTEMPT -lt $MAX_RETRIES ]; do
-          ATTEMPT=$((ATTEMPT + 1))
-          echo "🔍 Consultando Sentinel API (intento $ATTEMPT/$MAX_RETRIES)..."
+        RETRY_WAIT=5
+
+        while true; do
+          echo "🔍 Consultando Sentinel API..."
 
           HTTP_STATUS=$(curl --silent --output /dev/null --write-out "%{http_code}" -X GET "$SENTINEL_URL")
 
@@ -492,14 +489,8 @@ runs:
             exit 1
 
           elif [ "$HTTP_STATUS" -eq 204 ]; then
-            if [ $ATTEMPT -lt $MAX_RETRIES ]; then
-              echo "⏳ La API Sentinel respondió con 204 (sin resultado aún). Reintentando en ${RETRY_WAIT}s..."
-              sleep $RETRY_WAIT
-            else
-              echo "❌ La API Sentinel respondió con 204 luego de $MAX_RETRIES intentos."
-              echo "⛔ El análisis del Quality Gate no está disponible. Se interrumpe el pipeline."
-              exit 1
-            fi
+            echo "⏳ La API Sentinel respondió con 204 (sin resultado aún). Reintentando en ${RETRY_WAIT}s..."
+            sleep $RETRY_WAIT
 
           else
             echo "❌ Respuesta inesperada de la API Sentinel: HTTP $HTTP_STATUS"
