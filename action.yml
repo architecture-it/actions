@@ -35,7 +35,7 @@ inputs:
   sentinel_url:
     description: "URL base de la API de Sentinel (sin trailing slash)"
     required: false
-    default: "https://github-integration-gitops-prod.apps.andreani.com.ar"
+    default: "https://github-integration-gitops-test.apps.ocptest.andreani.com.ar"
   gitops_url:
     description: "URL base de la UI de GitOps (sin trailing slash)"
     required: false
