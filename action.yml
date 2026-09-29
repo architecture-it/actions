@@ -1,0 +1,29 @@
+name: Update custom property Version
+description: Updates the repository Version custom property
+inputs:
+  token:
+    description: Token with permission to update repository custom properties
+    required: true
+  repository:
+    description: Repository in owner/name format
+    required: true
+  version:
+    description: Version value to set
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Update Version property
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+        REPO_FULL: ${{ inputs.repository }}
+        APP_VERSION: ${{ inputs.version }}
+      run: |
+        OWNER="${REPO_FULL%%/*}"
+        REPO="${REPO_FULL##*/}"
+        BODY="$(jq -n --arg version "$APP_VERSION" '{properties: [{property_name: "Version", value: $version}]}')"
+        curl -fsS -L --oauth2-bearer "$GH_TOKEN" -X PATCH \
+          -H "Accept: application/vnd.github+json" \
+          "https://api.github.com/repos/$OWNER/$REPO/properties/values" \
+          -d "$BODY"
