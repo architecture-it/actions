@@ -92,4 +92,7 @@ runs:
     - name: Install dependencies
       run: ${{ steps.package_manager.outputs.command }}
       shell: bash
+      env:
+        ARQUITECTURA_DEPLOY: ${{ inputs.packages_token }}
+        NPM_FONTAWESOME_KEY: ${{ inputs.fontawesome_token }}
       if: inputs.cache == 'false' || steps.cache-node-modules.outputs.cache-hit != 'true'
