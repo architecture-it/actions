@@ -76,6 +76,9 @@ runs:
       with:
         node-version: ${{ inputs.matrix_version }}
         cache: ${{ steps.package_manager.outputs.name }}
+      env:
+        ARQUITECTURA_DEPLOY: ${{ inputs.packages_token }}
+        NPM_FONTAWESOME_KEY: ${{ inputs.fontawesome_token }}
     - name: 'Cache Node Modules Dependencies'
       uses: actions/cache@v3
       id: cache-node-modules
