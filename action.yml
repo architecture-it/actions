@@ -76,7 +76,6 @@ runs:
       with:
         node-version: ${{ inputs.matrix_version }}
         cache: ${{ steps.package_manager.outputs.name }}
-        cache-dependency-path: ${{ steps.package_manager.outputs.lock_file }}
     - name: 'Cache Node Modules Dependencies'
       uses: actions/cache@v3
       id: cache-node-modules
