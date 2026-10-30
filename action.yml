@@ -64,23 +64,14 @@ runs:
       with:
         version: ${{ inputs.pnpm_version }}
     - name: Use Node.js with package cache
-      if: ${{ steps.package_manager.outputs.name != 'yarn' }}
       uses: actions/setup-node@v4
       with:
         node-version: ${{ inputs.matrix_version }}
         cache: ${{ steps.package_manager.outputs.name }}
-
-    - name: Use Node.js for Yarn
-      if: ${{ steps.package_manager.outputs.name == 'yarn' }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ inputs.matrix_version }}
-
     - name: Enable Corepack
       if: ${{ steps.package_manager.outputs.name == 'yarn' }}
       run: corepack enable
       shell: bash
-
     - name: 'Cache Node Modules Dependencies'
       uses: actions/cache@v3
       id: cache-node-modules
@@ -91,7 +82,6 @@ runs:
         restore-keys: |
           deps-node-modules-${{ hashFiles(format('**/{0}', steps.package_manager.outputs.lock_file)) }}
       if: inputs.cache == 'true'
-    
     - name: Install dependencies
       run: ${{ steps.package_manager.outputs.command }}
       shell: bash
