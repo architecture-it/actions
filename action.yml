@@ -63,15 +63,20 @@ runs:
       uses: pnpm/action-setup@v4
       with:
         version: ${{ inputs.pnpm_version }}
-    - name: Use Node.js with package cache
+    - name: Use Node.js
       uses: actions/setup-node@v4
       with:
         node-version: ${{ inputs.matrix_version }}
-        cache: ${{ steps.package_manager.outputs.name }}
     - name: Enable Corepack
       if: ${{ steps.package_manager.outputs.name == 'yarn' }}
       run: corepack enable
       shell: bash
+    - name: Configure package manager cache
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.matrix_version }}
+        cache: ${{ steps.package_manager.outputs.name }}
+        cache-dependency-path: ${{ steps.package_manager.outputs.lock_file }}
     - name: 'Cache Node Modules Dependencies'
       uses: actions/cache@v3
       id: cache-node-modules
